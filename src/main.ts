@@ -4,6 +4,7 @@ import { ErrorMapper } from "utils/ErrorMapper";
 import { RoleBuilder } from 'role/builder';
 import { RoleHarvester } from 'role/harvester';
 import { RoleUpgrader } from 'role/upgrader';
+import { collect_stats } from '_lib/screepsplus'
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -138,7 +139,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  // screepsPlus.collect_stats();
+  collect_stats();
 
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
