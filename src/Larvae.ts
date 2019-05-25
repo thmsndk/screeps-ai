@@ -30,30 +30,24 @@ export class Larvae {
 
     public mutate() {
         if (this.Creep) {
-            let newRole: RoleConstant = Role.Larvae
+            let newRole: RoleConstant = this.Creep.memory.role as RoleConstant
 
             const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === Role.harvester);
             const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === Role.upgrader);
             const builders = _.filter(Game.creeps, (creep) => creep.memory.role === Role.builder);
 
-            if (harvesters.length < 3) {
+            if (harvesters.length < 2 && this.Creep.memory.role !== Role.harvester) {
                 newRole = Role.harvester
-            }
-
-            if (upgraders.length < 5) {
+            } else if (upgraders.length < 5 && this.Creep.memory.role !== Role.upgrader) {
                 newRole = Role.upgrader
-            }
-
-            if (builders.length < 2) {
+            } else if (builders.length < 2 && this.Creep.memory.role !== Role.builder) {
                 newRole = Role.builder
             }
 
-
             if (this.Creep.memory.role !== newRole) {
-                console.log(`Mutating to ${newRole}`)
+                console.log(`Mutating to ${newRole} from ${this.Creep.memory.role}`)
                 this.Creep.memory.role = newRole
             }
-
         }
     }
 }
