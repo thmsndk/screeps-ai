@@ -1,12 +1,10 @@
-declare global { interface CreepMemory { role: string } }
-
 import { collect_stats } from '_lib/screepsplus'
+import { Hatchery } from 'Hatchery';
 import { RoleBuilder } from 'role/builder';
 import { RoleHarvester } from 'role/harvester';
+import { Role } from "role/roles";
 import { RoleUpgrader } from 'role/upgrader';
 import { ErrorMapper } from "utils/ErrorMapper";
-import { Role } from "role/roles";
-import { Hatchery } from 'Hatchery';
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -15,9 +13,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // https://screepers.gitbook.io/screeps-typescript-starter/in-depth/cookbook/environment-letiables
   // require('version')
-  if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION !== __REVISION__) {
+  if (!Memory.BUILD_TIME || Memory.BUILD_TIME !== __BUILD_TIME__) {
+    Memory.BUILD_TIME = __BUILD_TIME__
     Memory.SCRIPT_VERSION = __REVISION__
-    console.log('New code uploaded ' + __REVISION__)
+    console.log(`New code uploaded ${__BUILD_TIME__} (${__REVISION__})`)
+  }
+
+  // Automatically delete memory of missing creeps
+  for (const name in Memory.creeps) {
+    if (!(name in Game.creeps)) {
+      delete Memory.creeps[name];
+      console.log('Clearing non-existing creep memory:', name);
+    }
   }
 
   // TODO: a player module that automates what i do manually, spawn placement, extension placement, container placement. http://docs.screeps.com/api/#Room.createConstructionSite
@@ -48,16 +55,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
       tower.attack(closestHostile);
     }
   }
-
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
-      console.log('Clearing non-existing creep memory:', name);
-    }
-  }
-
-
 
   // Actions
   for (const name in Game.creeps) {

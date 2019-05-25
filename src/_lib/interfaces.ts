@@ -1,6 +1,7 @@
 declare global {
     interface Memory {
         SCRIPT_VERSION: string,
+        BUILD_TIME: number,
         stats: IStats
     }
 }
