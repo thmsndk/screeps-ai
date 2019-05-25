@@ -1,5 +1,3 @@
-import { SourceMapConsumer } from 'source-map';
-
 import { Role, RoleConstant } from 'role/roles';
 import { Hatchery } from './Hatchery';
 
@@ -60,7 +58,7 @@ export class Larvae {
                     const sourceMemory = this.Creep.room.memory.sources[sourceId];
 
                     if (sourceMemory && sourceMemory.miningPositions && sourceMemory.assignedCreepIds && sourceMemory.miningPositions.length > sourceMemory.assignedCreepIds.length) {
-
+                        console.log(`${this.Creep.name} is becoming a harvester for ${sourceId}`)
                         sourceMemory.assignedCreepIds.push(this.Creep.id)
                         newRole = Role.harvester
                         this.Creep.memory.target = sourceId
@@ -69,14 +67,19 @@ export class Larvae {
                 }
             }
 
-            if (this.Creep.memory.role === newRole && newRole != Role.builder) {
-                // What criteria defines how many builders we need?
-                if (builders.length < 2 && this.Creep.memory.role !== Role.builder) {
+            // get total population, compare it with required harvesters, split the rest of the population between builders and upgraders
+
+            // Convert from harvester to builder
+            if (this.Creep.memory.target) {
+                const sourceMemory = this.Creep.room.memory.sources[this.Creep.memory.target];
+                if (!_.any(sourceMemory.assignedCreepIds, creepId => this.Creep && creepId === this.Creep.id)) {
+                    // What criteria defines how many builders we need?
+                    // if (builders.length < 2) {
+                    delete this.Creep.memory.target
                     newRole = Role.builder
+                    // }
                 }
             }
-
-
 
             // if (harvesters.length < 2 && this.Creep.memory.role !== Role.harvester) {
             //     newRole = Role.harvester

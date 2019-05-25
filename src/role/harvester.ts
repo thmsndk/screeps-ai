@@ -36,16 +36,16 @@ export class RoleHarvester {
 
                     switch (structure.structureType) {
                         case STRUCTURE_CONTAINER:
-                            let container = structure as StructureContainer
+                            const container = structure as StructureContainer
                             return _.sum(container.store) < container.storeCapacity
                         case STRUCTURE_EXTENSION:
-                            let extension = structure as StructureExtension
+                            const extension = structure as StructureExtension
                             return extension.energy < extension.energyCapacity
                         case STRUCTURE_SPAWN:
-                            let spawn = structure as StructureSpawn
+                            const spawn = structure as StructureSpawn
                             return spawn.energy < spawn.energyCapacity
                         case STRUCTURE_TOWER:
-                            let tower = structure as StructureTower
+                            const tower = structure as StructureTower
                             return tower.energy < tower.energyCapacity
                     }
 

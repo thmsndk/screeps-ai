@@ -7,7 +7,7 @@ export class RoleBuilder {
 
         if (creep.memory.building && creep.carry.energy === 0) {
             creep.memory.building = false;
-            creep.say('🔄 withdraw');
+            creep.say('🔄 withdraw ');
         }
         if (!creep.memory.building && creep.carry.energy === creep.carryCapacity) {
             creep.memory.building = true;
@@ -30,11 +30,23 @@ export class RoleBuilder {
             // todo find closest source
             // http://docs.screeps.com/api/#PathFinder
             const targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure: StructureExtension | StructureSpawn) => {
-                    return (
-                        (structure.structureType === STRUCTURE_EXTENSION && structure.energy >= creep.carryCapacity) ||
-                        (structure.structureType === STRUCTURE_SPAWN && structure.energy === structure.energyCapacity)
-                    );
+                filter: (structure) => {
+                    switch (structure.structureType) {
+                        case STRUCTURE_CONTAINER:
+                            const container = structure as StructureContainer
+                            return _.sum(container.store) >= creep.carryCapacity
+                        case STRUCTURE_EXTENSION:
+                            const extension = structure as StructureExtension
+                            return extension.energy >= creep.carryCapacity
+                        case STRUCTURE_SPAWN:
+                            const spawn = structure as StructureSpawn
+                            return spawn.energy >= creep.carryCapacity
+                        case STRUCTURE_TOWER:
+                            const tower = structure as StructureTower
+                            return tower.energy >= creep.carryCapacity
+                    }
+
+                    return false
                 }
             });
 
