@@ -3,10 +3,12 @@ declare global {
         stats: IStats
     }
 }
-
+interface CPUExtended extends CPU {
+    used: number
+}
 export interface IStats {
     tick?: number,
-    cpu?: CPU,
+    cpu?: CPUExtended,
     gcl?: GlobalControlLevel,
     memory?: {
         used: number,

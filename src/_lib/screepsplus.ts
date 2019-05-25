@@ -44,7 +44,7 @@ export function collect_stats() {
     }
 
     // Note: This is fragile and will change if the Game.cpu API changes
-    Memory.stats.cpu = Game.cpu;
+    Memory.stats.cpu = { ...Game.cpu, used: Game.cpu.getUsed() };
     // Memory.stats.cpu.used = Game.cpu.getUsed(); // AT END OF MAIN LOOP
 
     // Note: This is fragile and will change if the Game.gcl API changes
