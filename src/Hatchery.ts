@@ -84,7 +84,7 @@ export class Hatchery {
 
         // TODO: we need to determine if we can grow our population
         const population = 10
-        if (Object.keys(Game.creeps).length < population && !spawning) {
+        if (/*Object.keys(Game.creeps).length < population && */!spawning) {
             new Larvae(this)
         }
 

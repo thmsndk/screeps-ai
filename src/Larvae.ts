@@ -66,9 +66,17 @@ export class Larvae {
                         this.Creep.memory.target = sourceId
                         break
                     }
-
                 }
             }
+
+            if (this.Creep.memory.role === newRole && newRole != Role.builder) {
+                // What criteria defines how many builders we need?
+                if (builders.length < 2 && this.Creep.memory.role !== Role.builder) {
+                    newRole = Role.builder
+                }
+            }
+
+
 
             // if (harvesters.length < 2 && this.Creep.memory.role !== Role.harvester) {
             //     newRole = Role.harvester
