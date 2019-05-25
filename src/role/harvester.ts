@@ -37,7 +37,7 @@ export class RoleHarvester {
                     switch (structure.structureType) {
                         case STRUCTURE_CONTAINER:
                             let container = structure as StructureContainer
-                            break;
+                            return _.sum(container.store) < container.storeCapacity
                         case STRUCTURE_EXTENSION:
                             let extension = structure as StructureExtension
                             return extension.energy < extension.energyCapacity

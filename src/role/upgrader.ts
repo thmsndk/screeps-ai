@@ -40,8 +40,6 @@ export class RoleUpgrader {
                     creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
                 }
             }
-
-
         }
     }
 };
