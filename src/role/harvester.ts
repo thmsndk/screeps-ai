@@ -14,17 +14,42 @@ export class RoleHarvester {
         }
 
         if (creep.memory.harvest) {
-            var sources = creep.room.find(FIND_SOURCES);
-            if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
+
+
+            const sources = creep.room.find(FIND_SOURCES, {
+                filter: (source) => {
+                    if (creep.memory.target) {
+                        return source.id === creep.memory.target
+                    }
+
+                    return true
+                }
+            })
+
+            if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
             }
         }
         else {
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_EXTENSION ||
-                        structure.structureType == STRUCTURE_SPAWN ||
-                        structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
+
+                    switch (structure.structureType) {
+                        case STRUCTURE_CONTAINER:
+                            let container = structure as StructureContainer
+                            break;
+                        case STRUCTURE_EXTENSION:
+                            let extension = structure as StructureExtension
+                            return extension.energy < extension.energyCapacity
+                        case STRUCTURE_SPAWN:
+                            let spawn = structure as StructureSpawn
+                            return spawn.energy < spawn.energyCapacity
+                        case STRUCTURE_TOWER:
+                            let tower = structure as StructureTower
+                            return tower.energy < tower.energyCapacity
+                    }
+
+                    return false
                 }
             });
 
