@@ -19,18 +19,18 @@
 //
 // This module uses my resources module, which analyzes the state of affairs
 // for every room you can see.
+import { Callback, CallbackFunction } from "./callback";
 import "./interfaces";
 import { summarize_rooms } from "./resources";
-import { Callback, CallbackFunction } from "./callback";
 // const resources = require('_lib.resources');
 // const cb = require('_lib.callback');
 
-const stats_callbacks = new Callback();
+const statsCallbacks = new Callback();
 
 // Tell us that you want a callback when we're collecting the stats.
 // We will send you in the partially completed stats object.
 export function add_stats_callback(cbfunc: CallbackFunction) {
-    stats_callbacks.subscribe(cbfunc);
+    statsCallbacks.subscribe(cbfunc);
 }
 
 
@@ -50,10 +50,10 @@ export function collect_stats() {
     // Note: This is fragile and will change if the Game.gcl API changes
     Memory.stats.gcl = Game.gcl;
 
-    const memory_used = RawMemory.get().length;
+    const memoryUsed = RawMemory.get().length;
     // console.log('Memory used: ' + memory_used);
     Memory.stats.memory = {
-        used: memory_used,
+        used: memoryUsed,
         // Other memory stats here?
     };
 
@@ -68,5 +68,5 @@ export function collect_stats() {
     // statistics to here, and have a way to register them.
     // 1. Merge in the current repair ratchets into the room summary
     // TODO: Merge in the current creep desired numbers into the room summary
-    stats_callbacks.fire(Memory.stats);
+    statsCallbacks.fire(Memory.stats);
 } // collect_stats

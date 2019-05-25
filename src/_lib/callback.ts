@@ -6,11 +6,11 @@ export type CallbackFunction = (params: any) => void
 export class Callback {
     private handlers: CallbackFunction[] = []  // observers
 
-    subscribe(fn: CallbackFunction) {
+    public subscribe(fn: CallbackFunction) {
         this.handlers.push(fn)
     }
 
-    unsubscribe(fn: CallbackFunction) {
+    public unsubscribe(fn: CallbackFunction) {
         this.handlers = this.handlers.filter(
             (item: CallbackFunction) => {
                 if (item !== fn) {
@@ -22,7 +22,7 @@ export class Callback {
         )
     }
 
-    fire(params: any) {
+    public fire(params: any) {
         // TODO: Put error handling around the call?
         this.handlers.forEach((item: any) => {
             try {

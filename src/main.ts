@@ -1,10 +1,10 @@
 declare global { interface CreepMemory { role: string } }
 
-import { ErrorMapper } from "utils/ErrorMapper";
+import { collect_stats } from '_lib/screepsplus'
 import { RoleBuilder } from 'role/builder';
 import { RoleHarvester } from 'role/harvester';
 import { RoleUpgrader } from 'role/upgrader';
-import { collect_stats } from '_lib/screepsplus'
+import { ErrorMapper } from "utils/ErrorMapper";
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -13,7 +13,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // https://screepers.gitbook.io/screeps-typescript-starter/in-depth/cookbook/environment-letiables
   // require('version')
-  if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != __REVISION__) {
+  if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION !== __REVISION__) {
     Memory.SCRIPT_VERSION = __REVISION__
     console.log('New code uploaded')
   }
@@ -23,11 +23,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO: a module that can spawn creeps
   // if a creep wants to do a job, make sure it has time enough to live
 
-  let roleBuilder = new RoleBuilder()
-  let roleHarvester = new RoleHarvester()
-  let roleUpgrader = new RoleUpgrader()
+  const roleBuilder = new RoleBuilder()
+  const roleHarvester = new RoleHarvester()
+  const roleUpgrader = new RoleUpgrader()
 
-  let Role = {
+  const Role = {
     harvester: 'harvester',
     upgrader: 'upgrader',
     builder: 'builder',
@@ -36,7 +36,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const tower = Game.getObjectById<StructureTower>('TOWER_ID');
 
   if (tower) {
-    let closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+    const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: (structure: Structure) => structure.hits < structure.hitsMax
     });
 
@@ -44,7 +44,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       tower.repair(closestDamagedStructure);
     }
 
-    let closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
     if (closestHostile) {
       tower.attack(closestHostile);
     }
@@ -58,22 +58,22 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == Role.harvester);
-  let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == Role.upgrader);
-  let builders = _.filter(Game.creeps, (creep) => creep.memory.role == Role.builder);
+  const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === Role.harvester);
+  const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === Role.upgrader);
+  const builders = _.filter(Game.creeps, (creep) => creep.memory.role === Role.builder);
 
-  let spawn = Game.spawns['Spawn1']
+  const spawn = Game.spawns.Spawn1
 
   let spawn1Spawning = !!spawn.spawning; // code runs so fast that spawncreep does not update spawning in this tick?
 
   if (harvesters.length < 3 && !spawn1Spawning) {
-    let newName = 'Harvester' + Game.time;
+    const newName = 'Harvester' + Game.time;
 
     spawn1Spawning = true;
-    let result = spawn.spawnCreep([WORK, CARRY, MOVE], newName,
+    const result = spawn.spawnCreep([WORK, CARRY, MOVE], newName,
       { memory: { role: Role.harvester } } as SpawnOptions);
 
-    if (result == OK) {
+    if (result === OK) {
       console.log('Spawning new harvester: ' + newName);
     }
   }
@@ -82,21 +82,21 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     spawn1Spawning = true;
 
-    let newName = 'Upgrader' + Game.time;
-    let result = spawn.spawnCreep([WORK, CARRY, MOVE], newName,
+    const newName = 'Upgrader' + Game.time;
+    const result = spawn.spawnCreep([WORK, CARRY, MOVE], newName,
       { memory: { role: Role.upgrader } } as SpawnOptions);
 
-    if (result == OK) {
+    if (result === OK) {
       console.log('Spawning new upgrader: ' + newName);
     }
 
-    //* OK	0 The operation has been scheduled successfully.
-    //* ERR_NOT_OWNER - 1 You are not the owner of this spawn.
-    //* ERR_NAME_EXISTS - 3 There is a creep with the same name already.
-    //* ERR_BUSY - 4 The spawn is already in process of spawning another creep.
-    //* ERR_NOT_ENOUGH_ENERGY - 6 The spawn and its extensions contain not enough energy to create a creep with the given body.
-    //* ERR_INVALID_ARGS - 10 Body is not properly described or name was not provided.
-    //* ERR_RCL_NOT_ENOUGH - 14 Your Room Controller level is insufficient to use this spawn.
+    // * OK	0 The operation has been scheduled successfully.
+    // * ERR_NOT_OWNER - 1 You are not the owner of this spawn.
+    // * ERR_NAME_EXISTS - 3 There is a creep with the same name already.
+    // * ERR_BUSY - 4 The spawn is already in process of spawning another creep.
+    // * ERR_NOT_ENOUGH_ENERGY - 6 The spawn and its extensions contain not enough energy to create a creep with the given body.
+    // * ERR_INVALID_ARGS - 10 Body is not properly described or name was not provided.
+    // * ERR_RCL_NOT_ENOUGH - 14 Your Room Controller level is insufficient to use this spawn.
   }
 
   if (builders.length < 2 && !spawn1Spawning) {
@@ -104,20 +104,20 @@ export const loop = ErrorMapper.wrapLoop(() => {
     spawn1Spawning = true;
 
     // TODO: no reason to spawn builders if there are nothing to construct
-    let newName = 'Builder' + Game.time;
+    const newName = 'Builder' + Game.time;
 
-    let result = spawn.spawnCreep([WORK, CARRY, MOVE], newName,
+    const result = spawn.spawnCreep([WORK, CARRY, MOVE], newName,
       { memory: { role: Role.builder } } as SpawnOptions);
 
-    if (result == OK) {
+    if (result === OK) {
       console.log('Spawning new builder: ' + newName);
     }
 
   }
 
-  let spawn1 = Game.spawns['Spawn1']
+  const spawn1 = Game.spawns.Spawn1
   if (spawn1 && spawn1.spawning) {
-    let spawningCreep = Game.creeps[spawn1.spawning.name];
+    const spawningCreep = Game.creeps[spawn1.spawning.name];
     spawn1.room.visual.text(
       '🛠️' + spawningCreep.memory.role,
       spawn1.pos.x + 1,
@@ -126,17 +126,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   // Actions
-  for (let name in Game.creeps) {
-    let creep = Game.creeps[name];
-    if (creep.memory.role == Role.harvester) {
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    if (creep.memory.role === Role.harvester) {
       roleHarvester.run(creep);
     }
 
-    if (creep.memory.role == Role.upgrader) {
+    if (creep.memory.role === Role.upgrader) {
       roleUpgrader.run(creep);
     }
 
-    if (creep.memory.role == Role.builder) {
+    if (creep.memory.role === Role.builder) {
       roleBuilder.run(creep);
     }
   }
