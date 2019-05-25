@@ -32,13 +32,7 @@ export class Hatchery {
 
     public run() {
 
-        for (const creepName in Game.creeps) {
-            if (Game.creeps.hasOwnProperty(creepName)) {
-                const creep = Game.creeps[creepName];
-                let larvae = new Larvae(this, creep)
-                larvae.mutate()
-            }
-        }
+
 
         var roomTerrain = new Room.Terrain(this.Spawn.room.name);
         const sources = this.Spawn.room.find(FIND_SOURCES);
@@ -71,9 +65,20 @@ export class Hatchery {
                 if (topLeft) { miningPositions.push(topLeft) }
 
                 if (!this.Spawn.room.memory.sources) { this.Spawn.room.memory.sources = {} }
-                this.Spawn.room.memory.sources[source.id] = { assignedCreepIds: [], ...this.Spawn.room.memory.sources[source.id], miningPositions } as ISourceMemory
+                const sourceMemory = this.Spawn.room.memory.sources[source.id]
+                sourceMemory.assignedCreepIds = _.filter(sourceMemory.assignedCreepIds, (creepId) => Game.getObjectById(creepId))
+
+                this.Spawn.room.memory.sources[source.id] = { assignedCreepIds: [], ...sourceMemory, miningPositions } as ISourceMemory
             }
         })
+
+        for (const creepName in Game.creeps) {
+            if (Game.creeps.hasOwnProperty(creepName)) {
+                const creep = Game.creeps[creepName];
+                let larvae = new Larvae(this, creep)
+                larvae.mutate()
+            }
+        }
 
         let spawning = !!this.Spawn.spawning; // code runs so fast that spawncreep does not update spawning in this tick?
 

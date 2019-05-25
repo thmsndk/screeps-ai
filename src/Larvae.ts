@@ -58,11 +58,13 @@ export class Larvae {
                 if (this.Creep.room.memory.sources.hasOwnProperty(sourceId)) {
 
                     const sourceMemory = this.Creep.room.memory.sources[sourceId];
+
                     if (sourceMemory && sourceMemory.miningPositions && sourceMemory.assignedCreepIds && sourceMemory.miningPositions.length > sourceMemory.assignedCreepIds.length) {
 
                         sourceMemory.assignedCreepIds.push(this.Creep.id)
                         newRole = Role.harvester
                         this.Creep.memory.target = sourceId
+                        break
                     }
 
                 }
