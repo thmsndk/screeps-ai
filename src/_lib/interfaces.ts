@@ -1,8 +1,10 @@
 declare global {
     interface Memory {
+        SCRIPT_VERSION: string,
         stats: IStats
     }
 }
+
 interface CPUExtended extends CPU {
     used: number
 }

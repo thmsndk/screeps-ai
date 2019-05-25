@@ -13,10 +13,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // https://screepers.gitbook.io/screeps-typescript-starter/in-depth/cookbook/environment-letiables
   // require('version')
-  // if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != SCRIPT_VERSION) {
-  //     Memory.SCRIPT_VERSION = SCRIPT_VERSION
-  //     console.log('New code uploaded')
-  // }
+  if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != __REVISION__) {
+    Memory.SCRIPT_VERSION = __REVISION__
+    console.log('New code uploaded')
+  }
 
   // TODO: a player module that automates what i do manually, spawn placement, extension placement, container placement. http://docs.screeps.com/api/#Room.createConstructionSite
   // TODO: a module that determines how many of the different roles we need based on amount of work needed
@@ -50,8 +50,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  for (let name in Memory.creeps) {
-    if (!Game.creeps[name]) {
+  // Automatically delete memory of missing creeps
+  for (const name in Memory.creeps) {
+    if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
       console.log('Clearing non-existing creep memory:', name);
     }
@@ -124,6 +125,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       { align: 'left', opacity: 0.8 });
   }
 
+  // Actions
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
     if (creep.memory.role == Role.harvester) {
@@ -140,11 +142,4 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   collect_stats();
-
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
-    }
-  }
 });
