@@ -1,14 +1,13 @@
 ﻿// https://unicode.org/emoji/charts/full-emoji-list.html
 
-var emoji = {
+export const emoji = {
     construction_worker: '👷🏼‍',
     locked: '🔒',
     unlocked: '🔓',
     hammer: '🔨',
     pick: '⛏',
     hammer_pick: '⚒',
-    hammer_wrench: '🛠'
+    hammer_wrench: '🛠',
+    bug: '🐛'
 
 };
-
-module.exports = emoji;

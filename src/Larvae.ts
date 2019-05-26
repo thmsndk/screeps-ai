@@ -1,5 +1,6 @@
 import { Role, RoleConstant } from 'role/roles';
 import { Hatchery } from './Hatchery';
+import { emoji } from '_lib/emoji';
 
 declare global { interface CreepMemory { role: string, target: string } } // TODO: Role.x,y,z
 
@@ -94,6 +95,10 @@ export class Larvae {
             if (this.Creep.memory.role !== newRole) {
                 console.log(`Mutating to ${newRole} from ${this.Creep.memory.role}`)
                 this.Creep.memory.role = newRole
+            }
+
+            if (this.Creep.memory.role === Role.Larvae) {
+                this.Creep.say(`${emoji.bug}`)
             }
         }
     }
