@@ -58,10 +58,12 @@ export class RoomScanner {
             room.memory.miningPositions += miningPositions.length
 
             if (!room.memory.sources) { room.memory.sources = {} }
+
             let sourceMemory = room.memory.sources[source.id]
 
             if (!sourceMemory) {
                 sourceMemory = { assignedCreepIds: [], miningPositions: [] } as ISourceMemory
+                room.memory.sources[source.id] = sourceMemory
             }
 
             sourceMemory.assignedCreepIds = _.filter(sourceMemory.assignedCreepIds, (creepId) => Game.getObjectById(creepId))
