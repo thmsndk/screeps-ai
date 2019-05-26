@@ -2,6 +2,7 @@ import { collect_stats } from '_lib/screepsplus'
 import { Hatchery } from 'Hatchery';
 import { RoleBuilder } from 'role/builder';
 import { RoleHarvester } from 'role/harvester';
+import { RoleHauler } from 'role/RoleHauler';
 import { Role } from "role/roles";
 import { RoleUpgrader } from 'role/upgrader';
 import { ErrorMapper } from "utils/ErrorMapper";
@@ -35,6 +36,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const roleBuilder = new RoleBuilder()
   const roleHarvester = new RoleHarvester()
   const roleUpgrader = new RoleUpgrader()
+  const roleHauler = new RoleHauler()
+
+
   const hatchery = new Hatchery()
 
   hatchery.run()
@@ -69,6 +73,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     if (creep.memory.role === Role.builder) {
       roleBuilder.run(creep);
+    }
+
+    if (creep.memory.role === Role.Larvae) {
+      roleHauler.run(creep);
     }
   }
 
