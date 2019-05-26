@@ -67,19 +67,9 @@ class MiningCreep {
     run(creep: Creep, source: Source) {
 
         // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
+        const harvet = creep.carry.energy < creep.carryCapacity
 
-        if (creep.carry.energy < creep.carryCapacity) {
-            creep.memory.harvest = true;
-            //creep.say('🔄 Harvest');
-        }
-        else {
-            creep.memory.harvest = false;
-            //creep.say('🔄 Transfer');
-        }
-
-        if (creep.memory.harvest) {
-            creep.say('🔄');
-
+        if (harvet) {
             if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(source, { visualizePathStyle: PathStyle.Harvest });
             }

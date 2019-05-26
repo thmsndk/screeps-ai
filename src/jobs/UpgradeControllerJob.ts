@@ -72,7 +72,6 @@ class UpgradeControllerCreep {
         }
 
         if (creep.memory.upgrading && controller) {
-            creep.say('⚡');
             if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(controller, { visualizePathStyle: PathStyle.UpgradeController });
             }
