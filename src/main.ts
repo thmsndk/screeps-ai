@@ -4,10 +4,8 @@ import { collect_stats } from '_lib/screepsplus';
 import { Hatchery } from 'Hatchery';
 import { Dictionary } from 'lodash';
 import { RoleBuilder } from 'role/builder';
-import { RoleHarvester } from 'role/harvester';
 import { RoleHauler } from 'role/RoleHauler';
 import { Role } from "role/roles";
-import { RoleUpgrader } from 'role/upgrader';
 import { RoomScanner } from 'RoomScanner';
 import { ErrorMapper } from "utils/ErrorMapper";
 import { Job } from 'jobs/Job';
@@ -18,8 +16,6 @@ import { JobType, IMemoryJob } from '_lib/interfaces';
 
 // OLD
 const roleBuilder = new RoleBuilder()
-const roleHarvester = new RoleHarvester()
-const roleUpgrader = new RoleUpgrader()
 const roleHauler = new RoleHauler()
 const hatchery = new Hatchery()
 // END OLD

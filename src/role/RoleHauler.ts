@@ -1,5 +1,3 @@
-declare global { interface CreepMemory { harvest: boolean } }
-
 export class RoleHauler {
 
     run(creep: Creep) {

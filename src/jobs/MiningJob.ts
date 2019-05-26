@@ -3,10 +3,8 @@ import { Dictionary } from 'lodash';
 import { ISourceMemory } from 'RoomScanner';
 import { Job } from './Job';
 import { Role } from 'role/roles';
-import { RoleHarvester } from 'role/harvester';
 import { emoji } from '_lib/emoji';
 
-const roleHarvester = new RoleHarvester()
 export class MiningJob extends Job {
     public source: Source
     public sourceMemory: ISourceMemory;
@@ -52,9 +50,68 @@ export class MiningJob extends Job {
             if (this.Creeps.hasOwnProperty(name)) {
                 const creep = this.Creeps[name];
                 // TODO Migrate logic to the job
-                roleHarvester.run(creep)
+                roleHarvester.run(creep, this.source)
                 creep.say(emoji.construction_worker)
             }
         }
     }
 }
+
+
+// tslint:disable-next-line: max-classes-per-file
+class RoleHarvester {
+
+    run(creep: Creep, source: Source) {
+
+        // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
+
+        if (creep.carry.energy < creep.carryCapacity) {
+            creep.memory.harvest = true;
+            //creep.say('🔄 Harvest');
+        }
+        else {
+            creep.memory.harvest = false;
+            //creep.say('🔄 Transfer');
+        }
+
+        if (creep.memory.harvest) {
+            creep.say('🔄');
+
+            if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(source, { visualizePathStyle: { stroke: '#0000FF' } });
+            }
+        }
+        else {
+            var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: (structure) => {
+
+                    switch (structure.structureType) {
+                        case STRUCTURE_CONTAINER:
+                            const container = structure as StructureContainer
+                            return _.sum(container.store) < container.storeCapacity
+                        case STRUCTURE_EXTENSION:
+                            const extension = structure as StructureExtension
+                            return extension.energy < extension.energyCapacity
+                        case STRUCTURE_SPAWN:
+                            const spawn = structure as StructureSpawn
+                            return spawn.energy < spawn.energyCapacity
+                        case STRUCTURE_TOWER:
+                            const tower = structure as StructureTower
+                            return tower.energy < tower.energyCapacity
+                    }
+
+                    return false
+                }
+            });
+
+            if (target) {
+
+                if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#FFFF00' } });
+                }
+            }
+        }
+    }
+};
+
+const roleHarvester = new RoleHarvester();

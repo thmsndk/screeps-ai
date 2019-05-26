@@ -7,6 +7,7 @@ declare global {
     }
 }
 
+// TODO: extract out interfaces
 interface CPUExtended extends CPU {
     used: number
 }
@@ -44,4 +45,12 @@ export const JobType = {
     UpgradeController: 2 as JobTypeUpgradeController
 }
 
-declare global { interface CreepMemory { role: string, target: string, unemployed: boolean } } // TODO: Role.x,y,z
+declare global {
+    interface CreepMemory {
+        role: string,
+        target: string,
+        unemployed: boolean,
+        upgrading: boolean,
+        harvest: boolean
+    }
+} // TODO: Role.x,y,z
