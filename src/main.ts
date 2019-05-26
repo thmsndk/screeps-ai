@@ -1,4 +1,4 @@
-import { IMemoryJob, JobType, JobTypeMining } from '_lib/interfaces';
+
 import { collect_stats } from '_lib/screepsplus';
 import { Hatchery } from 'Hatchery';
 import { Dictionary } from 'lodash';
@@ -7,44 +7,13 @@ import { RoleHarvester } from 'role/harvester';
 import { RoleHauler } from 'role/RoleHauler';
 import { Role } from "role/roles";
 import { RoleUpgrader } from 'role/upgrader';
-import { ISourceMemory, RoomScanner } from 'RoomScanner';
+import { RoomScanner } from 'RoomScanner';
 import { ErrorMapper } from "utils/ErrorMapper";
 import { emoji } from '_lib/emoji';
+import { Job, JobType } from 'jobs/Job';
+import { MiningJob } from 'jobs/MiningJob';
 
-class Job {
-  public type: JobType
-  public target?: string
-  public Creeps: Dictionary<Creep>
 
-  constructor(type: JobType, target?: string, creeps?: Dictionary<Creep>) {
-    console.log('new job ' + target)
-    this.type = type
-    this.target = target
-    this.Creeps = creeps || {}
-
-  }
-}
-
-const JobType = {
-  Mining: 1 as JobTypeMining
-}
-
-// tslint:disable-next-line: max-classes-per-file
-class MiningJob extends Job {
-  public source: Source
-  public sourceMemory: ISourceMemory;
-  public memory: IMemoryJob;
-  constructor(source: Source, memory: IMemoryJob, sourceMemory: ISourceMemory, creeps?: Dictionary<Creep>) {
-    super(JobType.Mining, source.id, creeps)
-    this.source = source
-    this.sourceMemory = sourceMemory
-    this.memory = memory
-
-    if (creeps) {
-      this.memory.creeps = Object.keys(creeps)
-    }
-  }
-}
 
 // OLD
 const roleBuilder = new RoleBuilder()
@@ -121,27 +90,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // MiningJob how to detect a job exists, search jobs for sourceId
   // TODO:How do we prioritize the jobs?
 
-  for (const roomName in Game.rooms) {
-    if (Game.rooms.hasOwnProperty(roomName)) {
-      const room = Game.rooms[roomName];
-
-      for (const sourceId in room.memory.sources) {
-        if (room.memory.sources.hasOwnProperty(sourceId)) {
-
-          if (!jobs.find(job => job.target === sourceId)) {
-            const source = Game.getObjectById<Source>(sourceId)
-            if (source) {
-              const sourceMemory = room.memory.sources[sourceId];
-              const jobMemory = { type: JobType.Mining, target: sourceId, creeps: [] } // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
-              const miningJob = new MiningJob(source, jobMemory, sourceMemory)
-              Memory.jobs.push(jobMemory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
-              jobs.push(miningJob)
-            }
-          }
-        }
-      }
-    }
-  }
+  queueMiningJobs(jobs);
 
   // TODO: assign jobs
   // find a valid creep for the job assing creep to job
@@ -185,19 +134,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       }
     }
-
-
-    // if (sourceMemory && sourceMemory.miningPositions && sourceMemory.assignedCreepIds
-    //   && sourceMemory.miningPositions.length > sourceMemory.assignedCreepIds.length
-    //   && !this.Creep.memory.target) {
-    //   console.log(`${this.Creep.name} is becoming a harvester for ${sourceId}`)
-    //   this.Creep.say(`harvester for ${sourceId}`)
-    //   sourceMemory.assignedCreepIds.push(this.Creep.id)
-    //   newRole = Role.harvester
-    //   this.Creep.memory.target = sourceId
-    //   break
-    // }
-
   });
 
   // seralize jobs
@@ -256,4 +192,26 @@ export const loop = ErrorMapper.wrapLoop(() => {
 });
 
 
+
+function queueMiningJobs(jobs: Job[]) {
+  for (const roomName in Game.rooms) {
+    if (Game.rooms.hasOwnProperty(roomName)) {
+      const room = Game.rooms[roomName];
+      for (const sourceId in room.memory.sources) {
+        if (room.memory.sources.hasOwnProperty(sourceId)) {
+          if (!jobs.find(job => job.target === sourceId)) {
+            const source = Game.getObjectById<Source>(sourceId);
+            if (source) {
+              const sourceMemory = room.memory.sources[sourceId];
+              const jobMemory = { type: JobType.Mining, target: sourceId, creeps: [] }; // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
+              const miningJob = new MiningJob(source, jobMemory, sourceMemory);
+              Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+              jobs.push(miningJob);
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
