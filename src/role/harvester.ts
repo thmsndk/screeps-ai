@@ -14,7 +14,7 @@ export class RoleHarvester {
         }
 
         if (creep.memory.harvest) {
-
+            creep.say('🔄');
 
             const sources = creep.room.find(FIND_SOURCES, {
                 filter: (source) => {

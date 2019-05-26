@@ -59,6 +59,7 @@ export class Larvae {
 
                     if (sourceMemory && sourceMemory.miningPositions && sourceMemory.assignedCreepIds && sourceMemory.miningPositions.length > sourceMemory.assignedCreepIds.length) {
                         console.log(`${this.Creep.name} is becoming a harvester for ${sourceId}`)
+                        this.Creep.say(`harvester for ${sourceId}`)
                         sourceMemory.assignedCreepIds.push(this.Creep.id)
                         newRole = Role.harvester
                         this.Creep.memory.target = sourceId
@@ -81,13 +82,11 @@ export class Larvae {
                 }
             }
 
-            // if (harvesters.length < 2 && this.Creep.memory.role !== Role.harvester) {
-            //     newRole = Role.harvester
-            // } else if (upgraders.length < 5 && this.Creep.memory.role !== Role.upgrader) {
-            //     newRole = Role.upgrader
-            // } else if (builders.length < 2 && this.Creep.memory.role !== Role.builder) {
-            //     newRole = Role.builder
-            // }
+            if (upgraders.length < 2 && this.Creep.memory.role !== Role.harvester) {
+                newRole = Role.upgrader
+            } else if (builders.length < 2 && this.Creep.memory.role !== Role.harvester) {
+                newRole = Role.builder
+            }
 
             if (this.Creep.memory.role !== newRole) {
                 console.log(`Mutating to ${newRole} from ${this.Creep.memory.role}`)
