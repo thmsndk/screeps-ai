@@ -82,7 +82,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   });
 
   // run room scanner TODO: only run the static scan once per new room
-  roomScanner.scan(Game.rooms.Spawn1)
+  roomScanner.scan(Game.spawns.Spawn1.room)
 
   // TODO: detect jobs
   // MiningJob how to detect a job exists, search jobs for sourceId

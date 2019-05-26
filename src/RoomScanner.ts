@@ -21,6 +21,10 @@ function isPositionMinable(roomTerrain: RoomTerrain, roomPosition: RoomPosition 
 export class RoomScanner {
     /** Scans the room for static data, currently source nodes and miningpositions */
     scan(room: Room) {
+        if (!room) {
+            console.log('[Warning] room is not defined')
+            return
+        }
         var roomTerrain = new Room.Terrain(room.name);
         const sources = room.find(FIND_SOURCES);
         room.memory.miningPositions = 0
