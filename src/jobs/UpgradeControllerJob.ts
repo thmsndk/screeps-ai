@@ -25,6 +25,16 @@ export class UpgradeControllerJob extends Job {
         const assignedCreeps = Object.keys(this.Creeps).length;
 
         const maxCreeps = 100
+
+        const progress = Math.floor(((this.controller.progress) / this.controller.progressTotal) * 100)
+        if (this.controller.room) {
+            this.controller.room.visual.text(
+                `${assignedCreeps} / ${maxCreeps} ⚡ ${progress}%`,
+                this.controller.pos.x + 1,
+                this.controller.pos.y,
+                { align: 'left', opacity: 0.8 });
+        }
+
         if (assignedCreeps < maxCreeps) {
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
