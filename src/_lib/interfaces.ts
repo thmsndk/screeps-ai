@@ -2,7 +2,8 @@ declare global {
     interface Memory {
         SCRIPT_VERSION: string,
         BUILD_TIME: number,
-        stats: IStats
+        stats: IStats,
+        jobs: IJob[]
     }
 }
 
@@ -24,4 +25,12 @@ export interface IStats {
     roomSummary?: {
 
     }
+}
+
+export type JobType = JobTypeMining
+export type JobTypeMining = 1
+
+interface IJob {
+    type: JobType
+    target?: string
 }

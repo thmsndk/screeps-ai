@@ -1,3 +1,4 @@
+import { JobType, JobTypeMining } from '_lib/interfaces';
 import { collect_stats } from '_lib/screepsplus'
 import { Hatchery } from 'Hatchery';
 import { RoleBuilder } from 'role/builder';
@@ -6,6 +7,40 @@ import { RoleHauler } from 'role/RoleHauler';
 import { Role } from "role/roles";
 import { RoleUpgrader } from 'role/upgrader';
 import { ErrorMapper } from "utils/ErrorMapper";
+import { RoomScanner } from 'RoomScanner';
+
+class Job {
+  public type: number
+  public target?: string
+
+  constructor(type: JobType, target?: string) {
+    this.type = type
+    this.target = target
+  }
+}
+
+const JobType = {
+  Mining: 1 as JobTypeMining
+}
+
+// tslint:disable-next-line: max-classes-per-file
+class MiningJob extends Job {
+  public source: Source
+  constructor(source: Source) {
+    super(JobType.Mining, source.id)
+    this.source = source
+  }
+}
+
+// OLD
+const roleBuilder = new RoleBuilder()
+const roleHarvester = new RoleHarvester()
+const roleUpgrader = new RoleUpgrader()
+const roleHauler = new RoleHauler()
+const hatchery = new Hatchery()
+// END OLD
+
+const roomScanner = new RoomScanner()
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -13,7 +48,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
 
   // https://screepers.gitbook.io/screeps-typescript-starter/in-depth/cookbook/environment-letiables
-  // require('version')
   if (!Memory.BUILD_TIME || Memory.BUILD_TIME !== __BUILD_TIME__) {
     Memory.BUILD_TIME = __BUILD_TIME__
     Memory.SCRIPT_VERSION = __REVISION__
@@ -33,13 +67,41 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO: a module that can spawn creeps
   // if a creep wants to do a job, make sure it has time enough to live
 
-  const roleBuilder = new RoleBuilder()
-  const roleHarvester = new RoleHarvester()
-  const roleUpgrader = new RoleUpgrader()
-  const roleHauler = new RoleHauler()
+  // TODO: should we have jobs in each room? what about "general purpose" jobs?
+  // deseralize jobs
+  Memory.jobs
+  const jobs: Job[] = [] // should this be a dictionary with target as id? what if a target has multiple jobs then? e.g. Mining and Hauler Job
+  Memory.jobs.forEach(seralizedJob => {
+    switch (seralizedJob.type) {
+      case JobType.Mining:
+        const source = Game.getObjectById<Source>(seralizedJob.target)
+        if (source) { jobs.push(new MiningJob(source)) }
+        break;
+    }
+  });
+
+  // run room scanner TODO: only run the static scan once per new room
+  roomScanner.scan(Game.rooms.Spawn1)
+
+  // TODO: detect jobs
+  // MiningJob how to detect a job exists, search jobs for sourceId
+  // TODO:How do we prioritize the jobs?
 
 
-  const hatchery = new Hatchery()
+  // TODO: assign jobs
+
+  // seralize jobs
+  // Memory.jobs = jobs
+
+  // Map Sources
+
+
+
+
+
+
+
+
 
   hatchery.run()
 
