@@ -81,10 +81,13 @@ export class Larvae {
                     // }
                 }
             }
+            const populationWithoutHarvester = Object.keys(Game.creeps).length - this.Creep.room.memory.miningPositions
+            const upgraderCount = populationWithoutHarvester / 2
+            const builderCount = populationWithoutHarvester / 2
 
-            if (upgraders.length < 2 && this.Creep.memory.role !== Role.harvester) {
+            if (upgraders.length < upgraderCount && this.Creep.memory.role !== Role.harvester) {
                 newRole = Role.upgrader
-            } else if (builders.length < 2 && this.Creep.memory.role !== Role.harvester) {
+            } else if (builders.length < builderCount && this.Creep.memory.role !== Role.harvester) {
                 newRole = Role.builder
             }
 

@@ -1,6 +1,6 @@
 import { Dictionary } from 'lodash';
 import { Larvae } from './Larvae';
-declare global { interface RoomMemory { sources: Dictionary<ISourceMemory> } } // TODO: in use / unused mining position?
+declare global { interface RoomMemory { sources: Dictionary<ISourceMemory>, miningPositions: number } } // TODO: in use / unused mining position?
 interface IMiningPosition {
     roomPosition: RoomPosition,
 }
@@ -36,6 +36,7 @@ export class Hatchery {
 
         var roomTerrain = new Room.Terrain(this.Spawn.room.name);
         const sources = this.Spawn.room.find(FIND_SOURCES);
+        let miningPositions = 0
         sources.forEach(source => {
 
             if (this.Spawn) {
@@ -63,6 +64,8 @@ export class Hatchery {
 
                 const topLeft = isPositionMinable(roomTerrain, this.Spawn.room.getPositionAt(source.pos.x - 1, source.pos.y + 1))
                 if (topLeft) { miningPositions.push(topLeft) }
+
+                this.Spawn.room.memory.miningPositions += miningPositions.length
 
                 if (!this.Spawn.room.memory.sources) { this.Spawn.room.memory.sources = {} }
                 const sourceMemory = this.Spawn.room.memory.sources[source.id]
