@@ -58,7 +58,9 @@ export class Larvae {
 
                     const sourceMemory = this.Creep.room.memory.sources[sourceId];
 
-                    if (sourceMemory && sourceMemory.miningPositions && sourceMemory.assignedCreepIds && sourceMemory.miningPositions.length > sourceMemory.assignedCreepIds.length) {
+                    if (sourceMemory && sourceMemory.miningPositions && sourceMemory.assignedCreepIds
+                        && sourceMemory.miningPositions.length > sourceMemory.assignedCreepIds.length
+                        && !this.Creep.memory.target) {
                         console.log(`${this.Creep.name} is becoming a harvester for ${sourceId}`)
                         this.Creep.say(`harvester for ${sourceId}`)
                         sourceMemory.assignedCreepIds.push(this.Creep.id)
