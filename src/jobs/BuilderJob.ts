@@ -37,6 +37,15 @@ export class BuilderJob extends Job {
 
     public run() {
 
+        const progress = Math.floor(((this.constructionSite.progress) / this.constructionSite.progressTotal) * 100)
+        if (this.constructionSite.room) {
+            this.constructionSite.room.visual.text(
+                `🛠️ ${progress}%`,
+                this.constructionSite.pos.x + 1,
+                this.constructionSite.pos.y,
+                { align: 'left', opacity: 0.8 });
+        }
+
         const assignedCreeps = Object.keys(this.Creeps).length;
 
         const maxCreeps = 1
