@@ -4,7 +4,7 @@ import { Larvae } from './Larvae';
 const roomScanner = new RoomScanner()
 
 export class Hatchery {
-    Spawn: StructureSpawn;
+    public Spawn: StructureSpawn;
 
     constructor(spawn?: string) {
         if (!spawn) {

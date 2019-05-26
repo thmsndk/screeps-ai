@@ -1,9 +1,9 @@
 import { Dictionary } from 'lodash';
 declare global { interface RoomMemory { sources: Dictionary<ISourceMemory>, miningPositions: number } } // TODO: in use / unused mining position?
-interface IMiningPosition {
+export interface IMiningPosition {
     roomPosition: RoomPosition,
 }
-interface ISourceMemory {
+export interface ISourceMemory {
     miningPositions: IMiningPosition[]
     assignedCreepIds: string[]
 }
@@ -58,10 +58,15 @@ export class RoomScanner {
             room.memory.miningPositions += miningPositions.length
 
             if (!room.memory.sources) { room.memory.sources = {} }
-            const sourceMemory = room.memory.sources[source.id]
+            let sourceMemory = room.memory.sources[source.id]
+
+            if (!sourceMemory) {
+                sourceMemory = { assignedCreepIds: [], miningPositions: [] } as ISourceMemory
+            }
+
             sourceMemory.assignedCreepIds = _.filter(sourceMemory.assignedCreepIds, (creepId) => Game.getObjectById(creepId))
 
-            room.memory.sources[source.id] = { assignedCreepIds: [], ...sourceMemory, miningPositions } as ISourceMemory
+            sourceMemory.miningPositions = miningPositions
         })
     }
 }
