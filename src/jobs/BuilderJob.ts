@@ -25,6 +25,13 @@ export class BuilderJob extends Job {
 
         if (creeps) {
             this.memory.creeps = Object.keys(creeps)
+            // Monkeypatch for updating role on builder
+            for (const creepName in creeps) {
+                if (creeps.hasOwnProperty(creepName)) {
+                    const creep = creeps[creepName];
+                    creep.memory.role = Role.builder
+                }
+            }
         }
     }
 
@@ -32,7 +39,7 @@ export class BuilderJob extends Job {
 
         const assignedCreeps = Object.keys(this.Creeps).length;
 
-        const maxCreeps = 100
+        const maxCreeps = 1
         if (assignedCreeps < maxCreeps) {
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
@@ -42,7 +49,7 @@ export class BuilderJob extends Job {
 
             creepsToEmploy.forEach(creep => {
                 if (!this.Creeps[creep.id]) {
-                    creep.memory.role = Role.upgrader
+                    creep.memory.role = Role.builder
                     creep.memory.unemployed = false
                     this.Creeps[creep.id] = creep
                     // persist to miningjob memory
