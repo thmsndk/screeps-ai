@@ -38,19 +38,23 @@ export class BuilderJob extends Job {
 
     public run() {
 
+        // TODO: depending on structure type, queue different amount of builders
+        const maxCreeps = 10
+
+        const assignedCreeps = Object.keys(this.Creeps).length;
+
         const progress = Math.floor(((this.constructionSite.progress) / this.constructionSite.progressTotal) * 100)
         if (this.constructionSite.room) {
             this.constructionSite.room.visual.text(
-                `🛠️ ${progress}%`,
+                `${assignedCreeps} / ${maxCreeps} 🛠️ ${progress}%`,
                 this.constructionSite.pos.x + 1,
                 this.constructionSite.pos.y,
                 { align: 'left', opacity: 0.8 });
         }
 
-        const assignedCreeps = Object.keys(this.Creeps).length;
 
-        // TODO: depending on structure type, queue different amount of builders
-        const maxCreeps = 10
+
+
         if (assignedCreeps < maxCreeps) {
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
