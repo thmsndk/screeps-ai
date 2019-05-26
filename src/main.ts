@@ -17,7 +17,6 @@ import { JobType, IMemoryJob } from '_lib/interfaces';
 // OLD
 const roleBuilder = new RoleBuilder()
 const roleHauler = new RoleHauler()
-const hatchery = new Hatchery()
 // END OLD
 
 const roomScanner = new RoomScanner()
@@ -79,6 +78,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // queue building jobs
 
+
   // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
 
 
@@ -93,7 +93,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Memory.jobs = jobs
 
   // Map Sources
-
+  const hatchery = new Hatchery()
   hatchery.run()
 
   const tower = Game.getObjectById<StructureTower>('TOWER_ID');

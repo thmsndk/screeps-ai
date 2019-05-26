@@ -47,6 +47,7 @@ export const JobType = {
 
 declare global {
     interface CreepMemory {
+        cost: number,
         role: string,
         target: string,
         unemployed: boolean,
