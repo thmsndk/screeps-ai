@@ -36,7 +36,7 @@ export class Hatchery {
 
         var roomTerrain = new Room.Terrain(this.Spawn.room.name);
         const sources = this.Spawn.room.find(FIND_SOURCES);
-        let miningPositions = 0
+        this.Spawn.room.memory.miningPositions = 0
         sources.forEach(source => {
 
             if (this.Spawn) {
