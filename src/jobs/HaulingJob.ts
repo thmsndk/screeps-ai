@@ -93,7 +93,7 @@ class HaulingCreep {
             });
 
             if (target && creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, { visualizePathStyle: PathStyle.Collection });
+                creep.moveTo(target, { visualizePathStyle: PathStyle.Hauling });
             }
         }
         else {

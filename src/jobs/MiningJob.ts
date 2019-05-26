@@ -1,3 +1,4 @@
+import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
 import { ISourceMemory } from 'RoomScanner';
@@ -53,7 +54,7 @@ export class MiningJob extends Job {
             if (this.Creeps.hasOwnProperty(name)) {
                 const creep = this.Creeps[name];
                 roleHarvester.run(creep, this.source)
-                creep.say(emoji.construction_worker)
+                // creep.say(emoji.construction_worker)
             }
         }
     }
@@ -80,7 +81,7 @@ class MiningCreep {
             creep.say('🔄');
 
             if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(source, { visualizePathStyle: { stroke: '#0000FF' } });
+                creep.moveTo(source, { visualizePathStyle: PathStyle.Harvest });
             }
         }
         else {
@@ -108,8 +109,8 @@ class MiningCreep {
 
             if (target) {
 
-                if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#FFFF00' } });
+                if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit });
                 }
             }
         }

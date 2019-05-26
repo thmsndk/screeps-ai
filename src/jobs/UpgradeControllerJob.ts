@@ -1,3 +1,4 @@
+import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
 import { Job } from './Job';
@@ -51,7 +52,7 @@ export class UpgradeControllerJob extends Job {
             if (this.Creeps.hasOwnProperty(name)) {
                 const creep = this.Creeps[name];
                 upgradeControllerCreep.run(this.controller, creep)
-                creep.say(emoji.lightning)
+                // creep.say(emoji.lightning)
             }
         }
     }
@@ -73,7 +74,7 @@ class UpgradeControllerCreep {
         if (creep.memory.upgrading && controller) {
             creep.say('⚡');
             if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+                creep.moveTo(controller, { visualizePathStyle: PathStyle.UpgradeController });
             }
         }
         else {
@@ -100,7 +101,7 @@ class UpgradeControllerCreep {
 
             if (target) {
                 if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#FFFF00' } });
+                    creep.moveTo(target, { visualizePathStyle: PathStyle.Collection });
                 }
             }
             // DO NOT FALL BACK TO harvesting from sources
