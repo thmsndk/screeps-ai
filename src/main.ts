@@ -1,16 +1,16 @@
 import { JobType, JobTypeMining } from '_lib/interfaces';
-import { collect_stats } from '_lib/screepsplus'
+import { collect_stats } from '_lib/screepsplus';
 import { Hatchery } from 'Hatchery';
 import { RoleBuilder } from 'role/builder';
 import { RoleHarvester } from 'role/harvester';
 import { RoleHauler } from 'role/RoleHauler';
 import { Role } from "role/roles";
 import { RoleUpgrader } from 'role/upgrader';
-import { ErrorMapper } from "utils/ErrorMapper";
 import { RoomScanner } from 'RoomScanner';
+import { ErrorMapper } from "utils/ErrorMapper";
 
 class Job {
-  public type: number
+  public type: JobType
   public target?: string
 
   constructor(type: JobType, target?: string) {
@@ -45,7 +45,7 @@ const roomScanner = new RoomScanner()
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  console.log(`Current game tick is ${Game.time}`);
+  // console.log(`Current game tick is ${Game.time}`);
 
   // https://screepers.gitbook.io/screeps-typescript-starter/in-depth/cookbook/environment-letiables
   if (!Memory.BUILD_TIME || Memory.BUILD_TIME !== __BUILD_TIME__) {
@@ -69,8 +69,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
   // deseralize jobs
-  Memory.jobs
   const jobs: Job[] = [] // should this be a dictionary with target as id? what if a target has multiple jobs then? e.g. Mining and Hauler Job
+  if (!Memory.jobs) { Memory.jobs = [] }
+
   Memory.jobs.forEach(seralizedJob => {
     switch (seralizedJob.type) {
       case JobType.Mining:
@@ -87,6 +88,25 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // MiningJob how to detect a job exists, search jobs for sourceId
   // TODO:How do we prioritize the jobs?
 
+  for (const roomName in Game.rooms) {
+    if (Game.rooms.hasOwnProperty(roomName)) {
+      const room = Game.rooms[roomName];
+
+      for (const sourceId in room.memory.sources) {
+        if (room.memory.sources.hasOwnProperty(sourceId)) {
+          const sourceMemory = room.memory.sources[sourceId];
+          if (!jobs.find(job => job.target === sourceId)) {
+            const source = Game.getObjectById<Source>(sourceId)
+            if (source) {
+              const miningJob = new MiningJob(source)
+              Memory.jobs.push({ type: miningJob.type, target: sourceId }) // "Seralize job"
+              jobs.push()
+            }
+          }
+        }
+      }
+    }
+  }
 
   // TODO: assign jobs
 
@@ -144,3 +164,4 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   collect_stats();
 });
+
