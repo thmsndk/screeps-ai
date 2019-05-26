@@ -1,23 +1,17 @@
+import { HaulingJob } from './jobs/HaulingJob';
 import { UpgradeControllerJob } from './jobs/UpgradeControllerJob';
 
+import { IMemoryJob, JobType } from '_lib/interfaces';
 import { collect_stats } from '_lib/screepsplus';
 import { Hatchery } from 'Hatchery';
+import { Job } from 'jobs/Job';
+import { MiningJob } from 'jobs/MiningJob';
 import { Dictionary } from 'lodash';
 import { RoleBuilder } from 'role/builder';
 import { RoleHauler } from 'role/RoleHauler';
 import { Role } from "role/roles";
 import { RoomScanner } from 'RoomScanner';
 import { ErrorMapper } from "utils/ErrorMapper";
-import { Job } from 'jobs/Job';
-import { MiningJob } from 'jobs/MiningJob';
-import { JobType, IMemoryJob } from '_lib/interfaces';
-
-
-
-// OLD
-const roleBuilder = new RoleBuilder()
-const roleHauler = new RoleHauler()
-// END OLD
 
 const roomScanner = new RoomScanner()
 
@@ -35,7 +29,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
-    let creep = Memory.creeps[name]
+    const creep = Memory.creeps[name]
     if (creep) { creep.unemployed = true }
 
     if (!(name in Game.creeps)) {
@@ -113,20 +107,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  // Actions
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-
-    if (creep.memory.role === Role.builder) {
-      roleBuilder.run(creep);
-    }
-
-    if (creep.memory.role === Role.Larvae) {
-      roleHauler.run(creep);
-    }
-  }
-
   collect_stats();
+
 });
 
 function deseralizeJobs() {
@@ -137,13 +119,19 @@ function deseralizeJobs() {
   Memory.jobs.forEach(seralizedJob => {
     switch (seralizedJob.type) {
       case JobType.Mining:
+      case JobType.Hauling:
         const source = Game.getObjectById<Source>(seralizedJob.target);
         if (source) {
           const sourceMemory = source.room.memory.sources[source.id];
 
           const creeps = deseralizeJobCreeps(seralizedJob);
 
-          jobs.push(new MiningJob(source, seralizedJob, sourceMemory, creeps));
+          if (seralizedJob.type === JobType.Hauling) {
+            jobs.push(new HaulingJob(source, seralizedJob, sourceMemory, creeps));
+          }
+          else {
+            jobs.push(new MiningJob(source, seralizedJob, sourceMemory, creeps));
+          }
         }
         break;
       case JobType.UpgradeController:
@@ -181,14 +169,24 @@ function queueMiningJobs(jobs: Job[]) {
       const room = Game.rooms[roomName];
       for (const sourceId in room.memory.sources) {
         if (room.memory.sources.hasOwnProperty(sourceId)) {
-          if (!jobs.find(job => job.target === sourceId)) {
-            const source = Game.getObjectById<Source>(sourceId);
-            if (source) {
-              const sourceMemory = room.memory.sources[sourceId];
+          const source = Game.getObjectById<Source>(sourceId);
+
+          if (source) {
+            const sourceMemory = room.memory.sources[sourceId];
+
+            if (!jobs.find(job => job.target === sourceId && job.type === JobType.Mining)) {
               const jobMemory = { type: JobType.Mining, target: sourceId, creeps: [] }; // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
               const miningJob = new MiningJob(source, jobMemory, sourceMemory);
-              Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+              Memory.jobs.push(jobMemory);
               jobs.push(miningJob);
+
+            }
+
+            if (!jobs.find(job => job.target === sourceId && job.type === JobType.Hauling)) {
+              const jobMemory = { type: JobType.Hauling, target: sourceId, creeps: [] }; // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
+              const haulingJob = new HaulingJob(source, jobMemory, sourceMemory);
+              Memory.jobs.push(jobMemory);
+              jobs.push(haulingJob);
             }
           }
         }

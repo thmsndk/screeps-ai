@@ -38,7 +38,7 @@ export class RoleHauler {
             }
         }
         else {
-            const targets = creep.room.find(FIND_STRUCTURES, {
+            const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => {
 
                     switch (structure.structureType) {
@@ -48,19 +48,19 @@ export class RoleHauler {
                         case STRUCTURE_SPAWN:
                             const spawn = structure as StructureSpawn
                             return spawn.energy < spawn.energyCapacity
-                        case STRUCTURE_TOWER:
-                            const tower = structure as StructureTower
-                            return tower.energy < tower.energyCapacity
+                        // case STRUCTURE_TOWER:
+                        //     const tower = structure as StructureTower
+                        //     return tower.energy < tower.energyCapacity
                     }
 
                     return false
                 }
             });
 
-            if (targets.length > 0) {
+            if (target) {
 
-                if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+                if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
         }

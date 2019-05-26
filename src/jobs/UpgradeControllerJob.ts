@@ -33,7 +33,7 @@ export class UpgradeControllerJob extends Job {
 
             creepsToEmploy.forEach(creep => {
                 if (!this.Creeps[creep.id]) {
-                    creep.memory.role = Role.Worker
+                    creep.memory.role = Role.upgrader
                     creep.memory.unemployed = false
                     this.Creeps[creep.id] = creep
                     // persist to miningjob memory
