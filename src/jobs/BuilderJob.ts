@@ -10,13 +10,18 @@ import { emoji } from '_lib/emoji';
 export class BuilderJob extends Job {
     public constructionSite: ConstructionSite
     public memory: IMemoryJob;
-    constructor(constructionSite: ConstructionSite, creeps?: Dictionary<Creep>) {
+    constructor(constructionSite: ConstructionSite, memory?: IMemoryJob, creeps?: Dictionary<Creep>) {
         super(JobType.Building, constructionSite.id, creeps)
         this.constructionSite = constructionSite
-        const jobMemory = { type: JobType.Building, target: constructionSite.id, creeps: [] }; // TODO: move down into job, requires refactoring of other stuff
-        this.memory = jobMemory
 
-        Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+        if (!memory) {
+            memory = { type: JobType.Building, target: constructionSite.id, creeps: [] }; // TODO: move down into job, requires refactoring of other stuff
+            Memory.jobs.push(memory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+        }
+
+        this.memory = memory
+
+
 
         if (creeps) {
             this.memory.creeps = Object.keys(creeps)

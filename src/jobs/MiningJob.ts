@@ -30,6 +30,11 @@ export class MiningJob extends Job {
 
     public run() {
 
+        if (!this.sourceMemory) {
+            console.log('could not find sourceMemory for job ' + this.target)
+            return
+        }
+
         const assignedCreeps = Object.keys(this.Creeps).length;
 
         // We need to assign a hauler after we've assigned a miner, the behaviour of the creep should change depending on wether or not we have a hauler assigned
