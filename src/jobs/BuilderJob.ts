@@ -49,7 +49,8 @@ export class BuilderJob extends Job {
 
         const assignedCreeps = Object.keys(this.Creeps).length;
 
-        const maxCreeps = 1
+        // TODO: depending on structure type, queue different amount of builders
+        const maxCreeps = 10
         if (assignedCreeps < maxCreeps) {
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
