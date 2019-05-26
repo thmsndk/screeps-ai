@@ -1,3 +1,4 @@
+import { Larvae } from './../Larvae';
 import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
@@ -64,6 +65,7 @@ export class BuilderJob extends Job {
                     // persist to miningjob memory
                     if (this.memory.creeps) {
                         this.memory.creeps.push(creep.id)
+                        creep.say("[Builder] Work Work")
                     }
                 }
             })
@@ -78,6 +80,13 @@ export class BuilderJob extends Job {
                 jobCreep.run(this.constructionSite, creep)
                 // creep.say(emoji.lightning)
                 // TODO: when job is finished release creep
+                if (progress === 100) {
+                    creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+                    creep.memory.unemployed = true
+                    creep.say("[Builder]  Job's done ")
+
+                    // TODO: delete job
+                }
             }
         }
     }
