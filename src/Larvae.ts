@@ -33,6 +33,11 @@ export class Larvae {
 
     public mutate() {
         if (this.Creep) {
+            // Let the hatcherydriven and job driven system coexist
+            if (this.Creep.memory.role === Role.Worker) {
+                return
+            }
+
             let newRole: RoleConstant = this.Creep.memory.role as RoleConstant
 
             const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === Role.harvester);

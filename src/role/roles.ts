@@ -1,14 +1,15 @@
-export type RoleConstant = LARVAE | HARVESTER | BUILDER | UPGRADER
+export type RoleConstant = LARVAE | HARVESTER | BUILDER | UPGRADER | WORKER
 
 type LARVAE = "Larvae";
 type HARVESTER = "harvester";
 type BUILDER = "builder";
 type UPGRADER = "upgrader";
+type WORKER = "upgrader";
 
 export const Role = {
     harvester: 'harvester' as HARVESTER,
     upgrader: 'upgrader' as UPGRADER,
     builder: 'builder' as BUILDER,
     Larvae: 'Larvae' as LARVAE,
+    Worker: 'Worker' as LARVAE,
 }
-
