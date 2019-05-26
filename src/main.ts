@@ -60,7 +60,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (!jobs.find(job => job.target === controller.id)) {
 
       // having to construct the memory this way and then sending it in, to be able to push the memory, is sily
-      const jobMemory = { type: JobType.Mining, target: controller.id, creeps: [] };
+      const jobMemory = { type: JobType.UpgradeController, target: controller.id, creeps: [] };
       const job = new UpgradeControllerJob(controller, jobMemory);
       Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
       jobs.push(job);
@@ -129,8 +129,7 @@ function deseralizeJobs() {
         if (source) {
           const sourceMemory = source.room.memory.sources[source.id];
 
-          if(!sourceMemory)
-          {
+          if (!sourceMemory) {
             //console.log('Something wrong with this job, there is no source memory, corrupt job, or what if it is a job to a room I have no visibility in?')
             return
           }
@@ -188,6 +187,9 @@ function queueMiningJobs(jobs: Job[]) {
       const room = Game.rooms[roomName];
       for (const sourceId in room.memory.sources) {
         if (room.memory.sources.hasOwnProperty(sourceId)) {
+          if (sourceId === '5cd5e6adf5b071001017115f') {
+            console.log(roomName + 'fault job')
+          }
           const source = Game.getObjectById<Source>(sourceId);
 
           if (source) {
