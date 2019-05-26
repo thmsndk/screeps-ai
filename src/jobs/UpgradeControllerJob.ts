@@ -32,7 +32,7 @@ export class UpgradeControllerJob extends Job {
                 `${assignedCreeps} / ${maxCreeps} ⚡ ${progress}%`,
                 this.controller.pos.x + 1,
                 this.controller.pos.y,
-                { align: 'left', opacity: 0.8 });
+                { align: 'center', opacity: 0.8 });
         }
 
         if (assignedCreeps < maxCreeps) {

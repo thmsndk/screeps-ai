@@ -52,9 +52,6 @@ export class BuilderJob extends Job {
                 { align: 'left', opacity: 0.8 });
         }
 
-
-
-
         if (assignedCreeps < maxCreeps) {
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized

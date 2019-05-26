@@ -121,7 +121,29 @@ function deseralizeJobs() {
   if (!Memory.jobs) {
     Memory.jobs = [];
   }
+
+  Memory.jobs.sort((a, b) => {
+    if (a.type === JobType.Mining) {
+      return -1
+    }
+
+    if (b.type === JobType.Mining) {
+      return 1
+    }
+
+    if (a.type === JobType.Building && b.type === JobType.UpgradeController) {
+      return -1
+    }
+
+    if (a.type === JobType.UpgradeController && b.type === JobType.Building) {
+      return 1
+    }
+
+    return 0
+  })
+
   Memory.jobs.forEach(seralizedJob => {
+    console.log(seralizedJob.type)
     switch (seralizedJob.type) {
       case JobType.Mining:
       case JobType.Hauling:
