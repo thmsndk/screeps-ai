@@ -1,12 +1,12 @@
-import { JobType as JobTypeType, JobTypeMining } from '_lib/interfaces';
+import { JobTypes } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
 
 export class Job {
-    public type: JobTypeType
+    public type: JobTypes
     public target?: string
     public Creeps: Dictionary<Creep>
 
-    constructor(type: JobTypeType, target?: string, creeps?: Dictionary<Creep>) {
+    constructor(type: JobTypes, target?: string, creeps?: Dictionary<Creep>) {
         this.type = type
         this.target = target
         this.Creeps = creeps || {}
@@ -17,8 +17,3 @@ export class Job {
         console.log('generic job running, no effect')
     }
 }
-
-export const JobType = {
-    Mining: 1 as JobTypeMining
-}
-

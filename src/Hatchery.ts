@@ -1,7 +1,4 @@
-import { RoomScanner } from './RoomScanner';
 import { Larvae } from './Larvae';
-
-const roomScanner = new RoomScanner()
 
 export class Hatchery {
     public Spawn: StructureSpawn;
@@ -14,8 +11,6 @@ export class Hatchery {
     }
 
     public run() {
-
-        roomScanner.scan(this.Spawn.room)
 
         for (const creepName in Game.creeps) {
             if (Game.creeps.hasOwnProperty(creepName)) {

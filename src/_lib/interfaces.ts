@@ -28,14 +28,20 @@ export interface IStats {
     }
 }
 
-export type JobType = JobTypeMining
+export type JobTypes = JobTypeMining
 export type JobTypeMining = 1
+export type JobTypeUpgradeController = 1
 
 // tslint:disable-next-line: interface-name
 export interface IMemoryJob {
-    type: JobType
+    type: JobTypes
     target?: string
     creeps: string[]
+}
+
+export const JobType = {
+    Mining: 1 as JobTypeMining,
+    UpgradeController: 2 as JobTypeUpgradeController
 }
 
 declare global { interface CreepMemory { role: string, target: string, unemployed: boolean } } // TODO: Role.x,y,z

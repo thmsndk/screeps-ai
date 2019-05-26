@@ -1,7 +1,7 @@
-import { IMemoryJob } from '_lib/interfaces';
+import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
 import { ISourceMemory } from 'RoomScanner';
-import { Job, JobType } from './Job';
+import { Job } from './Job';
 import { Role } from 'role/roles';
 import { RoleHarvester } from 'role/harvester';
 import { emoji } from '_lib/emoji';
@@ -39,7 +39,6 @@ export class MiningJob extends Job {
                     this.Creeps[creep.id] = creep
                     // persist to miningjob memory
                     if (this.memory.creeps) {
-                        console.log('pusing ' + creep.id)
                         this.memory.creeps.push(creep.id)
                     }
                 }

@@ -8,6 +8,6 @@ export const emoji = {
     pick: '⛏',
     hammer_pick: '⚒',
     hammer_wrench: '🛠',
-    bug: '🐛'
-
+    bug: '🐛',
+    lightning: '⚡'
 };

@@ -1,3 +1,4 @@
+import { UpgradeControllerJob } from './jobs/UpgradeControllerJob';
 
 import { collect_stats } from '_lib/screepsplus';
 import { Hatchery } from 'Hatchery';
@@ -9,9 +10,9 @@ import { Role } from "role/roles";
 import { RoleUpgrader } from 'role/upgrader';
 import { RoomScanner } from 'RoomScanner';
 import { ErrorMapper } from "utils/ErrorMapper";
-import { emoji } from '_lib/emoji';
-import { Job, JobType } from 'jobs/Job';
+import { Job } from 'jobs/Job';
 import { MiningJob } from 'jobs/MiningJob';
+import { JobType, IMemoryJob } from '_lib/interfaces';
 
 
 
@@ -55,33 +56,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
   // deseralize jobs
-  const jobs: Job[] = [] // should this be a dictionary with target as id? what if a target has multiple jobs then? e.g. Mining and Hauler Job
-  if (!Memory.jobs) { Memory.jobs = [] }
-
-  Memory.jobs.forEach(seralizedJob => {
-    switch (seralizedJob.type) {
-      case JobType.Mining:
-        const source = Game.getObjectById<Source>(seralizedJob.target)
-        if (source) {
-
-          const sourceMemory = source.room.memory.sources[source.id];
-          // sourceMemory.assignedCreepIds = sourceMemory.assignedCreepIds.filter((v, i) => sourceMemory.assignedCreepIds.indexOf(v) === i) // remove duplicates
-          const creeps: Dictionary<Creep> = {}
-          if (seralizedJob.creeps) {
-            seralizedJob.creeps.forEach(creepId => {
-              const creep = Game.getObjectById<Creep>(creepId)
-              if (creep) {
-                creep.memory.unemployed = false
-                creeps[creepId] = creep
-              }
-            })
-          }
-
-          jobs.push(new MiningJob(source, seralizedJob, sourceMemory, creeps))
-        }
-        break;
-    }
-  });
+  const jobs: Job[] = deseralizeJobs();
 
   // run room scanner TODO: only run the static scan once per new room
   roomScanner.scan(Game.spawns.Spawn1.room)
@@ -91,6 +66,26 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO:How do we prioritize the jobs?
 
   queueMiningJobs(jobs);
+
+  // queue upgradeController job, how to determine how many upgraders we want?
+  const controller = Game.spawns.Spawn1.room.controller
+  if (controller) {
+    if (!jobs.find(job => job.target === controller.id)) {
+
+      // having to construct the memory this way and then sending it in, to be able to push the memory, is sily
+      const jobMemory = { type: JobType.Mining, target: controller.id, creeps: [] };
+      const job = new UpgradeControllerJob(controller, jobMemory);
+      Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+      jobs.push(job);
+
+    }
+  }
+
+  // queue building jobs
+
+  // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
+
+
 
   // TODO: assign jobs
   // find a valid creep for the job assing creep to job
@@ -102,14 +97,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Memory.jobs = jobs
 
   // Map Sources
-
-
-
-
-
-
-
-
 
   hatchery.run()
 
@@ -133,13 +120,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Actions
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
-    if (creep.memory.role === Role.harvester) {
-      roleHarvester.run(creep);
-    }
-
-    if (creep.memory.role === Role.upgrader) {
-      roleUpgrader.run(creep);
-    }
 
     if (creep.memory.role === Role.builder) {
       roleBuilder.run(creep);
@@ -153,9 +133,53 @@ export const loop = ErrorMapper.wrapLoop(() => {
   collect_stats();
 });
 
+function deseralizeJobs() {
+  const jobs: Job[] = []; // should this be a dictionary with target as id? what if a target has multiple jobs then? e.g. Mining and Hauler Job
+  if (!Memory.jobs) {
+    Memory.jobs = [];
+  }
+  Memory.jobs.forEach(seralizedJob => {
+    switch (seralizedJob.type) {
+      case JobType.Mining:
+        const source = Game.getObjectById<Source>(seralizedJob.target);
+        if (source) {
+          const sourceMemory = source.room.memory.sources[source.id];
 
+          const creeps = deseralizeJobCreeps(seralizedJob);
+
+          jobs.push(new MiningJob(source, seralizedJob, sourceMemory, creeps));
+        }
+        break;
+      case JobType.UpgradeController:
+        const controller = Game.getObjectById<StructureController>(seralizedJob.target);
+        if (controller) {
+          const creeps = deseralizeJobCreeps(seralizedJob);
+
+          jobs.push(new UpgradeControllerJob(controller, seralizedJob, creeps));
+        }
+        break;
+    }
+  });
+  return jobs;
+
+
+}
+function deseralizeJobCreeps(seralizedJob: IMemoryJob): Dictionary<Creep> {
+  const creeps: Dictionary<Creep> = {};
+  if (seralizedJob.creeps) { // TODO: DRY we are doing this for each  job
+    seralizedJob.creeps.forEach(creepId => {
+      const creep = Game.getObjectById<Creep>(creepId);
+      if (creep) {
+        creep.memory.unemployed = false;
+        creeps[creepId] = creep;
+      }
+    });
+  }
+  return creeps
+}
 
 function queueMiningJobs(jobs: Job[]) {
+  // TODO: hauler jobs
   for (const roomName in Game.rooms) {
     if (Game.rooms.hasOwnProperty(roomName)) {
       const room = Game.rooms[roomName];
