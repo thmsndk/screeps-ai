@@ -30,7 +30,7 @@ export class RoleBuilder {
 
             // todo find closest source
             // http://docs.screeps.com/api/#PathFinder
-            const targets = creep.room.find(FIND_STRUCTURES, {
+            const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => {
                     switch (structure.structureType) {
                         case STRUCTURE_CONTAINER:
@@ -51,9 +51,9 @@ export class RoleBuilder {
                 }
             });
 
-            if (targets.length > 0) {
-                if (creep.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+            if (target) {
+                if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
             // do not fallback mining

@@ -31,7 +31,7 @@ export class RoleHarvester {
             }
         }
         else {
-            var targets = creep.room.find(FIND_STRUCTURES, {
+            var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => {
 
                     switch (structure.structureType) {
@@ -53,10 +53,10 @@ export class RoleHarvester {
                 }
             });
 
-            if (targets.length > 0) {
+            if (target) {
 
-                if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+                if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             }
         }
