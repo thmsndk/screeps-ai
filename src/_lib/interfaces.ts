@@ -30,10 +30,11 @@ export interface IStats {
     }
 }
 
-export type JobTypes = JobTypeMining | JobTypeUpgradeController | JobTypeHauling
+export type JobTypes = JobTypeMining | JobTypeUpgradeController | JobTypeHauling | JobTypeBuilding
 export type JobTypeMining = 1
 export type JobTypeUpgradeController = 2
 export type JobTypeHauling = 3
+export type JobTypeBuilding = 4
 
 // tslint:disable-next-line: interface-name
 export interface IMemoryJob {
@@ -45,7 +46,8 @@ export interface IMemoryJob {
 export const JobType = {
     Mining: 1 as JobTypeMining,
     UpgradeController: 2 as JobTypeUpgradeController,
-    Hauling: 3 as JobTypeHauling
+    Hauling: 3 as JobTypeHauling,
+    Building: 4 as JobTypeBuilding,
 }
 
 declare global {

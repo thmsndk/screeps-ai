@@ -1,3 +1,4 @@
+import { BuilderJob } from './jobs/BuilderJob';
 import { HaulingJob } from './jobs/HaulingJob';
 import { UpgradeControllerJob } from './jobs/UpgradeControllerJob';
 
@@ -71,7 +72,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   // queue building jobs
+  const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
+  constructionSites.forEach(site => {
+    if (!jobs.find(job => job.target === site.id)) {
+      const job = new BuilderJob(site);
 
+      jobs.push(job);
+    }
+  })
 
   // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
 
@@ -140,6 +148,14 @@ function deseralizeJobs() {
           const creeps = deseralizeJobCreeps(seralizedJob);
 
           jobs.push(new UpgradeControllerJob(controller, seralizedJob, creeps));
+        }
+        break;
+      case JobType.Building:
+        const site = Game.getObjectById<ConstructionSite>(seralizedJob.target);
+        if (site) {
+          const creeps = deseralizeJobCreeps(seralizedJob);
+
+          jobs.push(new BuilderJob(site, seralizedJob, creeps));
         }
         break;
     }

@@ -18,6 +18,13 @@ export class MiningJob extends Job {
 
         if (creeps) {
             this.memory.creeps = Object.keys(creeps)
+            // Monkeypatch for updating role on harvesters
+            // for (const creepName in creeps) {
+            //     if (creeps.hasOwnProperty(creepName)) {
+            //         const creep = creeps[creepName];
+            //         creep.memory.role = Role.harvester
+            //     }
+            // }
         }
     }
 
