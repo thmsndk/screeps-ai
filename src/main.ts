@@ -8,9 +8,6 @@ import { Hatchery } from 'Hatchery';
 import { Job } from 'jobs/Job';
 import { MiningJob } from 'jobs/MiningJob';
 import { Dictionary } from 'lodash';
-import { RoleBuilder } from 'role/builder';
-import { RoleHauler } from 'role/RoleHauler';
-import { Role } from "role/roles";
 import { RoomScanner } from 'RoomScanner';
 import { ErrorMapper } from "utils/ErrorMapper";
 

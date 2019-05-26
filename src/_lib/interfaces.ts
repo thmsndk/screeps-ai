@@ -57,6 +57,7 @@ declare global {
         target: string,
         unemployed: boolean,
         upgrading: boolean,
-        harvest: boolean
+        harvest: boolean,
+        building: boolean
     }
 } // TODO: Role.x,y,z
