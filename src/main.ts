@@ -129,6 +129,12 @@ function deseralizeJobs() {
         if (source) {
           const sourceMemory = source.room.memory.sources[source.id];
 
+          if(!sourceMemory)
+          {
+            //console.log('Something wrong with this job, there is no source memory, corrupt job, or what if it is a job to a room I have no visibility in?')
+            return
+          }
+
           const creeps = deseralizeJobCreeps(seralizedJob);
 
           if (seralizedJob.type === JobType.Hauling) {
