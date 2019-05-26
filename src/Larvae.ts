@@ -100,7 +100,7 @@ export class Larvae {
             }
 
             if (this.Creep.memory.role !== newRole) {
-                console.log(`Mutating to ${newRole} from ${this.Creep.memory.role}`)
+                // console.log(`Mutating to ${newRole} from ${this.Creep.memory.role}`)
                 this.Creep.memory.role = newRole
             }
 

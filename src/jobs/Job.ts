@@ -7,11 +7,14 @@ export class Job {
     public Creeps: Dictionary<Creep>
 
     constructor(type: JobTypeType, target?: string, creeps?: Dictionary<Creep>) {
-        console.log('new job ' + target)
         this.type = type
         this.target = target
         this.Creeps = creeps || {}
 
+    }
+
+    public run() {
+        console.log('generic job running, no effect')
     }
 }
 

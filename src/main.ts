@@ -95,45 +95,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO: assign jobs
   // find a valid creep for the job assing creep to job
   jobs.forEach(job => {
-    // does the job need more creeps
-    // TODO: job.NeedsMoreWorkers()
-    const miningJob = job as MiningJob
-    const assignedCreeps = Object.keys(job.Creeps).length;
-
-    if (assignedCreeps < miningJob.sourceMemory.miningPositions.length) {// TODO memory should be private and we should store it in object
-      // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
-      const neededWorkers = miningJob.sourceMemory.miningPositions.length - assignedCreeps
-      const unemployed = _.filter(Game.creeps, (creep) => (creep.memory.unemployed === undefined && creep.memory.role === Role.harvester) || creep.memory.unemployed)
-      const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length);
-
-      creepsToEmploy.forEach(creep => {
-        if (!miningJob.Creeps[creep.id]) {
-          creep.memory.role = Role.Worker
-          creep.memory.unemployed = false
-          job.Creeps[creep.id] = creep
-          // persist to miningjob memory
-          if (miningJob.memory.creeps) {
-            console.log('pusing ' + creep.id)
-            miningJob.memory.creeps.push(creep.id)
-          }
-        }
-      })
-
-      // if creep can't be found, request a creep that can to be constructed, should not keep piling on requests
-      // TODO: what if creep expired and we need a new creep?
-
-    }
-
-    // run job
-    for (const name in job.Creeps) {
-      if (job.Creeps.hasOwnProperty(name)) {
-        const creep = job.Creeps[name];
-        // TODO Migrate logic to the job
-        roleHarvester.run(creep)
-        creep.say(emoji.construction_worker)
-
-      }
-    }
+    job.run()
   });
 
   // seralize jobs
