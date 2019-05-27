@@ -56,83 +56,84 @@ export const loop = ErrorMapper.wrapLoop(() => {
   queueMiningJobs(jobs);
 
   // queue upgradeController job, how to determine how many upgraders we want?
-  const controller = Game.spawns.Spawn1.room.controller
-  if (controller) {
-    if (!jobs.find(job => job.target === controller.id)) {
+  if (Game.spawns.Spawn1) {
+    const controller = Game.spawns.Spawn1.room.controller
+    if (controller) {
+      if (!jobs.find(job => job.target === controller.id)) {
 
-      // having to construct the memory this way and then sending it in, to be able to push the memory, is sily
-      const jobMemory = { type: JobType.UpgradeController, target: controller.id, creeps: [], priority: JobPriority.Low };
-      const job = new UpgradeControllerJob(controller, jobMemory);
-      Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
-      jobs.push(job);
+        // having to construct the memory this way and then sending it in, to be able to push the memory, is sily
+        const jobMemory = { type: JobType.UpgradeController, target: controller.id, creeps: [], priority: JobPriority.Low };
+        const job = new UpgradeControllerJob(controller, jobMemory);
+        Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+        jobs.push(job);
 
+      }
     }
-  }
 
-  // queue building jobs
-  const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
-  constructionSites.forEach(site => {
-    if (!jobs.find(job => job.target === site.id)) {
-      const job = new BuilderJob(site);
+    // queue building jobs
+    const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
+    constructionSites.forEach(site => {
+      if (!jobs.find(job => job.target === site.id)) {
+        const job = new BuilderJob(site);
 
-      jobs.push(job);
-    }
-  })
+        jobs.push(job);
+      }
+    })
 
-  // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
-
+    // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
 
 
-  // TODO: assign jobs
-  // find a valid creep for the job assing creep to job
-  jobs.forEach(job => {
-    job.run()
-  });
 
-  // seralize jobs
-  // Memory.jobs = jobs
-
-  // Map Sources
-  const hatchery = new Hatchery()
-  hatchery.run()
-
-  const tower = Game.getObjectById<StructureTower>('TOWER_ID');
-
-  if (tower) {
-    const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-      filter: (structure: Structure) => structure.hits < structure.hitsMax
+    // TODO: assign jobs
+    // find a valid creep for the job assing creep to job
+    jobs.forEach(job => {
+      job.run()
     });
 
-    if (closestDamagedStructure) {
-      tower.repair(closestDamagedStructure);
-    }
+    // seralize jobs
+    // Memory.jobs = jobs
 
-    const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-    if (closestHostile) {
-      tower.attack(closestHostile);
+    // Map Sources
+    const hatchery = new Hatchery()
+    hatchery.run()
+
+    const tower = Game.getObjectById<StructureTower>('TOWER_ID');
+
+    if (tower) {
+      const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+        filter: (structure: Structure) => structure.hits < structure.hitsMax
+      });
+
+      if (closestDamagedStructure) {
+        tower.repair(closestDamagedStructure);
+      }
+
+      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+      if (closestHostile) {
+        tower.attack(closestHostile);
+      }
     }
   }
 
   collect_stats();
 
-  let spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
-  let y = 25
-  if (spawn1Stats) {
-    for (const role in spawn1Stats.creep_counts) {
-      if (spawn1Stats.creep_counts.hasOwnProperty(role)) {
-        const count = spawn1Stats.creep_counts[role];
-        y += 1
-        Game.spawns.Spawn1.room.visual.text(
-          `${role}: ${count}`,
-          25,
-          y,
-          { align: 'center', opacity: 0.8 });
+  if (Game.spawns.Spawn1) {
+    let spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
+    let y = 25
+    if (spawn1Stats) {
+      for (const role in spawn1Stats.creep_counts) {
+        if (spawn1Stats.creep_counts.hasOwnProperty(role)) {
+          const count = spawn1Stats.creep_counts[role];
+          y += 1
+          Game.spawns.Spawn1.room.visual.text(
+            `${role}: ${count}`,
+            25,
+            y,
+            { align: 'center', opacity: 0.8 });
+        }
       }
     }
-
-
   }
-
 });
 
 function deseralizeJobs() {
