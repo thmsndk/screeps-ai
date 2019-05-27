@@ -49,8 +49,13 @@ export class BuilderJob extends Job {
 
             let visualize = true
 
-            if (this.constructionSite.structureType === STRUCTURE_ROAD && assignedCreeps === 0) {
-                visualize = false
+            if (assignedCreeps === 0) {
+                switch (this.constructionSite.structureType) {
+                    case STRUCTURE_ROAD:
+                    case STRUCTURE_EXTENSION:
+                        visualize = false
+                        break;
+                }
             }
 
             if (visualize) {
