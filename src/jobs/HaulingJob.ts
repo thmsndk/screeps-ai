@@ -78,23 +78,33 @@ class HaulingCreep {
             // first iteration we just pull from container and move to spawn & extensions, makes the initial spawn kinda broken though, cause I won't have containers as fast
             // we also need to make sure it does not pickup resources from a container, and then puts them back in, getting stuck, we could persist target in memory
             // const droppedResource
-            const target = source.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => {
-
-                    switch (structure.structureType) {
-                        case STRUCTURE_CONTAINER:
-                            const container = structure as StructureContainer
-                            const amount = _.sum(container.store)
-                            return amount > container.storeCapacity / 2
-                    }
-
-                    return false
+            let resource = source.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+            if (resource) {
+                if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling });
                 }
-            });
-
-            if (target && creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, { visualizePathStyle: PathStyle.Hauling });
             }
+            else {
+                const target = source.pos.findClosestByRange(FIND_STRUCTURES, {
+                    filter: (structure) => {
+
+                        switch (structure.structureType) {
+                            case STRUCTURE_CONTAINER:
+                                const container = structure as StructureContainer
+                                const amount = _.sum(container.store)
+                                return amount > container.storeCapacity / 2
+                        }
+
+                        return false
+                    }
+                });
+
+                if (target && creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: PathStyle.Hauling });
+                }
+            }
+
+
         }
         else {
             const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {

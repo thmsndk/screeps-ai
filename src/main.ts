@@ -37,6 +37,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  // TODO: how to handle memory after death? clear jobs? scrub parts of the memory?
+
   // TODO: a player module that automates what i do manually, spawn placement, extension placement, container placement. http://docs.screeps.com/api/#Room.createConstructionSite
   // TODO: a module that determines how many of the different roles we need based on amount of work needed
   // TODO: a module that can spawn creeps
@@ -115,6 +117,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  // How do I make sure collect stats resets room stats when I die?
   collect_stats();
 
   if (Game.spawns.Spawn1) {
@@ -209,7 +212,7 @@ function deseralizeJobCreeps(seralizedJob: IMemoryJob): Dictionary<Creep> {
 }
 
 function queueMiningJobs(jobs: Job[]) {
-  // TODO: hauler jobs
+
   for (const roomName in Game.rooms) {
     if (Game.rooms.hasOwnProperty(roomName)) {
       const room = Game.rooms[roomName];
@@ -230,7 +233,8 @@ function queueMiningJobs(jobs: Job[]) {
               jobs.push(miningJob);
 
             }
-
+            // TODO: if there is no container, or miners do not drop resources, there is no point in haulers for this
+            // Should haulingjob be a subroutine/job for miningjob aswell, so mining job knows it has a hauler? Creeps should could be split into Haulers and Miners?
             if (!jobs.find(job => job.target === sourceId && job.type === JobType.Hauling)) {
               const jobMemory = { type: JobType.Hauling, target: sourceId, creeps: [], priority: JobPriority.High }; // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
               const haulingJob = new HaulingJob(source, jobMemory, sourceMemory);

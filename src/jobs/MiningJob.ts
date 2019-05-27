@@ -6,6 +6,11 @@ import { Job } from './Job';
 import { Role } from 'role/roles';
 import { emoji } from '_lib/emoji';
 
+/* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
+how do we prevent having to repeatedly check for container?,
+Mining job should have a list of containers, and if there is none, spawn it
+*/
+
 export class MiningJob extends Job {
     public source: Source
     public sourceMemory: ISourceMemory;
@@ -86,34 +91,38 @@ class MiningCreep {
             }
         }
         else {
-            var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => {
 
-                    switch (structure.structureType) {
-                        case STRUCTURE_CONTAINER:
-                            const container = structure as StructureContainer
-                            return _.sum(container.store) < container.storeCapacity
-                        case STRUCTURE_EXTENSION:
-                            const extension = structure as StructureExtension
-                            return extension.energy < extension.energyCapacity
-                        case STRUCTURE_SPAWN:
-                            const spawn = structure as StructureSpawn
-                            return spawn.energy < spawn.energyCapacity
-                        case STRUCTURE_TOWER:
-                            const tower = structure as StructureTower
-                            return tower.energy < tower.energyCapacity
-                    }
+            // TODO: verify if we have haulers
+            creep.drop(RESOURCE_ENERGY)
 
-                    return false
-                }
-            });
+            // var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+            //     filter: (structure) => {
 
-            if (target) {
+            //         switch (structure.structureType) {
+            //             case STRUCTURE_CONTAINER:
+            //                 const container = structure as StructureContainer
+            //                 return _.sum(container.store) < container.storeCapacity
+            //             case STRUCTURE_EXTENSION:
+            //                 const extension = structure as StructureExtension
+            //                 return extension.energy < extension.energyCapacity
+            //             case STRUCTURE_SPAWN:
+            //                 const spawn = structure as StructureSpawn
+            //                 return spawn.energy < spawn.energyCapacity
+            //             case STRUCTURE_TOWER:
+            //                 const tower = structure as StructureTower
+            //                 return tower.energy < tower.energyCapacity
+            //         }
 
-                if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit });
-                }
-            }
+            //         return false
+            //     }
+            // });
+
+            // if (target) {
+
+            //     if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            //         creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit });
+            //     }
+            // }
         }
     }
 };

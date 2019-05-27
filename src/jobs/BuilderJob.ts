@@ -6,6 +6,7 @@ import { Job, JobPriority } from './Job';
 import { Role } from 'role/roles';
 import { emoji } from '_lib/emoji';
 
+// TODO: What if the target is removed? clean up job and release builders?
 
 
 export class BuilderJob extends Job {
