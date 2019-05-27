@@ -10,6 +10,7 @@ import { MiningJob } from 'jobs/MiningJob';
 import { Dictionary } from 'lodash';
 import { RoomScanner } from 'RoomScanner';
 import { ErrorMapper } from "utils/ErrorMapper";
+import { summarize_room } from '_lib/resources';
 
 const roomScanner = new RoomScanner()
 
@@ -113,6 +114,24 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   collect_stats();
+
+  let spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
+  let y = 25
+  if (spawn1Stats) {
+    for (const role in spawn1Stats.creep_counts) {
+      if (spawn1Stats.creep_counts.hasOwnProperty(role)) {
+        const count = spawn1Stats.creep_counts[role];
+        y += 1
+        Game.spawns.Spawn1.room.visual.text(
+          `${role}: ${count}`,
+          25,
+          y,
+          { align: 'center', opacity: 0.8 });
+      }
+    }
+
+
+  }
 
 });
 

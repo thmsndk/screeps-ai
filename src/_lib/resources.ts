@@ -281,7 +281,7 @@ export function summarize_rooms() {
     return retval;
 } // summarize_rooms
 
-export function summarize_room(room: Room) {
+export function summarize_room(room: Room): IRoomSummary | null {
     if (_.isString(room)) {
         room = Game.rooms[room];
     }
