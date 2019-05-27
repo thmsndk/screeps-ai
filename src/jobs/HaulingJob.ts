@@ -58,7 +58,7 @@ export class HaulingJob extends Job {
         for (const name in this.Creeps) {
             if (this.Creeps.hasOwnProperty(name)) {
                 const creep = this.Creeps[name];
-                haulingCreep.run(creep, this.source)
+                haulingCreep.run(this, creep, this.source)
             }
         }
     }
@@ -68,7 +68,7 @@ export class HaulingJob extends Job {
 // tslint:disable-next-line: max-classes-per-file
 class HaulingCreep {
 
-    run(creep: Creep, source: Source) {
+    run(job: HaulingJob, creep: Creep, source: Source) {
 
         // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
 
@@ -102,6 +102,8 @@ class HaulingCreep {
                     }
                 });
 
+                job.memory.target = target ? target.id : undefined
+
                 if (target && creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: PathStyle.Hauling });
                 }
@@ -110,7 +112,7 @@ class HaulingCreep {
 
         }
         else {
-            const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+            const target: any = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => {
 
                     switch (structure.structureType) {
@@ -120,9 +122,14 @@ class HaulingCreep {
                         case STRUCTURE_SPAWN:
                             const spawn = structure as StructureSpawn
                             return spawn.energy < spawn.energyCapacity
+
                         // case STRUCTURE_TOWER:
                         //     const tower = structure as StructureTower
                         //     return tower.energy < tower.energyCapacity
+                        case STRUCTURE_CONTAINER:
+                            const container = structure as StructureContainer
+                            return target.id !== job.memory.target && container.store[RESOURCE_ENERGY] < container.storeCapacity
+
                     }
 
                     return false
