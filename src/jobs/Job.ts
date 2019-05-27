@@ -10,7 +10,14 @@ export class Job {
         this.type = type
         this.target = target
         this.Creeps = creeps || {}
-
+        if (target) {
+            for (const creepName in this.Creeps) {
+                if (this.Creeps.hasOwnProperty(creepName)) {
+                    const creep = this.Creeps[creepName];
+                    creep.memory.target = target
+                }
+            }
+        }
     }
 
     public run() {
