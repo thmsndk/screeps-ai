@@ -1,7 +1,7 @@
 import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
-import { Job } from './Job';
+import { Job, JobPriority } from './Job';
 import { Role } from 'role/roles';
 import { emoji } from '_lib/emoji';
 
@@ -36,6 +36,15 @@ export class UpgradeControllerJob extends Job {
         }
 
         if (assignedCreeps < maxCreeps) {
+            if (assignedCreeps === 0) {
+                this.memory.priority = JobPriority.High
+            }
+
+            if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
+                this.memory.priority = JobPriority.Low
+            }
+
+
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
             const neededWorkers = maxCreeps - assignedCreeps
