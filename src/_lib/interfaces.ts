@@ -39,6 +39,7 @@ export type JobTypeBuilding = 4
 // tslint:disable-next-line: interface-name
 export interface IMemoryJob {
     type: JobTypes
+    priority: number
     target?: string
     creeps: string[]
 }

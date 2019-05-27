@@ -5,7 +5,7 @@ import { UpgradeControllerJob } from './jobs/UpgradeControllerJob';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { collect_stats } from '_lib/screepsplus';
 import { Hatchery } from 'Hatchery';
-import { Job } from 'jobs/Job';
+import { Job, JobPriority } from 'jobs/Job';
 import { MiningJob } from 'jobs/MiningJob';
 import { Dictionary } from 'lodash';
 import { RoomScanner } from 'RoomScanner';
@@ -60,7 +60,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (!jobs.find(job => job.target === controller.id)) {
 
       // having to construct the memory this way and then sending it in, to be able to push the memory, is sily
-      const jobMemory = { type: JobType.UpgradeController, target: controller.id, creeps: [] };
+      const jobMemory = { type: JobType.UpgradeController, target: controller.id, creeps: [], priority: JobPriority.Low };
       const job = new UpgradeControllerJob(controller, jobMemory);
       Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
       jobs.push(job);
@@ -123,30 +123,14 @@ function deseralizeJobs() {
   }
 
   Memory.jobs.sort((a, b) => {
-    if (a.type === JobType.Mining) {
-      return -1
-    }
-
-    if (b.type === JobType.Mining) {
-      return 1
-    }
-
-    if (a.type === JobType.Building && b.type === JobType.UpgradeController) {
-      return -1
-    }
-
-    if (a.type === JobType.UpgradeController && b.type === JobType.Building) {
-      return 1
-    }
-
-    return 0
+    return b.priority - a.priority
   })
 
   Memory.jobs.forEach(seralizedJob => {
-    console.log(seralizedJob.type)
     switch (seralizedJob.type) {
       case JobType.Mining:
       case JobType.Hauling:
+        // seralizedJob.priority = JobPriority.High // mokeypatched memory
         const source = Game.getObjectById<Source>(seralizedJob.target);
         if (source) {
           const sourceMemory = source.room.memory.sources[source.id];
@@ -167,6 +151,7 @@ function deseralizeJobs() {
         }
         break;
       case JobType.UpgradeController:
+        // seralizedJob.priority = JobPriority.Low // mokeypatched memory
         const controller = Game.getObjectById<StructureController>(seralizedJob.target);
         if (controller) {
           const creeps = deseralizeJobCreeps(seralizedJob);
@@ -175,6 +160,7 @@ function deseralizeJobs() {
         }
         break;
       case JobType.Building:
+        // seralizedJob.priority = JobPriority.Medium // mokeypatched memory
         const site = Game.getObjectById<ConstructionSite>(seralizedJob.target);
         if (site) {
           const creeps = deseralizeJobCreeps(seralizedJob);
@@ -218,7 +204,7 @@ function queueMiningJobs(jobs: Job[]) {
             const sourceMemory = room.memory.sources[sourceId];
 
             if (!jobs.find(job => job.target === sourceId && job.type === JobType.Mining)) {
-              const jobMemory = { type: JobType.Mining, target: sourceId, creeps: [] }; // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
+              const jobMemory = { type: JobType.Mining, target: sourceId, creeps: [], priority: JobPriority.High }; // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
               const miningJob = new MiningJob(source, jobMemory, sourceMemory);
               Memory.jobs.push(jobMemory);
               jobs.push(miningJob);
@@ -226,7 +212,7 @@ function queueMiningJobs(jobs: Job[]) {
             }
 
             if (!jobs.find(job => job.target === sourceId && job.type === JobType.Hauling)) {
-              const jobMemory = { type: JobType.Hauling, target: sourceId, creeps: [] }; // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
+              const jobMemory = { type: JobType.Hauling, target: sourceId, creeps: [], priority: JobPriority.High }; // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
               const haulingJob = new HaulingJob(source, jobMemory, sourceMemory);
               Memory.jobs.push(jobMemory);
               jobs.push(haulingJob);

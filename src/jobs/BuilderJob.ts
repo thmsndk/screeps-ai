@@ -2,7 +2,7 @@ import { Larvae } from './../Larvae';
 import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
-import { Job } from './Job';
+import { Job, JobPriority } from './Job';
 import { Role } from 'role/roles';
 import { emoji } from '_lib/emoji';
 
@@ -16,7 +16,7 @@ export class BuilderJob extends Job {
         this.constructionSite = constructionSite
 
         if (!memory) {
-            memory = { type: JobType.Building, target: constructionSite.id, creeps: [] }; // TODO: move down into job, requires refactoring of other stuff
+            memory = { type: JobType.Building, target: constructionSite.id, creeps: [], priority: JobPriority.Medium }; // TODO: move down into job, requires refactoring of other stuff
             Memory.jobs.push(memory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
         }
 

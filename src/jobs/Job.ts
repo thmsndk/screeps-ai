@@ -17,3 +17,9 @@ export class Job {
         console.log('generic job running, no effect')
     }
 }
+
+export const JobPriority = {
+    Low: 1,
+    Medium: 2,
+    High: 3
+}
