@@ -42,6 +42,7 @@ export interface IMemoryJob {
     priority: number
     target?: string
     creeps: string[]
+    jobs?: IMemoryJob[]
 }
 
 export const JobType = {

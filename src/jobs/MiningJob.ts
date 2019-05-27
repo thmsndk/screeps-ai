@@ -5,6 +5,7 @@ import { ISourceMemory } from 'RoomScanner';
 import { Job } from './Job';
 import { Role } from 'role/roles';
 import { emoji } from '_lib/emoji';
+import { HaulingJob } from './HaulingJob';
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
@@ -15,11 +16,13 @@ export class MiningJob extends Job {
     public source: Source
     public sourceMemory: ISourceMemory;
     public memory: IMemoryJob;
-    constructor(source: Source, memory: IMemoryJob, sourceMemory: ISourceMemory, creeps?: Dictionary<Creep>) {
+    public haulingJob: HaulingJob;
+    constructor(source: Source, memory: IMemoryJob, sourceMemory: ISourceMemory, haulingJob: HaulingJob, creeps?: Dictionary<Creep>) {
         super(JobType.Mining, source.id, creeps)
         this.source = source
         this.sourceMemory = sourceMemory
         this.memory = memory
+        this.haulingJob = haulingJob
 
         if (creeps) {
             this.memory.creeps = Object.keys(creeps)
@@ -34,8 +37,6 @@ export class MiningJob extends Job {
     }
 
     public run() {
-
-
 
         const assignedCreeps = Object.keys(this.Creeps).length;
 
@@ -69,7 +70,7 @@ export class MiningJob extends Job {
         for (const name in this.Creeps) {
             if (this.Creeps.hasOwnProperty(name)) {
                 const creep = this.Creeps[name];
-                roleHarvester.run(creep, this.source)
+                roleHarvester.run(this, creep, this.source)
                 // creep.say(emoji.construction_worker)
             }
         }
@@ -80,7 +81,7 @@ export class MiningJob extends Job {
 // tslint:disable-next-line: max-classes-per-file
 class MiningCreep {
 
-    run(creep: Creep, source: Source) {
+    run(job: MiningJob, creep: Creep, source: Source) {
 
         // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
         const harvet = creep.carry.energy < creep.carryCapacity
@@ -91,38 +92,39 @@ class MiningCreep {
             }
         }
         else {
+            if (Object.keys(job.haulingJob.Creeps).length > 0) {
+                creep.drop(RESOURCE_ENERGY)
+            }
+            else {
+                const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                    filter: (structure) => {
 
-            // TODO: verify if we have haulers
-            creep.drop(RESOURCE_ENERGY)
+                        switch (structure.structureType) {
+                            case STRUCTURE_CONTAINER:
+                                const container = structure as StructureContainer
+                                return _.sum(container.store) < container.storeCapacity
+                            case STRUCTURE_EXTENSION:
+                                const extension = structure as StructureExtension
+                                return extension.energy < extension.energyCapacity
+                            case STRUCTURE_SPAWN:
+                                const spawn = structure as StructureSpawn
+                                return spawn.energy < spawn.energyCapacity
+                            case STRUCTURE_TOWER:
+                                const tower = structure as StructureTower
+                                return tower.energy < tower.energyCapacity
+                        }
 
-            // var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-            //     filter: (structure) => {
+                        return false
+                    }
+                });
 
-            //         switch (structure.structureType) {
-            //             case STRUCTURE_CONTAINER:
-            //                 const container = structure as StructureContainer
-            //                 return _.sum(container.store) < container.storeCapacity
-            //             case STRUCTURE_EXTENSION:
-            //                 const extension = structure as StructureExtension
-            //                 return extension.energy < extension.energyCapacity
-            //             case STRUCTURE_SPAWN:
-            //                 const spawn = structure as StructureSpawn
-            //                 return spawn.energy < spawn.energyCapacity
-            //             case STRUCTURE_TOWER:
-            //                 const tower = structure as StructureTower
-            //                 return tower.energy < tower.energyCapacity
-            //         }
+                if (target) {
 
-            //         return false
-            //     }
-            // });
-
-            // if (target) {
-
-            //     if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            //         creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit });
-            //     }
-            // }
+                    if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit });
+                    }
+                }
+            }
         }
     }
 };

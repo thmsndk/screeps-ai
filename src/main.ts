@@ -152,7 +152,7 @@ function deseralizeJobs() {
   Memory.jobs.forEach(seralizedJob => {
     switch (seralizedJob.type) {
       case JobType.Mining:
-      case JobType.Hauling:
+        // case JobType.Hauling: // nested inside mining job memory
         // seralizedJob.priority = JobPriority.High // mokeypatched memory
         const source = Game.getObjectById<Source>(seralizedJob.target);
         if (source) {
@@ -163,14 +163,20 @@ function deseralizeJobs() {
             return
           }
 
-          const creeps = deseralizeJobCreeps(seralizedJob);
+          if (!seralizedJob.jobs) {
+            // this should never happen
+            return
+          }
 
-          if (seralizedJob.type === JobType.Hauling) {
-            jobs.push(new HaulingJob(source, seralizedJob, sourceMemory, creeps));
-          }
-          else {
-            jobs.push(new MiningJob(source, seralizedJob, sourceMemory, creeps));
-          }
+          const seralizedHaulerMemory = seralizedJob.jobs[0]
+          const haulers = deseralizeJobCreeps(seralizedHaulerMemory);
+          const haulingJob = new HaulingJob(source, seralizedJob, sourceMemory, haulers)
+
+          const miners = deseralizeJobCreeps(seralizedJob);
+          jobs.push(new MiningJob(source, seralizedJob, sourceMemory, haulingJob, miners))
+
+          jobs.push(haulingJob)
+
         }
         break;
       case JobType.UpgradeController:
@@ -194,9 +200,8 @@ function deseralizeJobs() {
     }
   });
   return jobs;
-
-
 }
+
 function deseralizeJobCreeps(seralizedJob: IMemoryJob): Dictionary<Creep> {
   const creeps: Dictionary<Creep> = {};
   if (seralizedJob.creeps) { // TODO: DRY we are doing this for each  job
@@ -218,28 +223,28 @@ function queueMiningJobs(jobs: Job[]) {
       const room = Game.rooms[roomName];
       for (const sourceId in room.memory.sources) {
         if (room.memory.sources.hasOwnProperty(sourceId)) {
-          if (sourceId === '5cd5e6adf5b071001017115f') {
-            console.log(roomName + 'fault job')
-          }
+
           const source = Game.getObjectById<Source>(sourceId);
 
           if (source) {
             const sourceMemory = room.memory.sources[sourceId];
 
-            if (!jobs.find(job => job.target === sourceId && job.type === JobType.Mining)) {
-              const jobMemory = { type: JobType.Mining, target: sourceId, creeps: [], priority: JobPriority.High }; // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
-              const miningJob = new MiningJob(source, jobMemory, sourceMemory);
-              Memory.jobs.push(jobMemory);
-              jobs.push(miningJob);
-
-            }
             // TODO: if there is no container, or miners do not drop resources, there is no point in haulers for this
             // Should haulingjob be a subroutine/job for miningjob aswell, so mining job knows it has a hauler? Creeps should could be split into Haulers and Miners?
-            if (!jobs.find(job => job.target === sourceId && job.type === JobType.Hauling)) {
-              const jobMemory = { type: JobType.Hauling, target: sourceId, creeps: [], priority: JobPriority.High }; // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
-              const haulingJob = new HaulingJob(source, jobMemory, sourceMemory);
-              Memory.jobs.push(jobMemory);
+            if (!jobs.find(job => job.target === sourceId && job.type === JobType.Mining)) {
+
+              const haulingMemory = { type: JobType.Hauling, target: sourceId, creeps: [], priority: JobPriority.High }; // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
+
+              const miningMemory = { type: JobType.Mining, target: sourceId, creeps: [], priority: JobPriority.High, jobs: [haulingMemory] }; // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
+
+              const haulingJob = new HaulingJob(source, haulingMemory, sourceMemory);
+              const miningJob = new MiningJob(source, miningMemory, sourceMemory, haulingJob);
+              Memory.jobs.push(miningMemory);
+              jobs.push(miningJob);
+
+              Memory.jobs.push(haulingMemory);
               jobs.push(haulingJob);
+
             }
           }
         }
