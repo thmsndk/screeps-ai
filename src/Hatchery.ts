@@ -31,11 +31,18 @@ export class Hatchery {
             // determine how much energy we have
             // determine what the next creep we need is, hatchery should have a job queued
             // determine what creep we can create for the job.
-            const body = [WORK, CARRY, MOVE]
+            let body = [WORK, CARRY, MOVE]
+            let body2 = [WORK, WORK, CARRY, CARRY, MOVE, MOVE]
+            let creepBody = body
+
+            if (this.Spawn.room.energyAvailable >= calculateBodyCost(body2)) {
+                creepBody = body2
+            }
+
             const cost = calculateBodyCost(body)
 
             if (this.Spawn.room.energyAvailable >= cost) {
-                const result = this.Spawn.spawnCreep(body, creepName,
+                const result = this.Spawn.spawnCreep(creepBody, creepName,
                     { memory: { role: Role.Larvae, cost, unemployed: true } } as SpawnOptions);
 
                 if (result === OK) {
