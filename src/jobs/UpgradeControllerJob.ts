@@ -40,13 +40,14 @@ export class UpgradeControllerJob extends Job {
                 this.memory.priority = JobPriority.High
             }
 
-            if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
-                this.memory.priority = JobPriority.Low
-            }
+            // if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
+            this.memory.priority = JobPriority.Low
+            // }
 
 
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
+            // when suddenly ~90 workers are needed because of the high max, everything gets converted to upgraders
             const neededWorkers = maxCreeps - assignedCreeps
             const unemployed = _.filter(Game.creeps, (creep) => creep.memory.unemployed)
             const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length);

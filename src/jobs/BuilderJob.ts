@@ -57,6 +57,8 @@ export class BuilderJob extends Job {
                 this.memory.priority = JobPriority.High
             }
 
+            this.memory.priority = JobPriority.Medium
+
             if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
                 this.memory.priority = JobPriority.Low
             }
