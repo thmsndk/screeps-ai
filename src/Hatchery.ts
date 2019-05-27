@@ -36,7 +36,7 @@ export class Hatchery {
 
             if (this.Spawn.room.energyAvailable >= cost) {
                 const result = this.Spawn.spawnCreep(body, creepName,
-                    { memory: { role: Role.Larvae, cost } } as SpawnOptions);
+                    { memory: { role: Role.Larvae, cost, unemployed: true } } as SpawnOptions);
 
                 if (result === OK) {
                     console.log('Spawning new Larvae: ' + creepName);
