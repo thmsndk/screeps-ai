@@ -166,7 +166,7 @@ function deseralizeJobs() {
   Memory.jobs.sort((a, b) => {
     return b.priority - a.priority
   })
-
+  const jobsToDelete: IMemoryJob[] = []
   Memory.jobs.forEach(seralizedJob => {
     switch (seralizedJob.type) {
       case JobType.Mining:
@@ -213,10 +213,15 @@ function deseralizeJobs() {
           const creeps = deseralizeJobCreeps(seralizedJob);
 
           jobs.push(new BuilderJob(site, seralizedJob, creeps));
+        } else {
+          jobsToDelete.push(seralizedJob)
         }
         break;
     }
   });
+
+  Memory.jobs = Memory.jobs.filter(serializedJob => !jobsToDelete.includes(serializedJob))
+
   return jobs;
 }
 

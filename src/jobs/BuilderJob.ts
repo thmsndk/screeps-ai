@@ -80,6 +80,7 @@ export class BuilderJob extends Job {
             }
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
+            // TODO: acquire free builders with energy close to build site, sort unemployed by priority
             const neededWorkers = maxCreeps - assignedCreeps
             const unemployed = _.filter(Game.creeps, (creep) => creep.memory.unemployed && creep.memory.role === Role.Larvae)
             const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length);
