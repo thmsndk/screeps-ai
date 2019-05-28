@@ -5,7 +5,7 @@ import { ISourceMemory } from 'RoomScanner';
 import { Job, JobPriority } from './Job';
 import { Role } from 'role/roles';
 import { emoji } from '_lib/emoji';
-import { HaulingJob } from './HaulingJob';
+import { MiningHaulingJob } from './MiningHaulingJob';
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
@@ -16,8 +16,8 @@ export class MiningJob extends Job {
     public source: Source
     public sourceMemory: ISourceMemory;
     public memory: IMemoryJob;
-    public haulingJob: HaulingJob;
-    constructor(source: Source, memory: IMemoryJob, sourceMemory: ISourceMemory, haulingJob: HaulingJob, creeps?: Dictionary<Creep>) {
+    public haulingJob: MiningHaulingJob;
+    constructor(source: Source, memory: IMemoryJob, sourceMemory: ISourceMemory, haulingJob: MiningHaulingJob, creeps?: Dictionary<Creep>) {
         super(JobType.Mining, source.id, creeps)
         this.source = source
         this.sourceMemory = sourceMemory

@@ -1,5 +1,5 @@
 import { BuilderJob } from './jobs/BuilderJob';
-import { HaulingJob } from './jobs/HaulingJob';
+import { MiningHaulingJob } from './jobs/MiningHaulingJob';
 import { UpgradeControllerJob } from './jobs/UpgradeControllerJob';
 
 import { IMemoryJob, JobType } from '_lib/interfaces';
@@ -188,7 +188,7 @@ function deseralizeJobs() {
 
           const seralizedHaulerMemory = seralizedJob.jobs[0]
           const haulers = deseralizeJobCreeps(seralizedHaulerMemory);
-          const haulingJob = new HaulingJob(source, seralizedJob, sourceMemory, haulers)
+          const haulingJob = new MiningHaulingJob(source, seralizedJob, sourceMemory, haulers)
 
           const miners = deseralizeJobCreeps(seralizedJob);
           jobs.push(new MiningJob(source, seralizedJob, sourceMemory, haulingJob, miners))
@@ -260,7 +260,7 @@ function queueMiningJobs(jobs: Job[]) {
 
               const miningMemory = { type: JobType.Mining, target: sourceId, creeps: [], priority: JobPriority.High, jobs: [haulingMemory] }; // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
 
-              const haulingJob = new HaulingJob(source, haulingMemory, sourceMemory);
+              const haulingJob = new MiningHaulingJob(source, haulingMemory, sourceMemory);
               const miningJob = new MiningJob(source, miningMemory, sourceMemory, haulingJob);
               Memory.jobs.push(miningMemory);
               // jobs.push(miningJob);

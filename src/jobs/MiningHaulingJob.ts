@@ -10,7 +10,7 @@ import { PathStyle } from './MovementPathStyles';
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners
  *
 */
-export class HaulingJob extends Job {
+export class MiningHaulingJob extends Job {
     public source: Source
     public sourceMemory: ISourceMemory;
     public memory: IMemoryJob;
@@ -75,7 +75,7 @@ export class HaulingJob extends Job {
 // tslint:disable-next-line: max-classes-per-file
 class HaulingCreep {
 
-    run(job: HaulingJob, creep: Creep, source: Source) {
+    run(job: MiningHaulingJob, creep: Creep, source: Source) {
 
         // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
 
