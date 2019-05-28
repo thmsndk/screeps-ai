@@ -47,20 +47,19 @@ export class BuilderJob extends Job {
         const progress = Math.floor(((this.constructionSite.progress) / this.constructionSite.progressTotal) * 100)
         if (this.constructionSite.room) {
 
-            let visualize = true
+            let visualize = assignedCreeps > 0
 
-            if (assignedCreeps === 0) {
-                switch (this.constructionSite.structureType) {
-                    case STRUCTURE_ROAD:
-                    case STRUCTURE_EXTENSION:
-                        visualize = false
-                        break;
-                }
-            }
+            // if (assignedCreeps === 0) {
+            // visualize = false
+            // switch (this.constructionSite.structureType) {
+            //     case STRUCTURE_ROAD:
+            //     case STRUCTURE_EXTENSION:
+
+            //         break;
+            // }
+            // }
 
             if (visualize) {
-
-
                 this.constructionSite.room.visual.text(
                     `${assignedCreeps} / ${maxCreeps} 🛠️ ${progress}%`,
                     this.constructionSite.pos.x + 1,
