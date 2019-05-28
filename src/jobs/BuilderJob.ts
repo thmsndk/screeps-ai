@@ -115,13 +115,14 @@ export class BuilderJob extends Job {
 
                     // TODO: delete job
                 }
-                if (energyPercentage && energyPercentage < 0.30) {
-                    creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
-                    creep.memory.unemployed = true
-                    creep.say("B Released")
-                    this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
-                    // delete this.Creeps[creep.id]
-                }
+                // disable builder release for now, untill we get a smart way to do it
+                // if (energyPercentage && energyPercentage < 0.30) {
+                //     creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+                //     creep.memory.unemployed = true
+                //     creep.say("B Released")
+                //     this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
+                //     // delete this.Creeps[creep.id]
+                // }
             }
         }
     }
