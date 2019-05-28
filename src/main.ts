@@ -126,13 +126,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
     let y = 25
     if (spawn1Stats) {
 
-      Game.spawns.Spawn1.room.visual.text(
-        `⚡ ${spawn1Stats.energy_avail} / ${spawn1Stats.energy_cap}`,
-        25,
-        y,
-        { align: 'center', opacity: 0.8 });
+      // Game.spawns.Spawn1.room.visual.text(
+      //   `⚡ ${spawn1Stats.energy_avail} / ${spawn1Stats.energy_cap}`,
+      //   25,
+      //   y,
+      //   { align: 'center', opacity: 0.8 });
 
-      y += 1
+      // y += 1
 
       for (const role in spawn1Stats.creep_counts) {
         if (spawn1Stats.creep_counts.hasOwnProperty(role)) {

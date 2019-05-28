@@ -70,5 +70,13 @@ export class Hatchery {
                 this.Spawn.pos.y,
                 { align: 'left', opacity: 0.8 });
         }
+        else {
+
+            this.Spawn.room.visual.text(
+                `⚡ ${this.Spawn.room.energyAvailable} / ${this.Spawn.room.energyCapacityAvailable}`,
+                this.Spawn.pos.x + 1,
+                this.Spawn.pos.y,
+                { align: 'left', opacity: 0.8 });
+        }
     }
 }
