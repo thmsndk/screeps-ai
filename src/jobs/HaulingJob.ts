@@ -128,7 +128,7 @@ class HaulingCreep {
                         //     return tower.energy < tower.energyCapacity
                         case STRUCTURE_CONTAINER:
                             const container = structure as StructureContainer
-                            return target.id !== job.memory.target && container.store[RESOURCE_ENERGY] < container.storeCapacity
+                            return structure.id !== job.memory.target && container.store[RESOURCE_ENERGY] < container.storeCapacity
 
                     }
 
