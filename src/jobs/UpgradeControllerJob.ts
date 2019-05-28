@@ -72,17 +72,20 @@ export class UpgradeControllerJob extends Job {
             // TODO: what if creep expired and we need a new creep?
         }
 
+        let released = 0
+        const maxRelease = 2
         for (const name in this.Creeps) {
             if (this.Creeps.hasOwnProperty(name)) {
                 const creep = this.Creeps[name];
                 upgradeControllerCreep.run(this.controller, creep)
                 // creep.say(emoji.lightning)
-                if (energyPercentage < 0.30) {
+                if (energyPercentage < 0.30 && released < maxRelease) {
                     creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
                     creep.memory.unemployed = true
                     creep.say("U Released")
                     this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
                     // delete this.Creeps[creep.id]
+                    released++
                 }
             }
         }
