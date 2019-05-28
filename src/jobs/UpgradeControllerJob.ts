@@ -35,7 +35,8 @@ export class UpgradeControllerJob extends Job {
                 { align: 'center', opacity: 0.8 });
         }
 
-        if (assignedCreeps < maxCreeps) {
+        const energyPercentage = this.controller.room.energyAvailable / this.controller.room.energyCapacityAvailable
+        if (assignedCreeps < maxCreeps && energyPercentage > 0.25) {
             if (assignedCreeps === 0) {
                 this.memory.priority = JobPriority.High
             }
@@ -73,6 +74,13 @@ export class UpgradeControllerJob extends Job {
                 const creep = this.Creeps[name];
                 upgradeControllerCreep.run(this.controller, creep)
                 // creep.say(emoji.lightning)
+                if (energyPercentage < 0.30) {
+                    creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+                    creep.memory.unemployed = true
+                    creep.say("Released")
+                    this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
+                    delete this.Creeps[creep.id]
+                }
             }
         }
     }

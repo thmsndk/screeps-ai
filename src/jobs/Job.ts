@@ -11,9 +11,9 @@ export class Job {
         this.target = target
         this.Creeps = creeps || {}
         if (target) {
-            for (const creepName in this.Creeps) {
-                if (this.Creeps.hasOwnProperty(creepName)) {
-                    const creep = this.Creeps[creepName];
+            for (const creepId in this.Creeps) {
+                if (this.Creeps.hasOwnProperty(creepId)) {
+                    const creep = this.Creeps[creepId];
                     creep.memory.target = target
                 }
             }

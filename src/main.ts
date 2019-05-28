@@ -38,6 +38,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   // TODO: how to handle memory after death? clear jobs? scrub parts of the memory?
+  // TODO: if our energy income can not sustain  the amount of workers or upgraders we have, can we release them? what do they require to be "converted" to "bad versions" of haulers and miners? and when they are converted and we create a new spawn, can we release them again?
 
   // TODO: a player module that automates what i do manually, spawn placement, extension placement, container placement. http://docs.screeps.com/api/#Room.createConstructionSite
   // TODO: a module that determines how many of the different roles we need based on amount of work needed

@@ -68,8 +68,8 @@ export class BuilderJob extends Job {
                     { align: 'left', opacity: 0.8 });
             }
         }
-
-        if (assignedCreeps < maxCreeps) {
+        const energyPercentage = this.constructionSite.room ? this.constructionSite.room.energyAvailable / this.constructionSite.room.energyCapacityAvailable : null
+        if (assignedCreeps < maxCreeps && energyPercentage && energyPercentage > 0.25) {
             if (assignedCreeps === 0) {
                 this.memory.priority = JobPriority.High
             }
@@ -114,6 +114,13 @@ export class BuilderJob extends Job {
                     creep.say("[Builder]  Job's done ")
 
                     // TODO: delete job
+                }
+                if (energyPercentage && energyPercentage < 0.30) {
+                    creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+                    creep.memory.unemployed = true
+                    creep.say("Released")
+                    this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
+                    delete this.Creeps[creep.id]
                 }
             }
         }
