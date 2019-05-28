@@ -77,9 +77,9 @@ export class UpgradeControllerJob extends Job {
                 if (energyPercentage < 0.30) {
                     creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
                     creep.memory.unemployed = true
-                    creep.say("Released")
+                    creep.say("U Released")
                     this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
-                    delete this.Creeps[creep.id]
+                    // delete this.Creeps[creep.id]
                 }
             }
         }

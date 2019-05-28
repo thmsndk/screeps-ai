@@ -68,7 +68,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         const jobMemory = { type: JobType.UpgradeController, target: controller.id, creeps: [], priority: JobPriority.Low };
         const job = new UpgradeControllerJob(controller, jobMemory);
         Memory.jobs.push(jobMemory); // "Seralize job" TODO: change structure to a dictionary per jobType and a list
-        jobs.push(job);
+        // jobs.push(job);
 
       }
     }
@@ -79,7 +79,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (!jobs.find(job => job.target === site.id)) {
         const job = new BuilderJob(site);
 
-        jobs.push(job);
+        // jobs.push(job);
       }
     })
 
@@ -250,10 +250,10 @@ function queueMiningJobs(jobs: Job[]) {
               const haulingJob = new HaulingJob(source, haulingMemory, sourceMemory);
               const miningJob = new MiningJob(source, miningMemory, sourceMemory, haulingJob);
               Memory.jobs.push(miningMemory);
-              jobs.push(miningJob);
+              // jobs.push(miningJob);
 
-              Memory.jobs.push(haulingMemory);
-              jobs.push(haulingJob);
+              // Memory.jobs.push(haulingMemory);
+              // jobs.push(haulingJob);
 
             }
           }

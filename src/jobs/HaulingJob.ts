@@ -102,7 +102,7 @@ class HaulingCreep {
                     }
                 });
 
-                job.memory.target = target ? target.id : undefined
+                // job.memory.target = target ? target.id : undefined
 
                 if (target && creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: PathStyle.Hauling });
@@ -126,9 +126,9 @@ class HaulingCreep {
                         // case STRUCTURE_TOWER:
                         //     const tower = structure as StructureTower
                         //     return tower.energy < tower.energyCapacity
-                        case STRUCTURE_CONTAINER:
-                            const container = structure as StructureContainer
-                            return structure.id !== job.memory.target && container.store[RESOURCE_ENERGY] < container.storeCapacity
+                        // case STRUCTURE_CONTAINER:
+                        //     const container = structure as StructureContainer
+                        //     return structure.id !== job.memory.target && container.store[RESOURCE_ENERGY] < container.storeCapacity
 
                     }
 
