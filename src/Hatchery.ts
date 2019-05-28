@@ -41,7 +41,7 @@ export class Hatchery {
                 creepBody = body2
             }
 
-            const cost = calculateBodyCost(body)
+            const cost = calculateBodyCost(creepBody)
 
             if (this.Spawn.room.energyAvailable >= cost) {
                 const result = this.Spawn.spawnCreep(creepBody, creepName,
