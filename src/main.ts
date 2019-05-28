@@ -12,6 +12,7 @@ import { RoomScanner } from 'RoomScanner';
 import { ErrorMapper } from "utils/ErrorMapper";
 import { summarize_room } from '_lib/resources';
 import { Role } from 'role/roles';
+import { HaulingJob } from 'jobs/HaulingJob';
 
 const roomScanner = new RoomScanner()
 
@@ -91,9 +92,33 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
     })
 
+    // queue tower hauling jobs
+    const towers = Game.spawns.Spawn1.room.find<StructureTower>(FIND_MY_STRUCTURES, {
+      filter: (structure: Structure) => structure.structureType === STRUCTURE_TOWER
+    })
+
+    towers.forEach(tower => {
+      if (!jobs.find(job => job.target === tower.id)) {
+        const job = new HaulingJob(tower);
+      }
+
+      // prefer shooting enemies
+      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+      if (closestHostile) {
+        tower.attack(closestHostile);
+      }
+      else {
+        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+          filter: (structure: Structure) => structure.hits < structure.hitsMax
+        });
+
+        if (closestDamagedStructure) {
+          tower.repair(closestDamagedStructure);
+        }
+      }
+    });
+
     // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
-
-
 
     // TODO: assign jobs
     // find a valid creep for the job assing creep to job
@@ -108,22 +133,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const hatchery = new Hatchery()
     hatchery.run()
 
-    const tower = Game.getObjectById<StructureTower>('TOWER_ID');
 
-    if (tower) {
-      const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: (structure: Structure) => structure.hits < structure.hitsMax
-      });
-
-      if (closestDamagedStructure) {
-        tower.repair(closestDamagedStructure);
-      }
-
-      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-      if (closestHostile) {
-        tower.attack(closestHostile);
-      }
-    }
   }
 
   // How do I make sure collect stats resets room stats when I die?
@@ -169,6 +179,15 @@ function deseralizeJobs() {
   const jobsToDelete: IMemoryJob[] = []
   Memory.jobs.forEach(seralizedJob => {
     switch (seralizedJob.type) {
+      case JobType.Hauling:
+        const structure = Game.getObjectById<Structure>(seralizedJob.target);
+        if (structure) {
+
+          const haulers = deseralizeJobCreeps(seralizedJob);
+          const haulingJob = new HaulingJob(structure, seralizedJob, haulers)
+          jobs.push(haulingJob)
+
+        }
       case JobType.Mining:
         // case JobType.Hauling: // nested inside mining job memory
         // seralizedJob.priority = JobPriority.High // mokeypatched memory
@@ -188,7 +207,7 @@ function deseralizeJobs() {
 
           const seralizedHaulerMemory = seralizedJob.jobs[0]
           const haulers = deseralizeJobCreeps(seralizedHaulerMemory);
-          const haulingJob = new MiningHaulingJob(source, seralizedJob, sourceMemory, haulers)
+          const haulingJob = new MiningHaulingJob(source, seralizedHaulerMemory, sourceMemory, haulers)
 
           const miners = deseralizeJobCreeps(seralizedJob);
           jobs.push(new MiningJob(source, seralizedJob, sourceMemory, haulingJob, miners))
