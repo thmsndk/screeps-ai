@@ -39,6 +39,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // TODO: how to handle memory after death? clear jobs? scrub parts of the memory?
   // TODO: if our energy income can not sustain  the amount of workers or upgraders we have, can we release them? what do they require to be "converted" to "bad versions" of haulers and miners? and when they are converted and we create a new spawn, can we release them again?
+  // TODO: upgrader creeps gets released, but why do we have upgrader creeps? - render jobs somewwhere, with the amount of workers, color code and render a rectangle at job position
+  // TODO: calculate upgrade positions for controller and make sure upgraders are placed there, and that we don't go too much overboard with upgraders - perhaps a hauler to haul energy to them? - alternatively, if there are no upgrade positions left, the upgrader can just transfer to upgrader already upgrading?, atleast when the upgrader is a "generic creep"
 
   // TODO: a player module that automates what i do manually, spawn placement, extension placement, container placement. http://docs.screeps.com/api/#Room.createConstructionSite
   // TODO: a module that determines how many of the different roles we need based on amount of work needed
@@ -231,7 +233,7 @@ function queueMiningJobs(jobs: Job[]) {
   for (const roomName in Game.rooms) {
     if (Game.rooms.hasOwnProperty(roomName)) {
       const room = Game.rooms[roomName];
-      for (const sourceId in room.memory.sources) {
+      for (const sourceId in room.memory.sources) { // sort sources by range from spawn, give  closer spawns higher priority
         if (room.memory.sources.hasOwnProperty(sourceId)) {
 
           const source = Game.getObjectById<Source>(sourceId);

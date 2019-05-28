@@ -24,7 +24,7 @@ export class UpgradeControllerJob extends Job {
 
         const assignedCreeps = Object.keys(this.Creeps).length;
 
-        const maxCreeps = 100
+        const maxCreeps = 25 // max potential upgrade positions is 22, so we need to be smart about filling them and how many upgraders we have
 
         const progress = Math.floor(((this.controller.progress) / this.controller.progressTotal) * 100)
         if (this.controller.room) {
