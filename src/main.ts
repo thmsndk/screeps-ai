@@ -125,6 +125,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
     let spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
     let y = 25
     if (spawn1Stats) {
+
+      Game.spawns.Spawn1.room.visual.text(
+        `⚡ ${spawn1Stats.energy_avail} / ${spawn1Stats.energy_cap}`,
+        25,
+        y,
+        { align: 'center', opacity: 0.8 });
+
+      y += 1
+
       for (const role in spawn1Stats.creep_counts) {
         if (spawn1Stats.creep_counts.hasOwnProperty(role)) {
           const count = spawn1Stats.creep_counts[role];
