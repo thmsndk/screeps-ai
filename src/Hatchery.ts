@@ -26,16 +26,18 @@ export class Hatchery {
 
         let spawning = !!this.Spawn.spawning; // code runs so fast that spawncreep does not update spawning in this tick?
         const maxPopulation = 45
-        if (!spawning && Object.keys(Game.creeps).length < maxPopulation) {
+        const population = Object.keys(Game.creeps).length
+        if (!spawning && population < maxPopulation) {
             const creepName = Game.time.toString();
             // determine how much energy we have
             // determine what the next creep we need is, hatchery should have a job queued
             // determine what creep we can create for the job.
             let body = [WORK, CARRY, MOVE]
             let body2 = [WORK, WORK, CARRY, CARRY, MOVE, MOVE]
+            let body2Cost = calculateBodyCost(body2)
             let creepBody = body
 
-            if (this.Spawn.room.energyAvailable >= calculateBodyCost(body2)) {
+            if (this.Spawn.room.energyCapacityAvailable >= body2Cost && population > 1) {
                 creepBody = body2
             }
 
