@@ -11,6 +11,7 @@ import { Dictionary } from 'lodash';
 import { RoomScanner } from 'RoomScanner';
 import { ErrorMapper } from "utils/ErrorMapper";
 import { summarize_room } from '_lib/resources';
+import { Role } from 'role/roles';
 
 const roomScanner = new RoomScanner()
 
@@ -34,6 +35,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
       console.log('Clearing non-existing creep memory:', name);
+    }
+    else {
+      if (!creep.role) {
+        creep.role = Role.Larvae
+      }
     }
   }
 
