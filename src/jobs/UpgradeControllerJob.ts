@@ -53,7 +53,7 @@ export class UpgradeControllerJob extends Job {
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
             // when suddenly ~90 workers are needed because of the high max, everything gets converted to upgraders
             const neededWorkers = maxCreeps - assignedCreeps
-            const unemployed = _.filter(Game.creeps, (creep) => creep.memory.unemployed)
+            const unemployed = _.filter(Game.creeps, (creep) => creep.memory.unemployed && creep.memory.role === Role.Larvae)
             const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length);
 
             creepsToEmploy.forEach(creep => {
