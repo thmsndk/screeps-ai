@@ -25,8 +25,8 @@ export class Hatchery {
     public run() {
 
         let spawning = !!this.Spawn.spawning; // code runs so fast that spawncreep does not update spawning in this tick?
-
-        if (!spawning) {
+        const maxPopulation = 45
+        if (!spawning && Object.keys(Game.creeps).length < maxPopulation) {
             const creepName = Game.time.toString();
             // determine how much energy we have
             // determine what the next creep we need is, hatchery should have a job queued
