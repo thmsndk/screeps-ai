@@ -40,10 +40,13 @@ export class UpgradeControllerJob extends Job {
             if (assignedCreeps === 0) {
                 this.memory.priority = JobPriority.High
             }
+            else {
+                // if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
+                this.memory.priority = JobPriority.Low
+                // }
+            }
 
-            // if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
-            this.memory.priority = JobPriority.Low
-            // }
+
 
 
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so

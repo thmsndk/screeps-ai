@@ -3,7 +3,7 @@ import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
 import { Role } from 'role/roles';
 import { ISourceMemory } from 'RoomScanner';
-import { Job } from './Job';
+import { Job, JobPriority } from './Job';
 import { PathStyle } from './MovementPathStyles';
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
@@ -33,6 +33,13 @@ export class HaulingJob extends Job {
         // no need to fill  the rest of the mining positions before we have a hauler
 
         const maxHaulers = 1
+        if (assignedCreeps === 0) {
+            this.memory.priority = JobPriority.High
+        }
+        else {
+            this.memory.priority = JobPriority.Medium
+        }
+
         if (assignedCreeps < maxHaulers) {
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
             const neededWorkers = maxHaulers - assignedCreeps

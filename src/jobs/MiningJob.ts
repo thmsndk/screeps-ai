@@ -2,7 +2,7 @@ import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
 import { ISourceMemory } from 'RoomScanner';
-import { Job } from './Job';
+import { Job, JobPriority } from './Job';
 import { Role } from 'role/roles';
 import { emoji } from '_lib/emoji';
 import { HaulingJob } from './HaulingJob';
@@ -41,6 +41,13 @@ export class MiningJob extends Job {
         const assignedCreeps = Object.keys(this.Creeps).length;
 
         if (this.sourceMemory) {
+            if (assignedCreeps === 0) {
+                this.memory.priority = JobPriority.High
+            }
+            else {
+                this.memory.priority = JobPriority.Medium // might need more priority levels
+            }
+
             if (assignedCreeps < this.sourceMemory.miningPositions.length) {// TODO memory should be private and we should store it in object
                 // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
                 const neededWorkers = this.sourceMemory.miningPositions.length - assignedCreeps
