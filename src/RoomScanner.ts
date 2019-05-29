@@ -18,6 +18,59 @@ function isPositionMinable(roomTerrain: RoomTerrain, roomPosition: RoomPosition 
     return terrain !== TERRAIN_MASK_WALL ? { roomPosition } : null
 
 }
+
+function isPositionWalkable(roomTerrain: RoomTerrain, roomPosition: RoomPosition | null): boolean | null {
+
+    if (!roomPosition) {
+        return null;
+    }
+
+    const terrain = roomTerrain.get(roomPosition.x, roomPosition.y)
+
+    return terrain !== TERRAIN_MASK_WALL
+}
+
+// this is something I should write tests for tbh
+export function getPositions(room: Room, roomTerrain: RoomTerrain, target: RoomPosition, offset?: number): RoomPosition[] {
+    let positions: RoomPosition[] = []
+
+    if (!offset) {
+        offset = 1
+    }
+    // TODO: calculate distance between corners
+    const borderLength = (target.x + offset) - (target.x - offset) + 1
+    console.log('borderLength', borderLength)
+
+    // topLine
+    for (let index = 0; index < borderLength; index++) {
+        const position = room.getPositionAt(target.x - offset + index, target.y - offset)
+        console.log("top", position && position.x, position && position.y)
+        if (position && isPositionWalkable(roomTerrain, position)) { positions.push(position) }
+    }
+
+    // right, we do not count corners
+    for (let index = 0; index < (borderLength - 2); index++) {
+        const position = room.getPositionAt(target.x + offset, target.y - offset + index + 1)
+        console.log("right", position && position.x, position && position.y)
+        if (position && isPositionWalkable(roomTerrain, position)) { positions.push(position) }
+    }
+
+    // bottomLine
+    for (let index = 0; index < borderLength; index++) {
+        const position = room.getPositionAt(target.x - offset + index, target.y + offset)
+        console.log("bottom", position && position.x, position && position.y)
+        if (position && isPositionWalkable(roomTerrain, position)) { positions.push(position) }
+    }
+
+    // left, we do not count corners
+    for (let index = 0; index < (borderLength - 2); index++) {
+        const position = room.getPositionAt(target.x - offset, target.y - offset + index + 1)
+        console.log("left", position && position.x, position && position.y)
+        if (position && isPositionWalkable(roomTerrain, position)) { positions.push(position) }
+    }
+
+    return positions
+}
 export class RoomScanner {
     /** Scans the room for static data, currently source nodes and miningpositions */
     scan(room: Room) {
@@ -31,29 +84,11 @@ export class RoomScanner {
         sources.forEach(source => {
 
             let miningPositions: IMiningPosition[] = []
-            const top = isPositionMinable(roomTerrain, room.getPositionAt(source.pos.x, source.pos.y + 1))
-            if (top) { miningPositions.push(top) }
+            const positions = getPositions(room, roomTerrain, source.pos)
 
-            const topRight = isPositionMinable(roomTerrain, room.getPositionAt(source.pos.x + 1, source.pos.y + 1))
-            if (topRight) { miningPositions.push(topRight) }
-
-            const right = isPositionMinable(roomTerrain, room.getPositionAt(source.pos.x + 1, source.pos.y))
-            if (right) { miningPositions.push(right) }
-
-            const bottomRight = isPositionMinable(roomTerrain, room.getPositionAt(source.pos.x + 1, source.pos.y - 1))
-            if (bottomRight) { miningPositions.push(bottomRight) }
-
-            const bottom = isPositionMinable(roomTerrain, room.getPositionAt(source.pos.x, source.pos.y - 1))
-            if (bottom) { miningPositions.push(bottom) }
-
-            const bottomLeft = isPositionMinable(roomTerrain, room.getPositionAt(source.pos.x - 1, source.pos.y - 1))
-            if (bottomLeft) { miningPositions.push(bottomLeft) }
-
-            const left = isPositionMinable(roomTerrain, room.getPositionAt(source.pos.x - 1, source.pos.y))
-            if (left) { miningPositions.push(left) }
-
-            const topLeft = isPositionMinable(roomTerrain, room.getPositionAt(source.pos.x - 1, source.pos.y + 1))
-            if (topLeft) { miningPositions.push(topLeft) }
+            positions.forEach(pos => {
+                miningPositions.push({ roomPosition: pos })
+            });
 
             room.memory.miningPositions += miningPositions.length
 
