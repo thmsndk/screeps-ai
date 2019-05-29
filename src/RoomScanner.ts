@@ -39,33 +39,28 @@ export function getPositions(room: Room, roomTerrain: RoomTerrain, target: RoomP
     }
     // TODO: calculate distance between corners
     const borderLength = (target.x + offset) - (target.x - offset) + 1
-    console.log('borderLength', borderLength)
 
     // topLine
     for (let index = 0; index < borderLength; index++) {
         const position = room.getPositionAt(target.x - offset + index, target.y - offset)
-        console.log("top", position && position.x, position && position.y)
         if (position && isPositionWalkable(roomTerrain, position)) { positions.push(position) }
     }
 
     // right, we do not count corners
     for (let index = 0; index < (borderLength - 2); index++) {
         const position = room.getPositionAt(target.x + offset, target.y - offset + index + 1)
-        console.log("right", position && position.x, position && position.y)
         if (position && isPositionWalkable(roomTerrain, position)) { positions.push(position) }
     }
 
     // bottomLine
     for (let index = 0; index < borderLength; index++) {
         const position = room.getPositionAt(target.x - offset + index, target.y + offset)
-        console.log("bottom", position && position.x, position && position.y)
         if (position && isPositionWalkable(roomTerrain, position)) { positions.push(position) }
     }
 
     // left, we do not count corners
     for (let index = 0; index < (borderLength - 2); index++) {
         const position = room.getPositionAt(target.x - offset, target.y - offset + index + 1)
-        console.log("left", position && position.x, position && position.y)
         if (position && isPositionWalkable(roomTerrain, position)) { positions.push(position) }
     }
 
