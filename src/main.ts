@@ -108,8 +108,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
         tower.attack(closestHostile);
       }
       else {
-        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-          filter: (structure: Structure) => structure.hits < structure.hitsMax
+        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // walls does not appear to be in "FIND_MY_STRUCTURES"
+          filter: (structure: Structure) => {
+            console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
+            return (structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_WALL) || structure.hits / structure.hitsMax < 0.0004
+          }
         });
 
         if (closestDamagedStructure) {
