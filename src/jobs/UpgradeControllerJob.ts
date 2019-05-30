@@ -1,3 +1,4 @@
+import { UPGRADER } from './../Hatchery';
 import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
@@ -50,51 +51,32 @@ export class UpgradeControllerJob extends Job {
                 // }
             }
 
-
-
-
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
             // when suddenly ~90 workers are needed because of the high max, everything gets converted to upgraders
-            const neededWorkers = maxCreeps - assignedCreeps
-            const unemployed = _.filter(Game.creeps, (creep) => creep.memory.unemployed && creep.memory.role === Role.Larvae)
-            const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length);
+            let neededWorkers = maxCreeps - assignedCreeps
 
-            creepsToEmploy.forEach(creep => {
-                if (!this.Creeps[creep.id]) {
-                    creep.memory.role = Role.upgrader
-                    creep.memory.unemployed = false
-                    this.Creeps[creep.id] = creep
-                    // persist to miningjob memory
-                    if (this.memory.creeps) {
-                        this.memory.creeps.push(creep.id)
-                    }
-                }
-            })
+            // should probably change role, the role of the creep depends on its body configuration?
+            neededWorkers = super.assign(neededWorkers, this.memory, Role.upgrader)
 
-            // if creep can't be found, request a creep that can to be constructed, should not keep piling on requests
-            // TODO: what if creep expired and we need a new creep?
+            // Do we already have requests for this?
+            super.requestHatch(neededWorkers, UPGRADER, this.memory.priority)
         }
 
-        let released = 0
-        const maxRelease = 2
-        for (const name in this.Creeps) {
-            if (this.Creeps.hasOwnProperty(name)) {
-                const creep = this.Creeps[name];
-                upgradeControllerCreep.run(this.controller, creep)
-                // This was a silly idea, to handle the emergency of having no harvesters, we also need to check if we in fact have no harvesters, not just if our energy is low
-                //
-                // creep.say(emoji.lightning)
-                // if (energyPercentage < 0.30 && released < maxRelease) {
-                //     creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
-                //     creep.memory.unemployed = true
-                //     creep.say("U Released")
-                //     this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
-                //     // delete this.Creeps[creep.id]
-                //     released++
-                // }
-            }
-        }
+        super.run((creep) => {
+            upgradeControllerCreep.run(this.controller, creep)
+            // This was a silly idea, to handle the emergency of having no harvesters, we also need to check if we in fact have no harvesters, not just if our energy is low
+            //
+            // creep.say(emoji.lightning)
+            // if (energyPercentage < 0.30 && released < maxRelease) {
+            //     creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+            //     creep.memory.unemployed = true
+            //     creep.say("U Released")
+            //     this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
+            //     // delete this.Creeps[creep.id]
+            //     released++
+            // }
+        })
     }
 }
 

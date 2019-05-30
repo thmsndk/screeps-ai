@@ -5,6 +5,7 @@ import { Role } from 'role/roles';
 import { ISourceMemory } from 'RoomScanner';
 import { Job, JobPriority } from './Job';
 import { PathStyle } from './MovementPathStyles';
+import { HAULER } from 'Hatchery';
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners
@@ -42,32 +43,15 @@ export class MiningHaulingJob extends Job {
 
         if (assignedCreeps < maxHaulers) {
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
-            const neededWorkers = maxHaulers - assignedCreeps
-            const unemployed = _.filter(Game.creeps, (creep) => creep.memory.unemployed)
-            const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length);
+            let neededWorkers = maxHaulers - assignedCreeps
+            // should probably change role, the role of the creep depends on its body configuration?
+            neededWorkers = super.assign(neededWorkers, this.memory, Role.Larvae)
 
-            creepsToEmploy.forEach(creep => {
-                if (!this.Creeps[creep.id]) {
-                    creep.memory.role = Role.Larvae // should probably change this type, the role of the creep depends on its body configuration
-                    creep.memory.unemployed = false
-                    this.Creeps[creep.id] = creep
-                    // persist to miningjob memory
-                    if (this.memory.creeps) {
-                        this.memory.creeps.push(creep.id)
-                    }
-                }
-            })
-
-            // if creep can't be found, request a creep that can to be constructed, should not keep piling on requests
-            // TODO: what if creep expired and we need a new creep?
+            // Do we already have requests for this?
+            super.requestHatch(neededWorkers, HAULER, this.memory.priority)
         }
 
-        for (const name in this.Creeps) {
-            if (this.Creeps.hasOwnProperty(name)) {
-                const creep = this.Creeps[name];
-                haulingCreep.run(this, creep, this.source)
-            }
-        }
+        super.run((creep) => haulingCreep.run(this, creep, this.source))
     }
 }
 

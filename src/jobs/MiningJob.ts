@@ -1,3 +1,4 @@
+import { HARVESTER } from './../Hatchery';
 import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
@@ -50,37 +51,19 @@ export class MiningJob extends Job {
 
             if (assignedCreeps < this.sourceMemory.miningPositions.length) {// TODO memory should be private and we should store it in object
                 // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
-                const neededWorkers = this.sourceMemory.miningPositions.length - assignedCreeps
-                const unemployed = _.filter(Game.creeps, (creep) => (creep.memory.unemployed === undefined && creep.memory.role === Role.harvester) || creep.memory.unemployed)
-                const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length);
+                let neededWorkers = this.sourceMemory.miningPositions.length - assignedCreeps
+                // should probably change role, the role of the creep depends on its body configuration?
+                neededWorkers = super.assign(neededWorkers, this.memory, Role.harvester)
 
-                creepsToEmploy.forEach(creep => {
-                    if (!this.Creeps[creep.id]) {
-                        creep.memory.role = Role.harvester
-                        creep.memory.unemployed = false
-                        this.Creeps[creep.id] = creep
-                        // persist to miningjob memory
-                        if (this.memory.creeps) {
-                            this.memory.creeps.push(creep.id)
-                        }
-                    }
-                })
-
-                // if creep can't be found, request a creep that can to be constructed, should not keep piling on requests
-                // TODO: what if creep expired and we need a new creep?
+                // Do we already have requests for this?
+                super.requestHatch(neededWorkers, HARVESTER, this.memory.priority)
             }
         }
 
         // We need to assign a hauler after we've assigned a miner, the behaviour of the creep should change depending on wether or not we have a hauler assigned
         // no need to fill  the rest of the mining positions before we have a hauler
 
-        for (const name in this.Creeps) {
-            if (this.Creeps.hasOwnProperty(name)) {
-                const creep = this.Creeps[name];
-                roleHarvester.run(this, creep, this.source)
-                // creep.say(emoji.construction_worker)
-            }
-        }
+        super.run((creep) => roleHarvester.run(this, creep, this.source))
     }
 }
 

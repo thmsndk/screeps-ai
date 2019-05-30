@@ -135,8 +135,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
     // Memory.jobs = jobs
 
     // Map Sources
-    const hatchery = new Hatchery()
-    hatchery.run()
+
+    for (const spawnName in Game.spawns) {
+      if (Game.spawns.hasOwnProperty(spawnName)) {
+        const spawn = Game.spawns[spawnName];
+        const hatchery = new Hatchery(spawn)
+        hatchery.run()
+      }
+    }
+
 
 
   }

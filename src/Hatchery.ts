@@ -1,6 +1,7 @@
-import { CreepMutations } from './Hatchery';
+import { MemoryHatchRequest } from './Hatchery';
 import PriorityQueue from "ts-priority-queue";
 import { Role } from 'role/roles';
+import { Dictionary } from 'lodash';
 
 
 
@@ -14,24 +15,48 @@ export class Hatchery {
     public Spawn: StructureSpawn;
     private requests: PriorityQueue<HatchRequest>
 
-    constructor(spawn?: string) {
+    private memory?: Dictionary<MemoryHatchRequest[]>
+
+    constructor(spawn?: StructureSpawn | string) {
         if (!spawn) {
-            spawn = "Spawn1"
+            throw new Error("spawn can not be undefined");
         }
 
-        this.Spawn = Game.spawns[spawn]
+        if (typeof spawn === "string") {
+            this.Spawn = Game.spawns[spawn]
+        } else {
+            this.Spawn = spawn
+        }
 
-        this.requests = new PriorityQueue({ comparator: comparePriority, initialValues: this.Spawn.memory.requests })
+        this.memory = this.Spawn.memory.requests
+
+        let allRequests: MemoryHatchRequest[] = []
+        if (this.memory) {
+            for (const target in this.memory) {
+                if (this.memory.hasOwnProperty(target)) {
+                    const requests = this.memory[target];
+                    allRequests = allRequests.concat(_.values(requests))
+                }
+            }
+        }
+
+
+        this.requests = new PriorityQueue({ comparator: comparePriority, initialValues: allRequests })
     }
 
     public queue(request: HatchRequest) {
         this.requests.queue(request)
 
         if (!this.Spawn.memory.requests) {
-            this.Spawn.memory.requests = []
+            this.Spawn.memory.requests = {}
         }
 
-        this.Spawn.memory.requests.push(request)
+        let target = this.Spawn.memory.requests[request.target]
+        if (!target) {
+            target = this.Spawn.memory.requests[request.target] = []
+        }
+
+        target.push(request)
     }
 
     public dequeue(): HatchRequest | null {
@@ -39,16 +64,38 @@ export class Hatchery {
             const request = this.requests.dequeue()
 
             if (!this.Spawn.memory.requests) {
-                this.Spawn.memory.requests = []
+                this.Spawn.memory.requests = {}
             }
 
-            const index = this.Spawn.memory.requests.findIndex(r => r.mutation !== request.mutation && r.priority !== request.priority)
-            delete this.Spawn.memory.requests[index]
+            if (this.memory) {
+                for (const target in this.memory) {
+                    if (this.memory.hasOwnProperty(target)) {
+                        const requests = this.memory[target];
+                        const index = requests.findIndex(r => r.mutation === request.mutation && r.priority === request.priority)
+                        this.memory[target] = requests.splice(index, 1)
+                    }
+                }
+            }
 
             return request
         }
 
         return null
+    }
+
+    /**
+     * Get current requests for the specific mutation for the specific target
+     */
+    public getRequests(target: string, mutation: CreepMutations) {
+        if (this.memory) {
+            const requests = this.memory[target];
+            if (requests) {
+                return requests.filter(r => r.mutation === mutation).length
+            }
+
+        }
+
+        return 0
     }
 
     public run() {
@@ -174,6 +221,16 @@ type WORKER = 'worker'
 type HAULER = 'hauler'
 type UPGRADER = 'upgrader'
 
+export const CLAIMER = 'claimer'
+export const DEFENDER = 'defender'
+export const HARVESTER = 'harvester'
+export const HOLD = 'hold'
+export const MOVER = 'mover'
+export const RANGER = 'ranger'
+export const WORKER = 'worker'
+export const HAULER = 'hauler'
+export const UPGRADER = 'upgrader'
+
 interface BodyMutations {
     [mutation: string]: BodyPartConstant[]
 }
@@ -206,7 +263,7 @@ const bodyExtensions = {
 
 declare global {
     interface SpawnMemory {
-        requests?: MemoryHatchRequest[]
+        requests?: Dictionary<MemoryHatchRequest[]>
     }
 }
 
@@ -218,6 +275,7 @@ interface Priority {
 // TODO: unit tests for hatchery
 export interface MemoryHatchRequest extends Priority {
     mutation: CreepMutations
+    target: string
 
 }
 

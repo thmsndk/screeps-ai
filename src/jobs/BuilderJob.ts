@@ -1,3 +1,4 @@
+import { WORKER } from './../Hatchery';
 import { Larvae } from './../Larvae';
 import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
@@ -22,8 +23,6 @@ export class BuilderJob extends Job {
         }
 
         this.memory = memory
-
-
 
         if (creeps) {
             this.memory.creeps = Object.keys(creeps)
@@ -67,6 +66,7 @@ export class BuilderJob extends Job {
                     { align: 'left', opacity: 0.8 });
             }
         }
+
         const energyPercentage = this.constructionSite.room ? this.constructionSite.room.energyAvailable / this.constructionSite.room.energyCapacityAvailable : null
         if (assignedCreeps < maxCreeps && energyPercentage && energyPercentage > 0.25) {
             if (assignedCreeps === 0) {
@@ -78,53 +78,37 @@ export class BuilderJob extends Job {
             if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
                 this.memory.priority = JobPriority.Low
             }
+
             // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
             // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
             // TODO: acquire free builders with energy close to build site, sort unemployed by priority
-            const neededWorkers = maxCreeps - assignedCreeps
-            const unemployed = _.filter(Game.creeps, (creep) => creep.memory.unemployed && creep.memory.role === Role.Larvae)
-            const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length);
+            let neededWorkers = maxCreeps - assignedCreeps
+            neededWorkers = super.assign(neededWorkers, this.memory, Role.builder)
 
-            creepsToEmploy.forEach(creep => {
-                if (!this.Creeps[creep.id]) {
-                    creep.memory.role = Role.builder
-                    creep.memory.unemployed = false
-                    this.Creeps[creep.id] = creep
-                    // persist to miningjob memory
-                    if (this.memory.creeps) {
-                        this.memory.creeps.push(creep.id)
-                        creep.say("[Builder] Work Work")
-                    }
-                }
-            })
-
-            // if creep can't be found, request a creep that can to be constructed, should not keep piling on requests
-            // TODO: what if creep expired and we need a new creep?
+            // Do we already have requests for this?
+            super.requestHatch(neededWorkers, WORKER, this.memory.priority)
         }
 
-        for (const name in this.Creeps) {
-            if (this.Creeps.hasOwnProperty(name)) {
-                const creep = this.Creeps[name];
-                jobCreep.run(this.constructionSite, creep)
-                // creep.say(emoji.lightning)
-                // TODO: when job is finished release creep
-                if (progress === 100) {
-                    creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
-                    creep.memory.unemployed = true
-                    creep.say("[Builder]  Job's done ")
+        super.run((creep) => {
+            jobCreep.run(this.constructionSite, creep)
+            // creep.say(emoji.lightning)
+            // TODO: when job is finished release creep
+            if (progress === 100) {
+                creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+                creep.memory.unemployed = true
+                creep.say("[Builder]  Job's done ")
 
-                    // TODO: delete job
-                }
-                // disable builder release for now, untill we get a smart way to do it
-                // if (energyPercentage && energyPercentage < 0.30) {
-                //     creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
-                //     creep.memory.unemployed = true
-                //     creep.say("B Released")
-                //     this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
-                //     // delete this.Creeps[creep.id]
-                // }
+                // TODO: delete job
             }
-        }
+            // disable builder release for now, untill we get a smart way to do it
+            // if (energyPercentage && energyPercentage < 0.30) {
+            //     creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+            //     creep.memory.unemployed = true
+            //     creep.say("B Released")
+            //     this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
+            //     // delete this.Creeps[creep.id]
+            // }
+        })
     }
 }
 
