@@ -1,9 +1,9 @@
-import { Hatchery } from './../../src/Hatchery';
-import { assert } from "chai";
-import { loop } from "../../src/main";
+import { Hatchery } from './../../src/Hatchery'
+import { assert } from "chai"
 import { Game, Memory } from "./mock"
 
 describe("hatchery", () => {
+
   before(() => {
     // runs before all test in this block
     Memory.spawns.Spawn1 = {
@@ -13,7 +13,6 @@ describe("hatchery", () => {
         { mutation: "worker", priority: 30 }
       ]
     }
-    Game.rooms.TEST = {}
 
     Game.spawns.Spawn1 = { room: Game.rooms.TEST, memory: Memory.spawns.Spawn1 }
   });
@@ -50,4 +49,15 @@ describe("hatchery", () => {
     let nextRequest = hatchery.requests.peek()
     assert.equal(nextRequest.mutation, "hauler");
   });
+
+  it("should process requests");
+  describe("mutation"/*, () => {
+    // Sadly I can't test this because the mocha environment can't find the screeps constants like CLAIM
+    it("should give basic worker", () => {
+      const hatchery = new Hatchery("Spawn1")
+      var mutation = hatchery.mutate("worker")
+
+    });
+  }*/)
+
 });

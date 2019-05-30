@@ -53,6 +53,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO: a module that determines how many of the different roles we need based on amount of work needed
   // TODO: a module that can spawn creeps
   // if a creep wants to do a job, make sure it has time enough to live
+  // TODO: harvesters going to a resource node with a keeper lair ?
+
 
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
   // deseralize jobs

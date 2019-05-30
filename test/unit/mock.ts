@@ -2,7 +2,7 @@ import { Dictionary } from "lodash";
 
 export const Game = {
   creeps: [],
-  rooms: { TEST: {} },// as Dictionary<Room>,
+  rooms: { TEST: { energyAvailable: 300, energyCapacityAvailable: 300 } },// as Dictionary<Room>,
   spawns: { Spawn1: {} },// as Dictionary<StructureSpawn>,
   time: 12345
 };
