@@ -1,57 +1,57 @@
-import { Larvae } from './Larvae';
-import { Role } from 'role/roles';
+import PriorityQueue from "ts-priority-queue";
 
-const partcost = {
-    [MOVE]: 50,
-    [WORK]: 100
-}
 
-function calculateBodyCost(body: BodyPartConstant[]) {
-    return body.reduce((cost, part) => {
-        return cost + BODYPART_COST[part];
-    }, 0);
-}
+
+// Hatchery"Job"?
+// We need a list of hatcheries accessable by ?? roomName? what if there are multiple hatcheries in a room
+// Do we have one global hatchery, or a hatchery per spawn? how do they coordinate? If we can have multiple spawns in a room, how do we handle that?
+
+const comparePriority = (a: Priority, b: Priority) => b.priority - a.priority
 
 export class Hatchery {
     public Spawn: StructureSpawn;
+    public requests: PriorityQueue<HatchRequest>
 
     constructor(spawn?: string) {
         if (!spawn) {
             spawn = "Spawn1"
         }
+
         this.Spawn = Game.spawns[spawn]
+
+        this.requests = new PriorityQueue({ comparator: comparePriority, initialValues: this.Spawn.memory.requests })
     }
 
     public run() {
 
-        let spawning = !!this.Spawn.spawning; // code runs so fast that spawncreep does not update spawning in this tick?
-        const maxPopulation = 45
-        const population = Object.keys(Game.creeps).length
-        if (!spawning && population < maxPopulation) {
-            const creepName = Game.time.toString();
-            // determine how much energy we have
-            // determine what the next creep we need is, hatchery should have a job queued
-            // determine what creep we can create for the job.
-            let body = [WORK, CARRY, MOVE]
-            let body2 = [WORK, WORK, CARRY, CARRY, MOVE, MOVE]
-            let body2Cost = calculateBodyCost(body2)
-            let creepBody = body
+        // let spawning = !!this.Spawn.spawning; // code runs so fast that spawncreep does not update spawning in this tick?
+        // const maxPopulation = 45
+        // const population = Object.keys(Game.creeps).length
+        // if (!spawning && population < maxPopulation) {
+        //     const creepName = Game.time.toString();
+        //     // determine how much energy we have
+        //     // determine what the next creep we need is, hatchery should have a job queued
+        //     // determine what creep we can create for the job.
+        //     let body = [WORK, CARRY, MOVE]
+        //     let body2 = [WORK, WORK, CARRY, CARRY, MOVE, MOVE]
+        //     let body2Cost = bodyCost(body2)
+        //     let creepBody = body
 
-            if (this.Spawn.room.energyCapacityAvailable >= body2Cost && population > 1) {
-                creepBody = body2
-            }
+        //     if (this.Spawn.room.energyCapacityAvailable >= body2Cost && population > 1) {
+        //         creepBody = body2
+        //     }
 
-            const cost = calculateBodyCost(creepBody)
+        //     const cost = bodyCost(creepBody)
 
-            if (this.Spawn.room.energyAvailable >= cost) {
-                const result = this.Spawn.spawnCreep(creepBody, creepName,
-                    { memory: { role: Role.Larvae, cost, unemployed: true } } as SpawnOptions);
+        //     if (this.Spawn.room.energyAvailable >= cost) {
+        //         const result = this.Spawn.spawnCreep(creepBody, creepName,
+        //             { memory: { role: Role.Larvae, cost, unemployed: true } } as SpawnOptions);
 
-                if (result === OK) {
-                    console.log('Spawning new Larvae: ' + creepName);
-                }
-            }
-        }
+        //         if (result === OK) {
+        //             console.log('Spawning new Larvae: ' + creepName);
+        //         }
+        //     }
+        // }
 
         // * OK	0 The operation has been scheduled successfully.
         // * ERR_NOT_OWNER - 1 You are not the owner of this spawn.
@@ -81,4 +81,96 @@ export class Hatchery {
                 { align: 'left', opacity: 0.8 });
         }
     }
+
+    hatch(mutation: CreepMutations) {
+        // should it change the mutation in case of an emergency? that does not really belong in the hatchery, more something above
+        // we need hatchery requests that the hatchery can process, theese requests should be sorted by priority
+        // we do this a lot, perhaps we should have a "PriortyQueue" object that handles that
+    }
+
+    mutate(mutation: CreepMutations) {
+        let body = <BodyPartConstant[]>[].concat(<never[]>bodyMutations[mutation])
+        // how much energy do we have? how much can we mutate?
+    }
+
+
+}
+
+function bodyCost(body: BodyPartConstant[]) {
+    return body.reduce((cost, part) => {
+        return cost + BODYPART_COST[part];
+    }, 0);
+}
+
+type CreepMutations =
+    CLAIMER
+    | DEFENDER
+    | HARVESTER
+    | HOLD
+    | MOVER
+    | RANGER
+    | WORKER
+    | HAULER
+    | UPGRADER
+
+type CLAIMER = 'claimer'
+type DEFENDER = 'defender'
+type HARVESTER = 'harvester'
+type HOLD = 'hold'
+type MOVER = 'mover'
+type RANGER = 'ranger'
+type WORKER = 'worker'
+type HAULER = 'hauler'
+type UPGRADER = 'upgrader'
+
+interface BodyMutations {
+    [mutation: string]: BodyPartConstant[]
+}
+
+const bodyMutations = {
+    'claimer': [CLAIM, MOVE],
+    'defender': [RANGED_ATTACK, MOVE],
+    'harvester': [WORK, WORK, CARRY, MOVE],
+    // 'hold': [CLAIM, CLAIM, MOVE, MOVE],
+    'mover': [CARRY, MOVE],
+    // 'bunkerMover': [MOVE, CARRY],
+    'ranger': [RANGED_ATTACK, TOUGH, MOVE, MOVE],
+    'worker': [WORK, CARRY, MOVE, MOVE],
+    'hauler': [CARRY, MOVE],
+    'upgrader': [WORK, CARRY, MOVE, MOVE]
+} as BodyMutations
+
+const typeExtends = {
+    'claimer': [MOVE],
+    'defender': [RANGED_ATTACK, MOVE],
+    'harvester': [WORK, MOVE],
+    // 'hold': [],
+    'mover': [CARRY, MOVE],
+    // 'bunkerMover': [CARRY],
+    'ranger': [RANGED_ATTACK, TOUGH, MOVE, MOVE, HEAL],
+    'worker': [WORK, CARRY, MOVE, MOVE],
+    'hauler': [CARRY, MOVE],
+    'upgrader': [WORK, CARRY, MOVE]
+} as BodyMutations
+
+declare global {
+    interface SpawnMemory {
+        requests?: MemoryHatchRequest[]
+    }
+}
+
+// TODO: move to somewhere common
+interface Priority {
+    priority: number
+}
+
+// TODO: unit tests for hatchery
+export interface MemoryHatchRequest extends Priority {
+    mutation: CreepMutations
+
+}
+
+export interface HatchRequest extends MemoryHatchRequest {
+    // new (memory: MemoryHatchRequest): any;
+
 }

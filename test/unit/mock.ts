@@ -1,10 +1,13 @@
+import { Dictionary } from "lodash";
+
 export const Game = {
   creeps: [],
-  rooms: [],
-  spawns: {},
+  rooms: { TEST: {} },// as Dictionary<Room>,
+  spawns: { Spawn1: {} },// as Dictionary<StructureSpawn>,
   time: 12345
 };
 
 export const Memory = {
-  creeps: []
+  creeps: [],
+  spawns: {} as Dictionary<SpawnMemory>
 };
