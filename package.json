@@ -12,8 +12,8 @@
     "push-sim": "rollup -c --environment DEST:sim",
     "push-s+": "rollup -c --environment DEST:s+",
     "test": "npm run test-unit && npm run test-integration",
-    "test-unit": "rollup -c rollup.test-unit-config.js && mocha dist/test-unit.bundle.js",
-    "test-integration": "npm run build && rollup -c rollup.test-integration-config.js && mocha dist/test-integration.bundle.js",
+    "test-unit": "rollup -c rollup.test-unit-config.js && mocha dist/test-unit.bundle.js -R mocha-pretty-spec-reporter",
+    "test-integration": "npm run build && rollup -c rollup.test-integration-config.js && mocha dist/test-integration.bundle.js -R mocha-pretty-spec-reporter",
     "watch": "rollup -cw",
     "watch-main": "rollup -cw --environment DEST:main",
     "watch-pserver": "rollup -cw --environment DEST:pserver",
@@ -62,6 +62,8 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "source-map": "~0.6.1"
+    "mocha-pretty-spec-reporter": "0.1.0-beta.2",
+    "source-map": "~0.6.1",
+    "ts-priority-queue": "^0.1.1"
   }
 }
