@@ -82,15 +82,17 @@ export class UpgradeControllerJob extends Job {
             if (this.Creeps.hasOwnProperty(name)) {
                 const creep = this.Creeps[name];
                 upgradeControllerCreep.run(this.controller, creep)
+                // This was a silly idea, to handle the emergency of having no harvesters, we also need to check if we in fact have no harvesters, not just if our energy is low
+                //
                 // creep.say(emoji.lightning)
-                if (energyPercentage < 0.30 && released < maxRelease) {
-                    creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
-                    creep.memory.unemployed = true
-                    creep.say("U Released")
-                    this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
-                    // delete this.Creeps[creep.id]
-                    released++
-                }
+                // if (energyPercentage < 0.30 && released < maxRelease) {
+                //     creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+                //     creep.memory.unemployed = true
+                //     creep.say("U Released")
+                //     this.memory.creeps = this.memory.creeps.filter(creepId => creepId !== creep.id);
+                //     // delete this.Creeps[creep.id]
+                //     released++
+                // }
             }
         }
     }
