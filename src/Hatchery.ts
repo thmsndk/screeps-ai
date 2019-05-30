@@ -12,7 +12,7 @@ const comparePriority = (a: Priority, b: Priority) => b.priority - a.priority
 
 export class Hatchery {
     public Spawn: StructureSpawn;
-    public requests: PriorityQueue<HatchRequest>
+    private requests: PriorityQueue<HatchRequest>
 
     constructor(spawn?: string) {
         if (!spawn) {
@@ -24,6 +24,33 @@ export class Hatchery {
         this.requests = new PriorityQueue({ comparator: comparePriority, initialValues: this.Spawn.memory.requests })
     }
 
+    public queue(request: HatchRequest) {
+        this.requests.queue(request)
+
+        if (!this.Spawn.memory.requests) {
+            this.Spawn.memory.requests = []
+        }
+
+        this.Spawn.memory.requests.push(request)
+    }
+
+    public dequeue(): HatchRequest | null {
+        if (this.requests.length > 0) {
+            const request = this.requests.dequeue()
+
+            if (!this.Spawn.memory.requests) {
+                this.Spawn.memory.requests = []
+            }
+
+            const index = this.Spawn.memory.requests.findIndex(r => r.mutation !== request.mutation && r.priority !== request.priority)
+            delete this.Spawn.memory.requests[index]
+
+            return request
+        }
+
+        return null
+    }
+
     public run() {
         // TODO: cancelation of in progress spawn if next order is a HIGH priority order?
 
@@ -31,26 +58,14 @@ export class Hatchery {
         // const maxPopulation = 45
         // const population = Object.keys(Game.creeps).length
         if (!spawning /*&& population < maxPopulation*/) {
-            //     const creepName = Game.time.toString();
-            //     // determine how much energy we have
-            //     // determine what the next creep we need is, hatchery should have a job queued
-            //     // determine what creep we can create for the job.
-            //     let body = [WORK, CARRY, MOVE]
-            //     let body2 = [WORK, WORK, CARRY, CARRY, MOVE, MOVE]
-            //     let body2Cost = bodyCost(body2)
-            //     let creepBody = body
 
-            //     if (this.Spawn.room.energyCapacityAvailable >= body2Cost && population > 1) {
-            //         creepBody = body2
-            //     }
-
-            //     const cost = bodyCost(creepBody)
-            // TODO: dequeue
-            this.hatch("worker")
+            const next = this.dequeue()
+            if (next && !this.hatch(next.mutation)) {
+                this.queue(next)
+            }
         }
 
-
-
+        // RoomVisual
         if (this.Spawn && this.Spawn.spawning) {
             const spawningCreep = Game.creeps[this.Spawn.spawning.name];
             const progress = Math.floor(((this.Spawn.spawning.needTime - this.Spawn.spawning.remainingTime) / this.Spawn.spawning.needTime) * 100)
@@ -70,7 +85,7 @@ export class Hatchery {
         }
     }
 
-    hatch(mutation: CreepMutations) {
+    private hatch(mutation: CreepMutations) {
 
         const body = this.mutate(mutation)
 
@@ -82,8 +97,11 @@ export class Hatchery {
 
             if (result === OK) {
                 console.log('Spawning new Larvae: ' + creepName + ' ' + body.cost);
+                return true
             }
         }
+
+        return false
 
         // * OK	0 The operation has been scheduled successfully.
         // * ERR_NOT_OWNER - 1 You are not the owner of this spawn.
@@ -96,7 +114,7 @@ export class Hatchery {
         // https://docs.screeps.com/api/#Creep
     }
 
-    mutate(mutation: CreepMutations, spendingCap?: number): MutatedBody {
+    private mutate(mutation: CreepMutations, spendingCap?: number): MutatedBody {
 
         if (!spendingCap) {
             spendingCap = this.Spawn.room.energyCapacityAvailable
