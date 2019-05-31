@@ -1,11 +1,10 @@
-import { WORKER } from './../Hatchery';
-import { Larvae } from './../Larvae';
-import { PathStyle } from './MovementPathStyles';
-import { IMemoryJob, JobType } from '_lib/interfaces';
-import { Dictionary } from 'lodash';
-import { Job, JobPriority } from './Job';
-import { Role } from 'role/roles';
-import { emoji } from '_lib/emoji';
+import { CreepMutations } from './../Hatchery'
+import { PathStyle } from './MovementPathStyles'
+import { IMemoryJob, JobType } from '_lib/interfaces'
+import { Dictionary } from 'lodash'
+import { Job, JobPriority } from './Job'
+import { Role } from 'role/roles'
+import { emoji } from '_lib/emoji'
 
 // TODO: What if the target is removed? clean up job and release builders?
 
@@ -86,7 +85,7 @@ export class BuilderJob extends Job {
             neededWorkers = super.assign(neededWorkers, this.memory, Role.builder)
 
             // Do we already have requests for this?
-            super.requestHatch(neededWorkers, WORKER, this.memory.priority)
+            super.requestHatch(neededWorkers, CreepMutations.WORKER, this.memory.priority)
         }
 
         super.run((creep) => {

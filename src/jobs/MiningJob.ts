@@ -1,4 +1,4 @@
-import { HARVESTER } from './../Hatchery';
+import { CreepMutations } from './../Hatchery';
 import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
@@ -56,7 +56,7 @@ export class MiningJob extends Job {
                 neededWorkers = super.assign(neededWorkers, this.memory, Role.harvester)
 
                 // Do we already have requests for this?
-                super.requestHatch(neededWorkers, HARVESTER, this.memory.priority)
+                super.requestHatch(neededWorkers, CreepMutations.HARVESTER, this.memory.priority)
             }
         }
 

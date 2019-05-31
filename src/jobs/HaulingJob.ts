@@ -1,7 +1,7 @@
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
 import { Role } from 'role/roles';
-import { HAULER } from './../Hatchery';
+import { CreepMutations } from './../Hatchery';
 import { Job, JobPriority } from './Job';
 import { PathStyle } from './MovementPathStyles';
 
@@ -54,7 +54,7 @@ export class HaulingJob extends Job {
             neededWorkers = super.assign(neededWorkers, this.memory, Role.Larvae)
 
             // Do we already have requests for this?
-            super.requestHatch(neededWorkers, HAULER, this.memory.priority)
+            super.requestHatch(neededWorkers, CreepMutations.HAULER, this.memory.priority)
         }
 
         super.run((creep) => haulingCreep.run(creep, this.structure))

@@ -1,4 +1,4 @@
-import { UPGRADER } from './../Hatchery';
+import { CreepMutations } from './../Hatchery';
 import { PathStyle } from './MovementPathStyles';
 import { IMemoryJob, JobType } from '_lib/interfaces';
 import { Dictionary } from 'lodash';
@@ -60,7 +60,7 @@ export class UpgradeControllerJob extends Job {
             neededWorkers = super.assign(neededWorkers, this.memory, Role.upgrader)
 
             // Do we already have requests for this?
-            super.requestHatch(neededWorkers, UPGRADER, this.memory.priority)
+            super.requestHatch(neededWorkers, CreepMutations.UPGRADER, this.memory.priority)
         }
 
         super.run((creep) => {

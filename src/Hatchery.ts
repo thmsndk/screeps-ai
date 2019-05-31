@@ -200,39 +200,20 @@ function bodyCost(body: BodyPartConstant[]) {
     }, 0);
 }
 
-export type CreepMutations =
-    CLAIMER
-    | DEFENDER
-    | HARVESTER
-    | HOLD
-    | MOVER
-    | RANGER
-    | WORKER
-    | HAULER
-    | UPGRADER
+export enum CreepMutations {
+    CLAIMER = 'claimer',
+    DEFENDER = 'defender',
+    HARVESTER = 'harvester',
+    HOLD = 'hold',
+    MOVER = 'mover',
+    RANGER = 'ranger',
+    WORKER = 'worker',
+    HAULER = 'hauler',
+    UPGRADER = 'upgrader'
+}
 
-type CLAIMER = 'claimer'
-type DEFENDER = 'defender'
-type HARVESTER = 'harvester'
-type HOLD = 'hold'
-type MOVER = 'mover'
-type RANGER = 'ranger'
-type WORKER = 'worker'
-type HAULER = 'hauler'
-type UPGRADER = 'upgrader'
-
-export const CLAIMER = 'claimer'
-export const DEFENDER = 'defender'
-export const HARVESTER = 'harvester'
-export const HOLD = 'hold'
-export const MOVER = 'mover'
-export const RANGER = 'ranger'
-export const WORKER = 'worker'
-export const HAULER = 'hauler'
-export const UPGRADER = 'upgrader'
-
-interface BodyMutations {
-    [mutation: string]: BodyPartConstant[]
+type BodyMutations = {
+    [mutation in CreepMutations]: BodyPartConstant[]
 }
 
 const bodyMutations = {
