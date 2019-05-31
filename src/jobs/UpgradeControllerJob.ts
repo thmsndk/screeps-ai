@@ -42,6 +42,7 @@ export class UpgradeControllerJob extends Job {
       )
     }
 
+    // ? should we look at all available energy and calculate a percentage? - e.g containers, extensions and spawn
     const energyPercentage = this.controller.room.energyAvailable / this.controller.room.energyCapacityAvailable
     if (assignedCreeps < maxCreeps && energyPercentage > 0.25) {
       if (assignedCreeps === 0) {
@@ -65,6 +66,13 @@ export class UpgradeControllerJob extends Job {
     }
 
     super.run(creep => {
+      // TODO: should also only look at creeps in the same room, what about remote workers?
+
+      const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
+      if (harvesters.length === 0) {
+        return
+      }
+
       upgradeControllerCreep.run(this.controller, creep)
       // This was a silly idea, to handle the emergency of having no harvesters, we also need to check if we in fact have no harvesters, not just if our energy is low
       //
