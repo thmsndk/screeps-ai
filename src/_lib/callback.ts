@@ -4,32 +4,37 @@
 export type CallbackFunction = (params: any) => void
 
 export class Callback {
-    private handlers: CallbackFunction[] = []  // observers
+  private handlers: CallbackFunction[] = [] // observers
 
-    public subscribe(fn: CallbackFunction) {
-        this.handlers.push(fn)
-    }
+  public subscribe(fn: CallbackFunction) {
+    this.handlers.push(fn)
+  }
 
-    public unsubscribe(fn: CallbackFunction) {
-        this.handlers = this.handlers.filter(
-            (item: CallbackFunction) => {
-                if (item !== fn) {
-                    return item
-                }
+  public unsubscribe(fn: CallbackFunction) {
+    this.handlers = this.handlers.filter((item: CallbackFunction) => {
+      if (item !== fn) {
+        return item
+      }
 
-                return undefined
-            }
+      return undefined
+    })
+  }
+
+  public fire(params: any) {
+    // TODO: Put error handling around the call?
+    this.handlers.forEach((item: any) => {
+      try {
+        item.call(params)
+      } catch (err) {
+        console.log(
+          'Ignored error calling back ',
+          item.name,
+          'with',
+          params,
+          '-',
+          err
         )
-    }
-
-    public fire(params: any) {
-        // TODO: Put error handling around the call?
-        this.handlers.forEach((item: any) => {
-            try {
-                item.call(params);
-            } catch (err) {
-                console.log('Ignored error calling back ', item.name, 'with', params, '-', err);
-            }
-        })
-    }
+      }
+    })
+  }
 }

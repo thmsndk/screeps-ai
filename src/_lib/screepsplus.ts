@@ -19,54 +19,52 @@
 //
 // This module uses my resources module, which analyzes the state of affairs
 // for every room you can see.
-import { Callback, CallbackFunction } from "./callback";
-import "./interfaces";
-import { summarize_rooms } from "./resources";
+import { Callback, CallbackFunction } from './callback'
+import './interfaces'
+import { summarize_rooms } from './resources'
 // const resources = require('_lib.resources');
 // const cb = require('_lib.callback');
 
-const statsCallbacks = new Callback();
+const statsCallbacks = new Callback()
 
 // Tell us that you want a callback when we're collecting the stats.
 // We will send you in the partially completed stats object.
 export function add_stats_callback(cbfunc: CallbackFunction) {
-    statsCallbacks.subscribe(cbfunc);
+  statsCallbacks.subscribe(cbfunc)
 }
-
 
 // Update the Memory.stats with useful information for trend analysis and graphing.
 // Also calls all registered stats callback functions before returning.
 export function collect_stats() {
+  // Don't overwrite things if other modules are putting stuff into Memory.stats
+  if (Memory.stats == null) {
+    Memory.stats = { tick: Game.time }
+  }
 
-    // Don't overwrite things if other modules are putting stuff into Memory.stats
-    if (Memory.stats == null) {
-        Memory.stats = { tick: Game.time };
-    }
+  // Note: This is fragile and will change if the Game.cpu API changes
+  Memory.stats.cpu = { ...Game.cpu, used: Game.cpu.getUsed() }
+  // Memory.stats.cpu.used = Game.cpu.getUsed(); // AT END OF MAIN LOOP
 
-    // Note: This is fragile and will change if the Game.cpu API changes
-    Memory.stats.cpu = { ...Game.cpu, used: Game.cpu.getUsed() };
-    // Memory.stats.cpu.used = Game.cpu.getUsed(); // AT END OF MAIN LOOP
+  // Note: This is fragile and will change if the Game.gcl API changes
+  Memory.stats.gcl = Game.gcl
 
-    // Note: This is fragile and will change if the Game.gcl API changes
-    Memory.stats.gcl = Game.gcl;
+  const memoryUsed = RawMemory.get().length
+  // console.log('Memory used: ' + memory_used);
+  Memory.stats.memory = {
+    used: memoryUsed,
+    // Other memory stats here?
+  }
 
-    const memoryUsed = RawMemory.get().length;
-    // console.log('Memory used: ' + memory_used);
-    Memory.stats.memory = {
-        used: memoryUsed,
-        // Other memory stats here?
-    };
+  Memory.stats.market = {
+    credits: Game.market.credits,
+    num_orders: Game.market.orders ? Object.keys(Game.market.orders).length : 0,
+  }
 
-    Memory.stats.market = {
-        credits: Game.market.credits,
-        num_orders: Game.market.orders ? Object.keys(Game.market.orders).length : 0,
-    };
+  Memory.stats.roomSummary = summarize_rooms()
 
-    Memory.stats.roomSummary = summarize_rooms();
-
-    // Add callback functions which we can call to add additional
-    // statistics to here, and have a way to register them.
-    // 1. Merge in the current repair ratchets into the room summary
-    // TODO: Merge in the current creep desired numbers into the room summary
-    statsCallbacks.fire(Memory.stats);
+  // Add callback functions which we can call to add additional
+  // statistics to here, and have a way to register them.
+  // 1. Merge in the current repair ratchets into the room summary
+  // TODO: Merge in the current creep desired numbers into the room summary
+  statsCallbacks.fire(Memory.stats)
 } // collect_stats
