@@ -148,7 +148,7 @@ export class Hatchery {
         role = Role.upgrader
         break
       case CreepMutations.WORKER:
-        role = Role.Worker
+        role = Role.builder
         break
     }
 

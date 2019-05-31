@@ -4,5 +4,5 @@
     ☐ upgraders should be paused when they have no energy and our current energy ratio does not support all the spawned
     ☐ upgraders should not be requested if our energy gathering rate can't withstand the amount of harvesters, e.g. modify "maxCreeps" accordingly
     ✔ upgraders should only get resources from dropped resources, containers and tombstones @started(19-05-31 11:42) @done(19-05-31 11:56) @lasted(14m31s)
-
+☐ There appear to be an issue with requesting too many harvesters, there should only be 8 in my current spawn, but there is 13
 
