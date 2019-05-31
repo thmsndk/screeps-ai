@@ -1,12 +1,12 @@
-import { CreepMutations } from './../Hatchery'
-import { PathStyle } from './MovementPathStyles'
-import { IMemoryJob, JobType } from '_lib/interfaces'
-import { Dictionary } from 'lodash'
-import { ISourceMemory } from 'RoomScanner'
-import { Job, JobPriority } from './Job'
-import { Role } from 'role/roles'
-import { emoji } from '_lib/emoji'
-import { MiningHaulingJob } from './MiningHaulingJob'
+import { CreepMutations } from "./../Hatchery"
+import { PathStyle } from "./MovementPathStyles"
+import { IMemoryJob, JobType } from "_lib/interfaces"
+import { Dictionary } from "lodash"
+import { ISourceMemory } from "RoomScanner"
+import { Job, JobPriority } from "./Job"
+import { Role } from "role/roles"
+import { emoji } from "_lib/emoji"
+import { MiningHaulingJob } from "./MiningHaulingJob"
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
@@ -50,23 +50,18 @@ export class MiningJob extends Job {
       if (assignedCreeps === 0) {
         this.memory.priority = JobPriority.High
       } else {
-        this.memory.priority = JobPriority.Medium // might need more priority levels
+        this.memory.priority = JobPriority.Medium + 1 // might need more priority levels
       }
 
       if (assignedCreeps < this.sourceMemory.miningPositions.length) {
         // TODO memory should be private and we should store it in object
         // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
-        let neededWorkers =
-          this.sourceMemory.miningPositions.length - assignedCreeps
+        let neededWorkers = this.sourceMemory.miningPositions.length - assignedCreeps
         // should probably change role, the role of the creep depends on its body configuration?
         neededWorkers = super.assign(neededWorkers, this.memory, Role.harvester)
 
         // Do we already have requests for this?
-        super.requestHatch(
-          neededWorkers,
-          CreepMutations.HARVESTER,
-          this.memory.priority
-        )
+        super.requestHatch(neededWorkers, CreepMutations.HARVESTER, this.memory.priority)
       }
     }
 
@@ -109,7 +104,7 @@ class MiningCreep {
             }
 
             return false
-          },
+          }
         })
 
         if (target) {

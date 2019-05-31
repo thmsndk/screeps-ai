@@ -88,7 +88,7 @@ export class Job {
 }
 
 export const JobPriority = {
-  Low: 1,
-  Medium: 2,
-  High: 3
+  Low: 5,
+  Medium: 10,
+  High: 30
 }

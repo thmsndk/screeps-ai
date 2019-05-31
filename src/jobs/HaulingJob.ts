@@ -1,9 +1,9 @@
-import { IMemoryJob, JobType } from '_lib/interfaces'
-import { Dictionary } from 'lodash'
-import { Role } from 'role/roles'
-import { CreepMutations } from './../Hatchery'
-import { Job, JobPriority } from './Job'
-import { PathStyle } from './MovementPathStyles'
+import { IMemoryJob, JobType } from "_lib/interfaces"
+import { Dictionary } from "lodash"
+import { Role } from "role/roles"
+import { CreepMutations } from "./../Hatchery"
+import { Job, JobPriority } from "./Job"
+import { PathStyle } from "./MovementPathStyles"
 
 /**
  * This is a generic purpose hauling job, it can haul to a target
@@ -14,11 +14,7 @@ export class HaulingJob extends Job {
   public structure: Structure
   public memory: IMemoryJob
 
-  constructor(
-    target: Structure,
-    memory?: IMemoryJob,
-    creeps?: Dictionary<Creep>
-  ) {
+  constructor(target: Structure, memory?: IMemoryJob, creeps?: Dictionary<Creep>) {
     super(JobType.Hauling, target.id, creeps)
     this.structure = target
 
@@ -27,7 +23,7 @@ export class HaulingJob extends Job {
         type: JobType.Hauling,
         target: target.id,
         creeps: [],
-        priority: JobPriority.High,
+        priority: JobPriority.High
       } // TODO: move down into job, requires refactoring of other stuff
       Memory.jobs.push(memory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
     }
@@ -46,9 +42,9 @@ export class HaulingJob extends Job {
     // no need to fill  the rest of the mining positions before we have a hauler
 
     // currently only towers utilize this job, so we set maxhaulers accordingly
-    const maxHaulers = 3 // should be in memory so you can define it genericly
+    const maxHaulers = 1 // should be in memory so you can define it genericly
     if (assignedCreeps === 0) {
-      this.memory.priority = JobPriority.High
+      this.memory.priority = JobPriority.High - 1
     } else {
       this.memory.priority = JobPriority.Medium
     }
@@ -61,11 +57,7 @@ export class HaulingJob extends Job {
       neededWorkers = super.assign(neededWorkers, this.memory, Role.Larvae)
 
       // Do we already have requests for this?
-      super.requestHatch(
-        neededWorkers,
-        CreepMutations.HAULER,
-        this.memory.priority
-      )
+      super.requestHatch(neededWorkers, CreepMutations.HAULER, this.memory.priority)
     }
 
     super.run(creep => haulingCreep.run(creep, this.structure))
@@ -102,15 +94,12 @@ class HaulingCreep {
             }
 
             return false
-          },
+          }
         })
 
         // job.memory.target = target ? target.id : undefined
 
-        if (
-          target &&
-          creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
-        ) {
+        if (target && creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(target, { visualizePathStyle: PathStyle.Hauling })
         }
       }
@@ -141,10 +130,7 @@ class HaulingCreep {
       // });
 
       // TODO: what if it is not energy we are transfering?, should hauling job specify kind of resource?
-      if (
-        structure &&
-        creep.transfer(structure, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
-      ) {
+      if (structure && creep.transfer(structure, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(structure, { visualizePathStyle: PathStyle.Deposit })
       }
     }

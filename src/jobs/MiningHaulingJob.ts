@@ -1,11 +1,11 @@
-import { emoji } from '_lib/emoji'
-import { IMemoryJob, JobType } from '_lib/interfaces'
-import { Dictionary } from 'lodash'
-import { Role } from 'role/roles'
-import { ISourceMemory } from 'RoomScanner'
-import { Job, JobPriority } from './Job'
-import { PathStyle } from './MovementPathStyles'
-import { CreepMutations } from 'Hatchery'
+import { emoji } from "_lib/emoji"
+import { IMemoryJob, JobType } from "_lib/interfaces"
+import { Dictionary } from "lodash"
+import { Role } from "role/roles"
+import { ISourceMemory } from "RoomScanner"
+import { Job, JobPriority } from "./Job"
+import { PathStyle } from "./MovementPathStyles"
+import { CreepMutations } from "Hatchery"
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners
@@ -15,12 +15,7 @@ export class MiningHaulingJob extends Job {
   public source: Source
   public sourceMemory: ISourceMemory
   public memory: IMemoryJob
-  constructor(
-    source: Source,
-    memory: IMemoryJob,
-    sourceMemory: ISourceMemory,
-    creeps?: Dictionary<Creep>
-  ) {
+  constructor(source: Source, memory: IMemoryJob, sourceMemory: ISourceMemory, creeps?: Dictionary<Creep>) {
     super(JobType.Hauling, source.id, creeps)
     this.source = source
     this.sourceMemory = sourceMemory
@@ -39,7 +34,7 @@ export class MiningHaulingJob extends Job {
 
     const maxHaulers = 1
     if (assignedCreeps === 0) {
-      this.memory.priority = JobPriority.High
+      this.memory.priority = JobPriority.High - 1
     } else {
       this.memory.priority = JobPriority.Medium
     }
@@ -51,11 +46,7 @@ export class MiningHaulingJob extends Job {
       neededWorkers = super.assign(neededWorkers, this.memory, Role.Larvae)
 
       // Do we already have requests for this?
-      super.requestHatch(
-        neededWorkers,
-        CreepMutations.HAULER,
-        this.memory.priority
-      )
+      super.requestHatch(neededWorkers, CreepMutations.HAULER, this.memory.priority)
     }
 
     super.run(creep => haulingCreep.run(this, creep, this.source))
@@ -92,15 +83,12 @@ class HaulingCreep {
             }
 
             return false
-          },
+          }
         })
 
         // job.memory.target = target ? target.id : undefined
 
-        if (
-          target &&
-          creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
-        ) {
+        if (target && creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(target, { visualizePathStyle: PathStyle.Hauling })
         }
       }
@@ -124,13 +112,10 @@ class HaulingCreep {
           }
 
           return false
-        },
+        }
       })
 
-      if (
-        target &&
-        creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE
-      ) {
+      if (target && creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit })
       }
     }
