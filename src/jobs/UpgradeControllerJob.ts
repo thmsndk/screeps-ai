@@ -1,20 +1,16 @@
-import { CreepMutations } from './../Hatchery'
-import { PathStyle } from './MovementPathStyles'
-import { IMemoryJob, JobType } from '_lib/interfaces'
-import { Dictionary } from 'lodash'
-import { Job, JobPriority } from './Job'
-import { Role } from 'role/roles'
-import { emoji } from '_lib/emoji'
-import { getPositions } from 'RoomScanner'
+import { CreepMutations } from "./../Hatchery"
+import { PathStyle } from "./MovementPathStyles"
+import { IMemoryJob, JobType } from "_lib/interfaces"
+import { Dictionary } from "lodash"
+import { Job, JobPriority } from "./Job"
+import { Role } from "role/roles"
+import { emoji } from "_lib/emoji"
+import { getPositions } from "RoomScanner"
 
 export class UpgradeControllerJob extends Job {
   public controller: StructureController
   public memory: IMemoryJob
-  constructor(
-    controller: StructureController,
-    memory: IMemoryJob,
-    creeps?: Dictionary<Creep>
-  ) {
+  constructor(controller: StructureController, memory: IMemoryJob, creeps?: Dictionary<Creep>) {
     super(JobType.UpgradeController, controller.id, creeps)
     this.controller = controller
     this.memory = memory
@@ -36,21 +32,17 @@ export class UpgradeControllerJob extends Job {
 
     const maxCreeps = positions.length + 2 // max potential upgrade positions is 22, so we need to be smart about filling them and how many upgraders we have
 
-    const progress = Math.floor(
-      (this.controller.progress / this.controller.progressTotal) * 100
-    )
+    const progress = Math.floor((this.controller.progress / this.controller.progressTotal) * 100)
     if (this.controller.room) {
       this.controller.room.visual.text(
         `${assignedCreeps} / ${maxCreeps} ⚡ ${progress}%`,
         this.controller.pos.x + 1,
         this.controller.pos.y,
-        { align: 'center', opacity: 0.8 }
+        { align: "center", opacity: 0.8 }
       )
     }
 
-    const energyPercentage =
-      this.controller.room.energyAvailable /
-      this.controller.room.energyCapacityAvailable
+    const energyPercentage = this.controller.room.energyAvailable / this.controller.room.energyCapacityAvailable
     if (assignedCreeps < maxCreeps && energyPercentage > 0.25) {
       if (assignedCreeps === 0) {
         this.memory.priority = JobPriority.High
@@ -69,11 +61,7 @@ export class UpgradeControllerJob extends Job {
       neededWorkers = super.assign(neededWorkers, this.memory, Role.upgrader)
 
       // Do we already have requests for this?
-      super.requestHatch(
-        neededWorkers,
-        CreepMutations.UPGRADER,
-        this.memory.priority
-      )
+      super.requestHatch(neededWorkers, CreepMutations.UPGRADER, this.memory.priority)
     }
 
     super.run(creep => {
@@ -99,17 +87,17 @@ class UpgradeControllerCreep {
     // TODO: General upgrade logic should perhaps exist in a base class?
     if (creep.memory.upgrading && creep.carry.energy === 0) {
       creep.memory.upgrading = false
-      creep.say('🔄 withdraw')
+      creep.say("🔄 withdraw")
     }
     if (!creep.memory.upgrading && creep.carry.energy === creep.carryCapacity) {
       creep.memory.upgrading = true
-      creep.say('⚡ upgrade')
+      creep.say("⚡ upgrade")
     }
 
     if (creep.memory.upgrading && controller) {
       if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(controller, {
-          visualizePathStyle: PathStyle.UpgradeController,
+          visualizePathStyle: PathStyle.UpgradeController
         })
       }
     } else {
@@ -131,7 +119,7 @@ class UpgradeControllerCreep {
           }
 
           return false
-        },
+        }
       })
 
       if (target) {

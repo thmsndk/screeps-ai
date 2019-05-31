@@ -1,7 +1,8 @@
-import { MemoryHatchRequest } from './Hatchery'
-import PriorityQueue from 'ts-priority-queue'
-import { Role } from 'role/roles'
-import { Dictionary } from 'lodash'
+import { Larvae } from "./Larvae"
+import { MemoryHatchRequest } from "./Hatchery"
+import PriorityQueue from "ts-priority-queue"
+import { Role } from "role/roles"
+import { Dictionary } from "lodash"
 
 // Hatchery"Job"?
 // We need a list of hatcheries accessable by ?? roomName? what if there are multiple hatcheries in a room
@@ -17,10 +18,10 @@ export class Hatchery {
 
   constructor(spawn?: StructureSpawn | string) {
     if (!spawn) {
-      throw new Error('spawn can not be undefined')
+      throw new Error("spawn can not be undefined")
     }
 
-    if (typeof spawn === 'string') {
+    if (typeof spawn === "string") {
       this.Spawn = Game.spawns[spawn]
     } else {
       this.Spawn = spawn
@@ -40,7 +41,7 @@ export class Hatchery {
 
     this.requests = new PriorityQueue({
       comparator: comparePriority,
-      initialValues: allRequests,
+      initialValues: allRequests
     })
   }
 
@@ -71,11 +72,7 @@ export class Hatchery {
         for (const target in this.memory) {
           if (this.memory.hasOwnProperty(target)) {
             const requests = this.memory[target]
-            const index = requests.findIndex(
-              r =>
-                r.mutation === request.mutation &&
-                r.priority === request.priority
-            )
+            const index = requests.findIndex(r => r.mutation === request.mutation && r.priority === request.priority)
             this.memory[target] = requests.splice(index, 1)
           }
         }
@@ -118,39 +115,50 @@ export class Hatchery {
     if (this.Spawn && this.Spawn.spawning) {
       const spawningCreep = Game.creeps[this.Spawn.spawning.name]
       const progress = Math.floor(
-        ((this.Spawn.spawning.needTime - this.Spawn.spawning.remainingTime) /
-          this.Spawn.spawning.needTime) *
-          100
+        ((this.Spawn.spawning.needTime - this.Spawn.spawning.remainingTime) / this.Spawn.spawning.needTime) * 100
       )
       this.Spawn.room.visual.text(
         `🛠️ ${spawningCreep.memory.cost} ${progress}%`,
         this.Spawn.pos.x + 1,
         this.Spawn.pos.y,
-        { align: 'left', opacity: 0.8 }
+        { align: "left", opacity: 0.8 }
       )
     } else {
       this.Spawn.room.visual.text(
-        `⚡ ${this.Spawn.room.energyAvailable} / ${
-          this.Spawn.room.energyCapacityAvailable
-        }`,
+        `⚡ ${this.Spawn.room.energyAvailable} / ${this.Spawn.room.energyCapacityAvailable}`,
         this.Spawn.pos.x + 1,
         this.Spawn.pos.y,
-        { align: 'left', opacity: 0.8 }
+        { align: "left", opacity: 0.8 }
       )
     }
   }
 
   private hatch(mutation: CreepMutations) {
     const body = this.mutate(mutation)
+    let role = Role.Larvae
+    switch (mutation) {
+      case CreepMutations.HARVESTER:
+        role = Role.harvester
+        break
+      case CreepMutations.HAULER:
+        role = Role.Larvae
+        break
+      case CreepMutations.UPGRADER:
+        role = Role.upgrader
+        break
+      case CreepMutations.WORKER:
+        role = Role.Worker
+        break
+    }
 
     if (this.Spawn.room.energyAvailable >= body.cost) {
       const creepName = `${this.Spawn.room.name} ${mutation} ${Game.time}`
       const result = this.Spawn.spawnCreep(body.parts, creepName, {
-        memory: { role: Role.Larvae, cost: body.cost, unemployed: true },
+        memory: { role, cost: body.cost, unemployed: true }
       } as SpawnOptions)
 
       if (result === OK) {
-        console.log('Spawning new Larvae: ' + creepName + ' ' + body.cost)
+        console.log("Spawning new Larvae: " + creepName + " " + body.cost)
         return true
       }
     }
@@ -173,9 +181,7 @@ export class Hatchery {
       spendingCap = this.Spawn.room.energyCapacityAvailable
     }
 
-    let body = [].concat(bodyMutations[
-      mutation
-    ] as never[]) as BodyPartConstant[]
+    let body = [].concat(bodyMutations[mutation] as never[]) as BodyPartConstant[]
 
     // how much energy do we have? how much can we mutate?
 
@@ -209,15 +215,15 @@ function bodyCost(body: BodyPartConstant[]) {
 }
 
 export enum CreepMutations {
-  CLAIMER = 'claimer',
-  DEFENDER = 'defender',
-  HARVESTER = 'harvester',
-  HOLD = 'hold',
-  MOVER = 'mover',
-  RANGER = 'ranger',
-  WORKER = 'worker',
-  HAULER = 'hauler',
-  UPGRADER = 'upgrader',
+  CLAIMER = "claimer",
+  DEFENDER = "defender",
+  HARVESTER = "harvester",
+  HOLD = "hold",
+  MOVER = "mover",
+  RANGER = "ranger",
+  WORKER = "worker",
+  HAULER = "hauler",
+  UPGRADER = "upgrader"
 }
 
 type BodyMutations = { [mutation in CreepMutations]: BodyPartConstant[] }
@@ -232,7 +238,7 @@ const bodyMutations = {
   ranger: [RANGED_ATTACK, TOUGH, MOVE, MOVE],
   worker: [WORK, CARRY, MOVE, MOVE],
   hauler: [CARRY, MOVE],
-  upgrader: [WORK, CARRY, MOVE, MOVE],
+  upgrader: [WORK, CARRY, MOVE, MOVE]
 } as BodyMutations
 
 const bodyExtensions = {
@@ -245,7 +251,7 @@ const bodyExtensions = {
   ranger: [RANGED_ATTACK, TOUGH, MOVE, MOVE, HEAL],
   worker: [WORK, CARRY, MOVE, MOVE],
   hauler: [CARRY, MOVE],
-  upgrader: [WORK, CARRY, MOVE],
+  upgrader: [WORK, CARRY, MOVE]
 } as BodyMutations
 
 declare global {

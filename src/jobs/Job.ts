@@ -1,7 +1,7 @@
-import { RoleConstant } from 'role/roles'
-import { JobTypes, IMemoryJob } from '_lib/interfaces'
-import { Dictionary } from 'lodash'
-import { Hatchery, CreepMutations } from 'Hatchery'
+import { Role } from "role/roles"
+import { JobTypes, IMemoryJob } from "_lib/interfaces"
+import { Dictionary } from "lodash"
+import { Hatchery, CreepMutations } from "Hatchery"
 
 export class Job {
   public type: JobTypes
@@ -42,20 +42,11 @@ export class Job {
     }
   }
 
-  public assign(
-    neededWorkers: number,
-    memory: IMemoryJob,
-    role: RoleConstant
-  ): number { // TODO: memory should be in constructor, will solve later
+  public assign(neededWorkers: number, memory: IMemoryJob, role: Role): number {
+    // TODO: memory should be in constructor, will solve later
     // TODO: RoleConstant and Mutation should probably be merged
-    const unemployed = _.filter(
-      Game.creeps,
-      creep => creep.memory.unemployed && creep.memory.role === role
-    )
-    const creepsToEmploy = unemployed.slice(
-      0,
-      unemployed.length >= neededWorkers ? neededWorkers : unemployed.length
-    )
+    const unemployed = _.filter(Game.creeps, creep => creep.memory.unemployed && creep.memory.role === role)
+    const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length)
 
     neededWorkers -= creepsToEmploy.length
 
@@ -74,11 +65,7 @@ export class Job {
     return neededWorkers
   }
 
-  public requestHatch(
-    neededWorkers: number,
-    HARVESTER: CreepMutations,
-    priority: number
-  ) {
+  public requestHatch(neededWorkers: number, HARVESTER: CreepMutations, priority: number) {
     if (this.hatchery) {
       // TODO: What if there is no spawn in this room, but the job is for this room? what hatchery should spawn it then?
       if (this.target) {
@@ -91,7 +78,7 @@ export class Job {
             this.hatchery.queue({
               mutation: HARVESTER,
               target: this.target,
-              priority,
+              priority
             })
           }
         }
@@ -103,5 +90,5 @@ export class Job {
 export const JobPriority = {
   Low: 1,
   Medium: 2,
-  High: 3,
+  High: 3
 }
