@@ -131,6 +131,7 @@ export class Hatchery {
         this.Spawn.pos.y,
         { align: "left", opacity: 0.8 }
       )
+      // ?: highlight position of next target?
     }
   }
 

@@ -109,32 +109,49 @@ class UpgradeControllerCreep {
         })
       }
     } else {
-      var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: structure => {
-          switch (structure.structureType) {
-            case STRUCTURE_CONTAINER:
-              const container = structure as StructureContainer
-              return container.store[RESOURCE_ENERGY] >= creep.carryCapacity
-            case STRUCTURE_EXTENSION:
-              const extension = structure as StructureExtension
-              return extension.energy >= creep.carryCapacity
-            case STRUCTURE_SPAWN:
-              const spawn = structure as StructureSpawn
-              return spawn.energy >= creep.carryCapacity
-            case STRUCTURE_TOWER:
-              const tower = structure as StructureTower
-              return tower.energy >= creep.carryCapacity
-          }
-
-          return false
+      // TODO: find everything and figure out what is closes?
+      // ? do we need upgraders to get to structure containers?
+      // let tombstone = controller.pos.findClosestByRange(FIND_TOMBSTONES)
+      // if (tombstone) {
+      //   if (tombstone && creep.pickup(tombstone) === ERR_NOT_IN_RANGE) {
+      //     creep.moveTo(tombstone, { visualizePathStyle: PathStyle.Hauling })
+      //   }
+      // } else {
+      let resource = controller.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+      if (resource) {
+        if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
         }
-      })
+      } else {
+        var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+          filter: structure => {
+            switch (structure.structureType) {
+              case STRUCTURE_CONTAINER:
+                const container = structure as StructureContainer
+                return container.store[RESOURCE_ENERGY] >= creep.carryCapacity
+              // case STRUCTURE_EXTENSION:
+              //   const extension = structure as StructureExtension
+              //   return extension.energy >= creep.carryCapacity
+              // case STRUCTURE_SPAWN:
+              //   const spawn = structure as StructureSpawn
+              //   return spawn.energy >= creep.carryCapacity
+              case STRUCTURE_TOWER: // not sure it should get from there
+                const tower = structure as StructureTower
+                return tower.energy >= creep.carryCapacity
+            }
 
-      if (target) {
-        if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target, { visualizePathStyle: PathStyle.Collection })
+            return false
+          }
+        })
+
+        if (target) {
+          if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(target, { visualizePathStyle: PathStyle.Collection })
+          }
         }
       }
+      // }
+
       // DO NOT FALL BACK TO harvesting from sources
       // else {
       //     //creep.say('🔄 harvest');

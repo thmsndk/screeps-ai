@@ -83,7 +83,9 @@ class MiningCreep {
         creep.moveTo(source, { visualizePathStyle: PathStyle.Harvest })
       }
     } else {
-      if (Object.keys(job.haulingJob.Creeps).length > 0) {
+      const haulers = Object.keys(job.haulingJob.Creeps)
+
+      if (haulers.length > 0) {
         creep.drop(RESOURCE_ENERGY)
       } else {
         const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
