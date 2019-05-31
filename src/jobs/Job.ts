@@ -1,7 +1,7 @@
-import { Role } from "role/roles"
-import { JobTypes, IMemoryJob } from "_lib/interfaces"
+import { CreepMutations, Hatchery } from "Hatchery"
 import { Dictionary } from "lodash"
-import { Hatchery, CreepMutations } from "Hatchery"
+import { Role } from "role/roles"
+import { IMemoryJob, JobTypes } from "_lib/interfaces"
 
 export class Job {
   public type: JobTypes
@@ -65,18 +65,18 @@ export class Job {
     return neededWorkers
   }
 
-  public requestHatch(neededWorkers: number, HARVESTER: CreepMutations, priority: number) {
+  public requestHatch(neededWorkers: number, mutation: CreepMutations, priority: number) {
     if (this.hatchery) {
       // TODO: What if there is no spawn in this room, but the job is for this room? what hatchery should spawn it then?
       if (this.target) {
-        const requests = this.hatchery.getRequests(this.target, HARVESTER)
+        const requests = this.hatchery.getRequests(this.target, mutation)
         neededWorkers -= requests
         if (neededWorkers > 0) {
+          console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
           for (let index = 0; index < neededWorkers; index++) {
             // request new creeps
-
             this.hatchery.queue({
-              mutation: HARVESTER,
+              mutation,
               target: this.target,
               priority
             })
