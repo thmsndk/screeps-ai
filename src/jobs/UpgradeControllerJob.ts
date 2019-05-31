@@ -36,8 +36,8 @@ export class UpgradeControllerJob extends Job {
     if (this.controller.room) {
       this.controller.room.visual.text(
         `${assignedCreeps} / ${maxCreeps} ⚡ ${progress}%`,
-        this.controller.pos.x + 1,
-        this.controller.pos.y,
+        this.controller.pos.x,
+        this.controller.pos.y - 1,
         { align: "center", opacity: 0.8 }
       )
     }
