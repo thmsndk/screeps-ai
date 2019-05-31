@@ -93,7 +93,7 @@ class MiningCreep {
             switch (structure.structureType) {
               case STRUCTURE_CONTAINER:
                 const container = structure as StructureContainer
-                return _.sum(container.store) < container.storeCapacity
+                return _.sum(container.store) < container.storeCapacity && haulers.length > 0
               case STRUCTURE_EXTENSION:
                 const extension = structure as StructureExtension
                 return extension.energy < extension.energyCapacity
@@ -102,7 +102,7 @@ class MiningCreep {
                 return spawn.energy < spawn.energyCapacity
               case STRUCTURE_TOWER:
                 const tower = structure as StructureTower
-                return tower.energy < tower.energyCapacity
+                return tower.energy < tower.energyCapacity && haulers.length > 0
             }
 
             return false
