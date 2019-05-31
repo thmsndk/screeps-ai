@@ -135,7 +135,6 @@ export class Hatchery {
   }
 
   private hatch(mutation: CreepMutations) {
-    const body = this.mutate(mutation)
     let role = Role.Larvae
     switch (mutation) {
       case CreepMutations.HARVESTER:
@@ -151,6 +150,14 @@ export class Hatchery {
         role = Role.Worker
         break
     }
+
+    let spendingCap
+    const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
+    if (harvesters.length === 0) {
+      spendingCap = 300
+    }
+
+    const body = this.mutate(mutation, spendingCap)
 
     if (this.Spawn.room.energyAvailable >= body.cost) {
       const creepName = `${this.Spawn.room.name} ${mutation} ${Game.time}`
