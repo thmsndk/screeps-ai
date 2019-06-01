@@ -124,9 +124,11 @@ export class Hatchery {
         { align: "left", opacity: 0.8 }
       )
     } else {
-      const next = this.requests.peek()
+      const next = this.requests.length > 0 ? this.requests.peek() : null
       this.Spawn.room.visual.text(
-        `⚡ ${this.Spawn.room.energyAvailable} / ${this.Spawn.room.energyCapacityAvailable} => ${next.mutation}`,
+        `⚡ ${this.Spawn.room.energyAvailable} / ${this.Spawn.room.energyCapacityAvailable} => ${
+          next ? next.mutation : "empty"
+        }`,
         this.Spawn.pos.x + 1,
         this.Spawn.pos.y,
         { align: "left", opacity: 0.8 }
