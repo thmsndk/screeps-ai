@@ -53,14 +53,34 @@ export class MiningHaulingJob extends Job {
   }
 }
 
+enum Mode {
+  collecting,
+  delivering
+}
+
 // tslint:disable-next-line: max-classes-per-file
 class HaulingCreep {
   run(job: MiningHaulingJob, creep: Creep, source: Source) {
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
 
-    const collecting = creep.carry.energy < creep.carryCapacity
+    switch (job.memory.mode) {
+      case Mode.collecting:
+        if (creep.carry.energy === creep.carryCapacity) {
+          job.memory.mode = Mode.delivering
+        }
+        break
+      case Mode.delivering:
+        if (creep.carry.energy === 0) {
+          job.memory.mode = Mode.collecting
+        }
+        break
 
-    if (collecting) {
+      default:
+        job.memory.mode = Mode.collecting
+        break
+    }
+
+    if (job.memory.mode === Mode.collecting) {
       // creep.say('🔄');
       // find dropped resources near mine, put into container
       // when no more dropped resources or container full, pull from container and move back to spawn

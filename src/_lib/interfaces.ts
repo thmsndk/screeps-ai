@@ -1,4 +1,4 @@
-import { JobTypeUpgradeController } from './interfaces'
+import { JobTypeUpgradeController } from "./interfaces"
 declare global {
   interface Memory {
     SCRIPT_VERSION: string
@@ -28,11 +28,7 @@ export interface IStats {
   roomSummary?: {}
 }
 
-export type JobTypes =
-  | JobTypeMining
-  | JobTypeUpgradeController
-  | JobTypeHauling
-  | JobTypeBuilding
+export type JobTypes = JobTypeMining | JobTypeUpgradeController | JobTypeHauling | JobTypeBuilding
 export type JobTypeMining = 1
 export type JobTypeUpgradeController = 2
 export type JobTypeHauling = 3
@@ -40,6 +36,7 @@ export type JobTypeBuilding = 4
 
 // tslint:disable-next-line: interface-name
 export interface IMemoryJob {
+  mode?: number
   type: JobTypes
   priority: number
   target?: string
@@ -51,7 +48,7 @@ export const JobType = {
   Mining: 1 as JobTypeMining,
   UpgradeController: 2 as JobTypeUpgradeController,
   Hauling: 3 as JobTypeHauling,
-  Building: 4 as JobTypeBuilding,
+  Building: 4 as JobTypeBuilding
 }
 
 declare global {
