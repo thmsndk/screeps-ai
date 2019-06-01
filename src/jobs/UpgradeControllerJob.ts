@@ -30,7 +30,8 @@ export class UpgradeControllerJob extends Job {
       3
     )
 
-    const maxCreeps = positions.length + 2 // max potential upgrade positions is 22, so we need to be smart about filling them and how many upgraders we have
+    // max potential upgrade positions is 22, so we need to be smart about filling them and how many upgraders we have
+    const maxCreeps = positions.length
 
     const progress = Math.floor((this.controller.progress / this.controller.progressTotal) * 100)
     if (this.controller.room) {
@@ -43,9 +44,12 @@ export class UpgradeControllerJob extends Job {
     }
 
     // ? should we look at all available energy and calculate a percentage? - e.g containers, extensions and spawn
+    let neededWorkers = maxCreeps - assignedCreeps
+
     const energyPercentage = this.controller.room.energyAvailable / this.controller.room.energyCapacityAvailable
     if (assignedCreeps < maxCreeps && energyPercentage > 0.25) {
       if (assignedCreeps === 0) {
+        neededWorkers = 1
         this.memory.priority = JobPriority.High
       } else {
         // if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
@@ -56,10 +60,15 @@ export class UpgradeControllerJob extends Job {
       // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
       // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
       // when suddenly ~90 workers are needed because of the high max, everything gets converted to upgraders
-      let neededWorkers = maxCreeps - assignedCreeps
+
+      // console.log(this.target + " needed workers", neededWorkers)
+      if (this.target === "5cd5e6e6f5b0710010171316") {
+        // console.log(`pre-assign  `, Role.upgrader, neededWorkers)
+      }
 
       // should probably change role, the role of the creep depends on its body configuration?
       neededWorkers = super.assign(neededWorkers, this.memory, Role.upgrader)
+      // console.log(this.target + " needed workers after assign ", neededWorkers, this.memory.priority)
 
       // Do we already have requests for this?
       super.requestHatch(neededWorkers, CreepMutations.UPGRADER, this.memory.priority)
