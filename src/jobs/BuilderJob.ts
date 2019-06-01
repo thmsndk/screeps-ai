@@ -89,8 +89,8 @@ export class BuilderJob extends Job {
       let neededWorkers = maxCreeps - assignedCreeps
       neededWorkers = super.assign(neededWorkers, this.memory, Role.builder)
 
-      // Do we already have requests for this?
-      super.requestHatch(neededWorkers, CreepMutations.WORKER, this.memory.priority)
+      // we at max request 1 additional worker per builder job
+      super.requestHatch(1, CreepMutations.WORKER, this.memory.priority)
     }
 
     super.run(creep => {

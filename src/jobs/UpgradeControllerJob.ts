@@ -61,11 +61,6 @@ export class UpgradeControllerJob extends Job {
       // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
       // when suddenly ~90 workers are needed because of the high max, everything gets converted to upgraders
 
-      // console.log(this.target + " needed workers", neededWorkers)
-      if (this.target === "5cd5e6e6f5b0710010171316") {
-        // console.log(`pre-assign  `, Role.upgrader, neededWorkers)
-      }
-
       // should probably change role, the role of the creep depends on its body configuration?
       neededWorkers = super.assign(neededWorkers, this.memory, Role.upgrader)
       // console.log(this.target + " needed workers after assign ", neededWorkers, this.memory.priority)

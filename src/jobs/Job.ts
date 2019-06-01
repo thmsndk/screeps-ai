@@ -47,7 +47,7 @@ export class Job {
     // TODO: RoleConstant and Mutation should probably be merged
     const unemployed = _.filter(Game.creeps, creep => creep.memory.unemployed && creep.memory.role === role)
     const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length)
-    console.log(`assign `, role, unemployed, neededWorkers, creepsToEmploy.length)
+    // console.log(`assign `, role, unemployed, neededWorkers, creepsToEmploy.length)
     // console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
 
     neededWorkers -= creepsToEmploy.length
