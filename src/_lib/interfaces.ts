@@ -1,3 +1,4 @@
+import { Dictionary } from "lodash"
 import { JobTypeUpgradeController } from "./interfaces"
 declare global {
   interface Memory {
@@ -26,6 +27,7 @@ export interface IStats {
     num_orders: number
   }
   roomSummary?: {}
+  jobs: Dictionary<IMemoryJob[]>
 }
 
 export type JobTypes = JobTypeMining | JobTypeUpgradeController | JobTypeHauling | JobTypeBuilding

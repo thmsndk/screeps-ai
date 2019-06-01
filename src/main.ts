@@ -1,20 +1,37 @@
-import { BuilderJob } from './jobs/BuilderJob'
-import { MiningHaulingJob } from './jobs/MiningHaulingJob'
-import { UpgradeControllerJob } from './jobs/UpgradeControllerJob'
+import { BuilderJob } from "./jobs/BuilderJob"
+import { MiningHaulingJob } from "./jobs/MiningHaulingJob"
+import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 
-import { IMemoryJob, JobType } from '_lib/interfaces'
-import { collect_stats } from '_lib/screepsplus'
-import { Hatchery } from 'Hatchery'
-import { Job, JobPriority } from 'jobs/Job'
-import { MiningJob } from 'jobs/MiningJob'
-import { Dictionary } from 'lodash'
-import { RoomScanner } from 'RoomScanner'
-import { ErrorMapper } from 'utils/ErrorMapper'
-import { summarize_room } from '_lib/resources'
-import { Role } from 'role/roles'
-import { HaulingJob } from 'jobs/HaulingJob'
+import { IMemoryJob, JobType, IStats } from "_lib/interfaces"
+import { collect_stats, add_stats_callback } from "_lib/screepsplus"
+import { Hatchery } from "Hatchery"
+import { Job, JobPriority } from "jobs/Job"
+import { MiningJob } from "jobs/MiningJob"
+import { Dictionary } from "lodash"
+import { RoomScanner } from "RoomScanner"
+import { ErrorMapper } from "utils/ErrorMapper"
+import { summarize_room } from "_lib/resources"
+import { Role } from "role/roles"
+import { HaulingJob } from "jobs/HaulingJob"
 
 const roomScanner = new RoomScanner()
+
+add_stats_callback((stats: IStats) => {
+  if (stats) {
+    stats.jobs = {}
+
+    Memory.jobs.forEach(job => {
+      if (stats && stats.jobs && job.target) {
+        let jobTarget = stats.jobs[job.target]
+        if (!jobTarget) {
+          stats.jobs[job.target] = jobTarget = []
+        }
+        jobTarget.push(job)
+        // TODO: what about subjobs?
+      }
+    })
+  }
+})
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -37,7 +54,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name]
-      console.log('Clearing non-existing creep memory:', name)
+      console.log("Clearing non-existing creep memory:", name)
     } else {
       if (!creep.role) {
         creep.role = Role.Larvae
@@ -79,7 +96,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
           type: JobType.UpgradeController,
           target: controller.id,
           creeps: [],
-          priority: JobPriority.Low,
+          priority: JobPriority.Low
         }
         const job = new UpgradeControllerJob(controller, jobMemory)
         Memory.jobs.push(jobMemory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
@@ -88,9 +105,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
 
     // queue building jobs
-    const constructionSites = Game.spawns.Spawn1.room.find(
-      FIND_MY_CONSTRUCTION_SITES
-    )
+    const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
     constructionSites.forEach(site => {
       if (!jobs.find(job => job.target === site.id)) {
         const job = new BuilderJob(site)
@@ -100,13 +115,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
     })
 
     // queue tower hauling jobs
-    const towers = Game.spawns.Spawn1.room.find<StructureTower>(
-      FIND_MY_STRUCTURES,
-      {
-        filter: (structure: Structure) =>
-          structure.structureType === STRUCTURE_TOWER,
-      }
-    )
+    const towers = Game.spawns.Spawn1.room.find<StructureTower>(FIND_MY_STRUCTURES, {
+      filter: (structure: Structure) => structure.structureType === STRUCTURE_TOWER
+    })
 
     towers.forEach(tower => {
       if (!jobs.find(job => job.target === tower.id)) {
@@ -118,20 +129,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (closestHostile) {
         tower.attack(closestHostile)
       } else {
-        const closestDamagedStructure = tower.pos.findClosestByRange(
-          FIND_STRUCTURES,
-          {
-            // walls does not appear to be in "FIND_MY_STRUCTURES"
-            filter: (structure: Structure) => {
-              // console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
-              return (
-                (structure.hits < structure.hitsMax &&
-                  structure.structureType !== STRUCTURE_WALL) ||
-                structure.hits / structure.hitsMax < 0.0004
-              )
-            },
+        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+          // walls does not appear to be in "FIND_MY_STRUCTURES"
+          filter: (structure: Structure) => {
+            // console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
+            return (
+              (structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_WALL) ||
+              structure.hits / structure.hitsMax < 0.0004
+            )
           }
-        )
+        })
 
         if (closestDamagedStructure) {
           tower.repair(closestDamagedStructure)
@@ -162,6 +169,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   // How do I make sure collect stats resets room stats when I die?
+
   collect_stats()
 
   if (Game.spawns.Spawn1) {
@@ -181,8 +189,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
           const count = spawn1Stats.creep_counts[role]
           y += 1
           Game.spawns.Spawn1.room.visual.text(`${role}: ${count}`, 25, y, {
-            align: 'center',
-            opacity: 0.8,
+            align: "center",
+            opacity: 0.8
           })
         }
       }
@@ -228,32 +236,17 @@ function deseralizeJobs() {
 
           const seralizedHaulerMemory = seralizedJob.jobs[0]
           const haulers = deseralizeJobCreeps(seralizedHaulerMemory)
-          const haulingJob = new MiningHaulingJob(
-            source,
-            seralizedHaulerMemory,
-            sourceMemory,
-            haulers
-          )
+          const haulingJob = new MiningHaulingJob(source, seralizedHaulerMemory, sourceMemory, haulers)
 
           const miners = deseralizeJobCreeps(seralizedJob)
-          jobs.push(
-            new MiningJob(
-              source,
-              seralizedJob,
-              sourceMemory,
-              haulingJob,
-              miners
-            )
-          )
+          jobs.push(new MiningJob(source, seralizedJob, sourceMemory, haulingJob, miners))
 
           jobs.push(haulingJob)
         }
         break
       case JobType.UpgradeController:
         // seralizedJob.priority = JobPriority.Low // mokeypatched memory
-        const controller = Game.getObjectById<StructureController>(
-          seralizedJob.target
-        )
+        const controller = Game.getObjectById<StructureController>(seralizedJob.target)
         if (controller) {
           const creeps = deseralizeJobCreeps(seralizedJob)
 
@@ -274,9 +267,7 @@ function deseralizeJobs() {
     }
   })
 
-  Memory.jobs = Memory.jobs.filter(
-    serializedJob => !jobsToDelete.includes(serializedJob)
-  )
+  Memory.jobs = Memory.jobs.filter(serializedJob => !jobsToDelete.includes(serializedJob))
 
   return jobs
 }
@@ -310,16 +301,12 @@ function queueMiningJobs(jobs: Job[]) {
 
             // TODO: if there is no container, or miners do not drop resources, there is no point in haulers for this
             // Should haulingjob be a subroutine/job for miningjob aswell, so mining job knows it has a hauler? Creeps should could be split into Haulers and Miners?
-            if (
-              !jobs.find(
-                job => job.target === sourceId && job.type === JobType.Mining
-              )
-            ) {
+            if (!jobs.find(job => job.target === sourceId && job.type === JobType.Mining)) {
               const haulingMemory = {
                 type: JobType.Hauling,
                 target: sourceId,
                 creeps: [],
-                priority: JobPriority.High,
+                priority: JobPriority.High
               } // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
 
               const miningMemory = {
@@ -327,20 +314,11 @@ function queueMiningJobs(jobs: Job[]) {
                 target: sourceId,
                 creeps: [],
                 priority: JobPriority.High,
-                jobs: [haulingMemory],
+                jobs: [haulingMemory]
               } // TODO: this need to be refactored, Miningjob should initialize it's memory, but what when we deseralize it?
 
-              const haulingJob = new MiningHaulingJob(
-                source,
-                haulingMemory,
-                sourceMemory
-              )
-              const miningJob = new MiningJob(
-                source,
-                miningMemory,
-                sourceMemory,
-                haulingJob
-              )
+              const haulingJob = new MiningHaulingJob(source, haulingMemory, sourceMemory)
+              const miningJob = new MiningJob(source, miningMemory, sourceMemory, haulingJob)
               Memory.jobs.push(miningMemory)
               // jobs.push(miningJob);
 

@@ -1,7 +1,9 @@
-﻿// Callback is a class (use with new) that stores functions to call
+﻿import { IStats } from "./interfaces"
+
+// Callback is a class (use with new) that stores functions to call
 // back later, and they're called with a specified object.
 
-export type CallbackFunction = (params: any) => void
+export type CallbackFunction = (params: IStats) => void
 
 export class Callback {
   private handlers: CallbackFunction[] = [] // observers
@@ -24,16 +26,9 @@ export class Callback {
     // TODO: Put error handling around the call?
     this.handlers.forEach((item: any) => {
       try {
-        item.call(params)
+        item.call(item, params)
       } catch (err) {
-        console.log(
-          'Ignored error calling back ',
-          item.name,
-          'with',
-          params,
-          '-',
-          err
-        )
+        console.log("Ignored error calling back ", item.name, "with", params, "-", err)
       }
     })
   }

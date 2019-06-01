@@ -19,9 +19,9 @@
 //
 // This module uses my resources module, which analyzes the state of affairs
 // for every room you can see.
-import { Callback, CallbackFunction } from './callback'
-import './interfaces'
-import { summarize_rooms } from './resources'
+import { Callback, CallbackFunction } from "./callback"
+import "./interfaces"
+import { summarize_rooms } from "./resources"
 // const resources = require('_lib.resources');
 // const cb = require('_lib.callback');
 
@@ -51,13 +51,13 @@ export function collect_stats() {
   const memoryUsed = RawMemory.get().length
   // console.log('Memory used: ' + memory_used);
   Memory.stats.memory = {
-    used: memoryUsed,
+    used: memoryUsed
     // Other memory stats here?
   }
 
   Memory.stats.market = {
     credits: Game.market.credits,
-    num_orders: Game.market.orders ? Object.keys(Game.market.orders).length : 0,
+    num_orders: Game.market.orders ? Object.keys(Game.market.orders).length : 0
   }
 
   Memory.stats.roomSummary = summarize_rooms()
@@ -66,5 +66,6 @@ export function collect_stats() {
   // statistics to here, and have a way to register them.
   // 1. Merge in the current repair ratchets into the room summary
   // TODO: Merge in the current creep desired numbers into the room summary
+  console.log("fire", Memory.stats.tick)
   statsCallbacks.fire(Memory.stats)
 } // collect_stats
