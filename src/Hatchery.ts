@@ -47,7 +47,6 @@ export class Hatchery {
 
   public queue(request: HatchRequest) {
     this.requests.queue(request)
-
     if (!this.Spawn.memory.requests) {
       this.Spawn.memory.requests = {}
     }
@@ -73,7 +72,8 @@ export class Hatchery {
           if (this.memory.hasOwnProperty(target)) {
             const requests = this.memory[target]
             const index = requests.findIndex(r => r.mutation === request.mutation && r.priority === request.priority)
-            this.memory[target] = requests.splice(index, 1)
+
+            requests.splice(index, 1)
           }
         }
       }

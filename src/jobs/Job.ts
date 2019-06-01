@@ -47,6 +47,8 @@ export class Job {
     // TODO: RoleConstant and Mutation should probably be merged
     const unemployed = _.filter(Game.creeps, creep => creep.memory.unemployed && creep.memory.role === role)
     const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length)
+    console.log(`assign `, role, unemployed, neededWorkers, creepsToEmploy.length)
+    // console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
 
     neededWorkers -= creepsToEmploy.length
 
@@ -72,9 +74,9 @@ export class Job {
         const requests = this.hatchery.getRequests(this.target, mutation)
         neededWorkers -= requests
         if (neededWorkers > 0) {
-          console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
           for (let index = 0; index < neededWorkers; index++) {
             // request new creeps
+            console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
             this.hatchery.queue({
               mutation,
               target: this.target,
