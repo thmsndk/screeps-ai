@@ -7,6 +7,7 @@ import { Role } from "role/roles"
 import { emoji } from "_lib/emoji"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { ISourceMemory } from "types"
+import { DEFCONLEVEL } from "DEFCON"
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
@@ -86,6 +87,22 @@ export class MiningJob extends Job {
 // tslint:disable-next-line: max-classes-per-file
 class MiningCreep {
   run(job: MiningJob, creep: Creep, source: Source) {
+    if (creep.room.memory.DEFCON.level > DEFCONLEVEL.NONE) {
+      // stay 3 fields away from from enemy
+      const hostilesInRange = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 4)
+      if (hostilesInRange.length > 0) {
+        const fleePath = PathFinder.search(
+          creep.pos,
+          hostilesInRange.map(hostile => ({ pos: hostile.pos, range: 3 })),
+          { flee: true }
+        )
+
+        creep.moveByPath(fleePath.path)
+
+        return
+      }
+    }
+
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
     const harvet = creep.carry.energy < creep.carryCapacity
 

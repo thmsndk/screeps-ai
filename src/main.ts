@@ -1,20 +1,19 @@
-import { EnergyMission } from "./jobs/EnergyMission"
 import { BuilderJob } from "./jobs/BuilderJob"
-import { MiningHaulingJob } from "./jobs/MiningHaulingJob"
+import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
-
-import { IMemoryJob, JobType, IStats } from "_lib/interfaces"
+import { JobType, IStats } from "_lib/interfaces"
 import { collect_stats, add_stats_callback } from "_lib/screepsplus"
 import { Hatchery } from "Hatchery"
 import { Job, JobPriority } from "jobs/Job"
-import { MiningJob } from "jobs/MiningJob"
 import { Dictionary } from "lodash"
-
 import { ErrorMapper } from "utils/ErrorMapper"
 import { summarize_room } from "_lib/resources"
 import { Role } from "role/roles"
 import { HaulingJob } from "jobs/HaulingJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
+import DEFCON from "./DEFCON"
+
+// global.DEFCON = DEFCON
 
 add_stats_callback((stats: IStats) => {
   if (stats) {
@@ -76,6 +75,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
   // deseralize jobs
   const jobs: Dictionary<Job[]> = deseralizeJobs()
+
+  for (const roomName in Game.rooms) {
+    if (Game.rooms.hasOwnProperty(roomName)) {
+      const room = Game.rooms[roomName]
+      DEFCON.scan(room)
+    }
+  }
 
   const energyMission = new EnergyMission(Game.spawns.Spawn1.room)
   energyMission.run()
