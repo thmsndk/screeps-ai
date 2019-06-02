@@ -35,12 +35,12 @@ export class BuilderJob extends Job {
     if (creeps) {
       this.memory.creeps = Object.keys(creeps)
       // Monkeypatch for updating role on builder
-      for (const creepName in creeps) {
-        if (creeps.hasOwnProperty(creepName)) {
-          const creep = creeps[creepName]
-          creep.memory.role = Role.builder
-        }
-      }
+      // for (const creepName in creeps) {
+      //   if (creeps.hasOwnProperty(creepName)) {
+      //     const creep = creeps[creepName]
+      //     creep.memory.role = Role.builder
+      //   }
+      // }
     }
   }
 
@@ -104,7 +104,7 @@ export class BuilderJob extends Job {
       // creep.say(emoji.lightning)
       // TODO: when job is finished release creep
       if (progress === 100) {
-        creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
+        // creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
         creep.memory.unemployed = true
         creep.say("[Builder]  Job's done ")
 

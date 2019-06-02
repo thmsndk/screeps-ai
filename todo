@@ -9,3 +9,5 @@
 ✔ initial spawn on official, everything is spawned as employed larvae @done(19-06-02 13:49)
     helps to be on the correct branch
 ☐ builders should find closest builder to assign
+☐ spawn placement, closest to sources with most spots, not too far away from other spots, calculate that with pathing, this could be a visual tool? when there is no spawn in the room?
+☐ builders should sacrifice / delete / whatever at spawn when there are no more construction jobs

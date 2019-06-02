@@ -110,6 +110,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     // queue building jobs
     const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
+    // group construction sites by type?, the type could be utilized as id, might be deleted then by earlier logic
+    // road work, what priority is that? Low?
+    // extension, what priority is that? Medium
+    // container, what priority? HIGH
+    // walls ?
+    // priority is not that important when we do not sort jobs by priority.
+    // We wish to accomplish "enough" workers assigned to "all" construction jobs, we also wish workers to get assigned to the closest job
+
     constructionSites.forEach(site => {
       if (!jobs[site.id]) {
         const job = new BuilderJob(site)
@@ -222,7 +230,7 @@ function deseralizeJobs() {
     if (Memory.jobs.hasOwnProperty(targetId)) {
       const target = Game.getObjectById<RoomObject>(targetId)
       if (!target) {
-        delete Memory.jobs[targetId]
+        delete Memory.jobs[targetId] // TODO: this might become an issue when we queue jobs in other rooms
         continue
       }
 

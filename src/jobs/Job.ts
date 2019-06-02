@@ -45,7 +45,20 @@ export class Job {
   public assign(neededWorkers: number, memory: IMemoryJob, role: Role): number {
     // TODO: memory should be in constructor, will solve later
     // TODO: RoleConstant and Mutation should probably be merged
-    const unemployed = _.filter(Game.creeps, creep => creep.memory.unemployed && creep.memory.role === role)
+
+    let unemployed = _.filter(Game.creeps, creep => creep.memory.unemployed && creep.memory.role === role)
+
+    // Sort by range
+    const target = Game.getObjectById<RoomObject>(this.target) // TODO: not sure it is smart to get object again here. we should store position of job on base entry
+    if (target) {
+      unemployed = unemployed.sort((a, b) => {
+        const aRange = a.pos.getRangeTo(target)
+        const bRange = b.pos.getRangeTo(target)
+
+        return aRange - bRange
+      })
+    }
+
     const creepsToEmploy = unemployed.slice(0, unemployed.length >= neededWorkers ? neededWorkers : unemployed.length)
     // console.log(`assign `, role, unemployed, neededWorkers, creepsToEmploy.length)
     // console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
