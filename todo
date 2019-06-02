@@ -6,3 +6,5 @@
     ✔ upgraders should only get resources from dropped resources, containers and tombstones @started(19-05-31 11:42) @done(19-05-31 11:56) @lasted(14m31s)
 ☐ There appear to be an issue with requesting too many harvesters, there should only be 8 in my current spawn, but there is 13
 ☐ energy mining ratio? - when we make bigger creeps, does it make sense to have all creeps on resource node to mine, how do we optimize this?
+✔ initial spawn on official, everything is spawned as employed larvae @done(19-06-02 13:49)
+    helps to be on the correct branch

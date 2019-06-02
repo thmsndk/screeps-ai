@@ -38,7 +38,7 @@ export function add_stats_callback(cbfunc: CallbackFunction) {
 export function collect_stats() {
   // Don't overwrite things if other modules are putting stuff into Memory.stats
   if (Memory.stats == null) {
-    Memory.stats = { tick: Game.time }
+    Memory.stats = { tick: Game.time, jobs: {} }
   }
 
   // Note: This is fragile and will change if the Game.cpu API changes
@@ -66,6 +66,6 @@ export function collect_stats() {
   // statistics to here, and have a way to register them.
   // 1. Merge in the current repair ratchets into the room summary
   // TODO: Merge in the current creep desired numbers into the room summary
-  console.log("fire", Memory.stats.tick)
+  // console.log("fire", Memory.stats.tick)
   statsCallbacks.fire(Memory.stats)
 } // collect_stats
