@@ -8,3 +8,4 @@
 ☐ energy mining ratio? - when we make bigger creeps, does it make sense to have all creeps on resource node to mine, how do we optimize this?
 ✔ initial spawn on official, everything is spawned as employed larvae @done(19-06-02 13:49)
     helps to be on the correct branch
+☐ builders should find closest builder to assign

@@ -22,7 +22,12 @@ export class BuilderJob extends Job {
         creeps: [],
         priority: JobPriority.Medium
       } // TODO: move down into job, requires refactoring of other stuff
-      Memory.jobs.push(memory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+
+      if (!Memory.jobs[constructionSite.id]) {
+        Memory.jobs[constructionSite.id] = []
+      }
+
+      Memory.jobs[constructionSite.id].push(memory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
     }
 
     this.memory = memory
@@ -86,6 +91,7 @@ export class BuilderJob extends Job {
       // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
       // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
       // TODO: acquire free builders with energy close to build site, sort unemployed by priority
+      // TODO: should find closest builder to assign
       let neededWorkers = maxCreeps - assignedCreeps
       neededWorkers = super.assign(neededWorkers, this.memory, Role.builder)
 

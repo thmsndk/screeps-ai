@@ -18,18 +18,18 @@ const roomScanner = new RoomScanner()
 
 add_stats_callback((stats: IStats) => {
   if (stats) {
-    stats.jobs = {}
+    stats.jobs = Memory.jobs
 
-    Memory.jobs.forEach(job => {
-      if (stats && stats.jobs && job.target) {
-        let jobTarget = stats.jobs[job.target]
-        if (!jobTarget) {
-          stats.jobs[job.target] = jobTarget = []
-        }
-        jobTarget.push(job)
-        // TODO: what about subjobs?
-      }
-    })
+    // Memory.jobs.forEach(job => {
+    //   if (stats && stats.jobs && job.target) {
+    //     let jobTarget = stats.jobs[job.target]
+    //     if (!jobTarget) {
+    //       stats.jobs[job.target] = jobTarget = []
+    //     }
+    //     jobTarget.push(job)
+    //     // TODO: what about subjobs?
+    //   }
+    // })
   }
 })
 
@@ -75,7 +75,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
   // deseralize jobs
-  const jobs: Job[] = deseralizeJobs()
+  const jobs: Dictionary<Job[]> = deseralizeJobs()
 
   // run room scanner TODO: only run the static scan once per new room
   roomScanner.scan(Game.spawns.Spawn1.room)
@@ -90,7 +90,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   if (Game.spawns.Spawn1) {
     const controller = Game.spawns.Spawn1.room.controller
     if (controller) {
-      if (!jobs.find(job => job.target === controller.id)) {
+      if (!jobs[controller.id]) {
+        Memory.jobs[controller.id] = []
         // having to construct the memory this way and then sending it in, to be able to push the memory, is sily
         const jobMemory = {
           type: JobType.UpgradeController,
@@ -98,19 +99,21 @@ export const loop = ErrorMapper.wrapLoop(() => {
           creeps: [],
           priority: JobPriority.Low
         }
+
+        Memory.jobs[controller.id].push(jobMemory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+
         const job = new UpgradeControllerJob(controller, jobMemory)
-        Memory.jobs.push(jobMemory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
-        // jobs.push(job);
+
+        jobs[controller.id] = [job]
       }
     }
 
     // queue building jobs
     const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
     constructionSites.forEach(site => {
-      if (!jobs.find(job => job.target === site.id)) {
+      if (!jobs[site.id]) {
         const job = new BuilderJob(site)
-
-        // jobs.push(job);
+        jobs[site.id] = [job]
       }
     })
 
@@ -120,8 +123,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
     })
 
     towers.forEach(tower => {
-      if (!jobs.find(job => job.target === tower.id)) {
+      if (!jobs[tower.id]) {
         const job = new HaulingJob(tower)
+        jobs[tower.id] = [job]
       }
 
       // prefer shooting enemies
@@ -150,9 +154,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     // TODO: assign jobs
     // find a valid creep for the job assing creep to job
-    jobs.forEach(job => {
-      job.run()
-    })
+    for (const target in jobs) {
+      if (jobs.hasOwnProperty(target)) {
+        const targetJobs = jobs[target]
+        targetJobs.forEach(job => {
+          job.run()
+        })
+      }
+    }
 
     // seralize jobs
     // Memory.jobs = jobs
@@ -199,75 +208,86 @@ export const loop = ErrorMapper.wrapLoop(() => {
 })
 
 function deseralizeJobs() {
-  const jobs: Job[] = [] // should this be a dictionary with target as id? what if a target has multiple jobs then? e.g. Mining and Hauler Job
+  const jobs: Dictionary<Job[]> = {} // should this be a dictionary with target as id? what if a target has multiple jobs then? e.g. Mining and Hauler Job
   if (!Memory.jobs) {
-    Memory.jobs = []
+    Memory.jobs = {}
   }
 
-  Memory.jobs.sort((a, b) => {
-    return b.priority - a.priority
-  })
-  const jobsToDelete: IMemoryJob[] = []
-  Memory.jobs.forEach(seralizedJob => {
-    switch (seralizedJob.type) {
-      case JobType.Hauling:
-        const structure = Game.getObjectById<Structure>(seralizedJob.target)
-        if (structure) {
-          const haulers = deseralizeJobCreeps(seralizedJob)
-          const haulingJob = new HaulingJob(structure, seralizedJob, haulers)
-          jobs.push(haulingJob)
+  // TODO: solve sorting is it important at all?
+  // Memory.jobs.sort((a, b) => {
+  //   return b.priority - a.priority
+  // })
+
+  for (const targetId in Memory.jobs) {
+    if (Memory.jobs.hasOwnProperty(targetId)) {
+      const target = Game.getObjectById<RoomObject>(targetId)
+      if (!target) {
+        delete Memory.jobs[targetId]
+        continue
+      }
+
+      const serializedJobs = Memory.jobs[targetId]
+
+      jobs[targetId] = []
+
+      serializedJobs.forEach(seralizedJob => {
+        switch (seralizedJob.type) {
+          case JobType.Hauling:
+            const structure = target as Structure
+            if (structure) {
+              const haulers = deseralizeJobCreeps(seralizedJob)
+              const haulingJob = new HaulingJob(structure, seralizedJob, haulers)
+              jobs[targetId].push(haulingJob)
+            }
+          case JobType.Mining:
+            // case JobType.Hauling: // nested inside mining job memory
+            // seralizedJob.priority = JobPriority.High // mokeypatched memory
+            const source = target as Source
+            if (source) {
+              const sourceMemory = source.room.memory.sources[source.id]
+
+              if (!sourceMemory) {
+                //console.log('Something wrong with this job, there is no source memory, corrupt job, or what if it is a job to a room I have no visibility in?')
+                return
+              }
+
+              if (!seralizedJob.jobs) {
+                // this should never happen
+                return
+              }
+
+              const seralizedHaulerMemory = seralizedJob.jobs[0]
+              const haulers = deseralizeJobCreeps(seralizedHaulerMemory)
+              const haulingJob = new MiningHaulingJob(source, seralizedHaulerMemory, sourceMemory, haulers)
+
+              const miners = deseralizeJobCreeps(seralizedJob)
+              jobs[targetId].push(new MiningJob(source, seralizedJob, sourceMemory, haulingJob, miners))
+
+              jobs[targetId].push(haulingJob)
+            }
+            break
+          case JobType.UpgradeController:
+            // seralizedJob.priority = JobPriority.Low // mokeypatched memory
+            const controller = target as StructureController
+            if (controller) {
+              const creeps = deseralizeJobCreeps(seralizedJob)
+
+              jobs[targetId].push(new UpgradeControllerJob(controller, seralizedJob, creeps))
+            }
+            break
+          case JobType.Building:
+            // seralizedJob.priority = JobPriority.Medium // mokeypatched memory
+            const site = target as ConstructionSite
+            if (site) {
+              const creeps = deseralizeJobCreeps(seralizedJob)
+
+              jobs[targetId].push(new BuilderJob(site, seralizedJob, creeps))
+            }
+            break
         }
-      case JobType.Mining:
-        // case JobType.Hauling: // nested inside mining job memory
-        // seralizedJob.priority = JobPriority.High // mokeypatched memory
-        const source = Game.getObjectById<Source>(seralizedJob.target)
-        if (source) {
-          const sourceMemory = source.room.memory.sources[source.id]
-
-          if (!sourceMemory) {
-            //console.log('Something wrong with this job, there is no source memory, corrupt job, or what if it is a job to a room I have no visibility in?')
-            return
-          }
-
-          if (!seralizedJob.jobs) {
-            // this should never happen
-            return
-          }
-
-          const seralizedHaulerMemory = seralizedJob.jobs[0]
-          const haulers = deseralizeJobCreeps(seralizedHaulerMemory)
-          const haulingJob = new MiningHaulingJob(source, seralizedHaulerMemory, sourceMemory, haulers)
-
-          const miners = deseralizeJobCreeps(seralizedJob)
-          jobs.push(new MiningJob(source, seralizedJob, sourceMemory, haulingJob, miners))
-
-          jobs.push(haulingJob)
-        }
-        break
-      case JobType.UpgradeController:
-        // seralizedJob.priority = JobPriority.Low // mokeypatched memory
-        const controller = Game.getObjectById<StructureController>(seralizedJob.target)
-        if (controller) {
-          const creeps = deseralizeJobCreeps(seralizedJob)
-
-          jobs.push(new UpgradeControllerJob(controller, seralizedJob, creeps))
-        }
-        break
-      case JobType.Building:
-        // seralizedJob.priority = JobPriority.Medium // mokeypatched memory
-        const site = Game.getObjectById<ConstructionSite>(seralizedJob.target)
-        if (site) {
-          const creeps = deseralizeJobCreeps(seralizedJob)
-
-          jobs.push(new BuilderJob(site, seralizedJob, creeps))
-        } else {
-          jobsToDelete.push(seralizedJob)
-        }
-        break
+      })
     }
-  })
-
-  Memory.jobs = Memory.jobs.filter(serializedJob => !jobsToDelete.includes(serializedJob))
+  }
 
   return jobs
 }
@@ -287,7 +307,7 @@ function deseralizeJobCreeps(seralizedJob: IMemoryJob): Dictionary<Creep> {
   return creeps
 }
 
-function queueMiningJobs(jobs: Job[]) {
+function queueMiningJobs(jobs: Dictionary<Job[]>) {
   for (const roomName in Game.rooms) {
     if (Game.rooms.hasOwnProperty(roomName)) {
       const room = Game.rooms[roomName]
@@ -301,7 +321,9 @@ function queueMiningJobs(jobs: Job[]) {
 
             // TODO: if there is no container, or miners do not drop resources, there is no point in haulers for this
             // Should haulingjob be a subroutine/job for miningjob aswell, so mining job knows it has a hauler? Creeps should could be split into Haulers and Miners?
-            if (!jobs.find(job => job.target === sourceId && job.type === JobType.Mining)) {
+            if (!jobs[sourceId]) {
+              Memory.jobs[sourceId] = []
+
               const haulingMemory = {
                 type: JobType.Hauling,
                 target: sourceId,
@@ -319,11 +341,8 @@ function queueMiningJobs(jobs: Job[]) {
 
               const haulingJob = new MiningHaulingJob(source, haulingMemory, sourceMemory)
               const miningJob = new MiningJob(source, miningMemory, sourceMemory, haulingJob)
-              Memory.jobs.push(miningMemory)
-              // jobs.push(miningJob);
-
-              // Memory.jobs.push(haulingMemory);
-              // jobs.push(haulingJob);
+              Memory.jobs[sourceId].push(miningMemory)
+              jobs[sourceId] = [miningJob, haulingJob]
             }
           }
         }

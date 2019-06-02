@@ -5,7 +5,7 @@ declare global {
     SCRIPT_VERSION: string
     BUILD_TIME: number
     stats: IStats
-    jobs: IMemoryJob[]
+    jobs: Dictionary<IMemoryJob[]>
   }
 }
 
