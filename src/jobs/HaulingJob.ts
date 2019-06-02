@@ -15,7 +15,7 @@ export class HaulingJob extends Job {
   public memory: IMemoryJob
 
   constructor(target: Structure, memory?: IMemoryJob, creeps?: Dictionary<Creep>) {
-    super(JobType.Hauling, target.id, creeps)
+    super(JobType.Hauling, target.id, memory, creeps)
     this.structure = target
 
     if (!memory) {
@@ -25,7 +25,12 @@ export class HaulingJob extends Job {
         creeps: [],
         priority: JobPriority.High
       } // TODO: move down into job, requires refactoring of other stuff
-      Memory.jobs.push(memory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+
+      if (!Memory.jobs[target.id]) {
+        Memory.jobs[target.id] = []
+      }
+
+      Memory.jobs[target.id].push(memory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
     }
 
     this.memory = memory

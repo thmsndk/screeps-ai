@@ -8,8 +8,14 @@ export class Job {
   public target?: string
   public Creeps: Dictionary<Creep>
   private hatchery?: Hatchery
+  public memory: IMemoryJob
 
-  constructor(type: JobTypes, target?: string, creeps?: Dictionary<Creep>) {
+  constructor(type: JobTypes, target?: string, memory?: IMemoryJob, creeps?: Dictionary<Creep>) {
+    if (!memory) {
+      memory = { type, target, priority: 0, creeps: [] }
+    }
+
+    this.memory = memory
     this.type = type
     this.target = target
     this.Creeps = creeps || {}

@@ -40,6 +40,7 @@ export type JobTypeBuilding = 4
 export interface IMemoryJob {
   mode?: number
   type: JobTypes
+  missionPriority?: number
   priority: number
   target?: string
   creeps: string[]

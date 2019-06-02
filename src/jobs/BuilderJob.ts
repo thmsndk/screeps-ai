@@ -12,7 +12,7 @@ export class BuilderJob extends Job {
   public constructionSite: ConstructionSite
   public memory: IMemoryJob
   constructor(constructionSite: ConstructionSite, memory?: IMemoryJob, creeps?: Dictionary<Creep>) {
-    super(JobType.Building, constructionSite.id, creeps)
+    super(JobType.Building, constructionSite.id, memory, creeps)
     this.constructionSite = constructionSite
 
     if (!memory) {

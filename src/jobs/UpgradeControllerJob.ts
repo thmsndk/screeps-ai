@@ -11,7 +11,7 @@ export class UpgradeControllerJob extends Job {
   public controller: StructureController
   public memory: IMemoryJob
   constructor(controller: StructureController, memory: IMemoryJob, creeps?: Dictionary<Creep>) {
-    super(JobType.UpgradeController, controller.id, creeps)
+    super(JobType.UpgradeController, controller.id, memory, creeps)
     this.controller = controller
     this.memory = memory
 

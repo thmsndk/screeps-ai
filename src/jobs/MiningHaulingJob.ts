@@ -2,10 +2,10 @@ import { emoji } from "_lib/emoji"
 import { IMemoryJob, JobType } from "_lib/interfaces"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
-import { ISourceMemory } from "RoomScanner"
 import { Job, JobPriority } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
 import { CreepMutations } from "Hatchery"
+import { ISourceMemory } from "types"
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners
@@ -15,10 +15,21 @@ export class MiningHaulingJob extends Job {
   public source: Source
   public sourceMemory: ISourceMemory
   public memory: IMemoryJob
-  constructor(source: Source, memory: IMemoryJob, sourceMemory: ISourceMemory, creeps?: Dictionary<Creep>) {
-    super(JobType.Hauling, source.id, creeps)
+  constructor(source: Source, sourceMemory: ISourceMemory, memory?: IMemoryJob, creeps?: Dictionary<Creep>) {
+    if (!memory) {
+      memory = {
+        type: JobType.Hauling,
+        target: source.id,
+        creeps: [],
+        priority: JobPriority.High
+      }
+    }
+
+    super(JobType.Hauling, source.id, memory, creeps)
+
     this.source = source
     this.sourceMemory = sourceMemory
+
     this.memory = memory
 
     if (creeps) {

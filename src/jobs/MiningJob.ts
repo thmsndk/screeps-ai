@@ -2,11 +2,11 @@ import { CreepMutations } from "./../Hatchery"
 import { PathStyle } from "./MovementPathStyles"
 import { IMemoryJob, JobType } from "_lib/interfaces"
 import { Dictionary } from "lodash"
-import { ISourceMemory } from "RoomScanner"
 import { Job, JobPriority } from "./Job"
 import { Role } from "role/roles"
 import { emoji } from "_lib/emoji"
 import { MiningHaulingJob } from "./MiningHaulingJob"
+import { ISourceMemory } from "types"
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
@@ -20,14 +20,25 @@ export class MiningJob extends Job {
   public haulingJob: MiningHaulingJob
   constructor(
     source: Source,
-    memory: IMemoryJob,
     sourceMemory: ISourceMemory,
     haulingJob: MiningHaulingJob,
+    memory?: IMemoryJob,
     creeps?: Dictionary<Creep>
   ) {
-    super(JobType.Mining, source.id, creeps)
+    if (!memory) {
+      memory = {
+        type: JobType.Mining,
+        target: source.id,
+        creeps: [],
+        priority: JobPriority.High,
+        jobs: [haulingJob.memory]
+      }
+    }
+
+    super(JobType.Mining, source.id, memory, creeps)
     this.source = source
     this.sourceMemory = sourceMemory
+
     this.memory = memory
     this.haulingJob = haulingJob
 

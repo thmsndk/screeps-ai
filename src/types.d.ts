@@ -1,5 +1,5 @@
-// example declaration file - remove these and add your own custom typings
-
+import { IMemoryJob } from "_lib/interfaces"
+import { Dictionary } from "lodash"
 // memory extension samples
 interface CreepMemory {
   role: string
@@ -17,4 +17,22 @@ declare namespace NodeJS {
   interface Global {
     log: any
   }
+}
+
+declare global {
+  interface RoomMemory {
+    sources: Dictionary<ISourceMemory>
+    miningPositions: number
+    energymission: IEnergyMission
+  }
+} // TODO: in use / unused mining position?
+
+interface ISourceMemory {
+  miningPositions: RoomPosition[]
+  assignedCreepIds: string[]
+  distanceToSpawn: number
+}
+
+interface IEnergyMission {
+  jobs: Dictionary<IMemoryJob>
 }
