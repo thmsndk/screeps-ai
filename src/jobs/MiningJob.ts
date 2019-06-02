@@ -131,7 +131,7 @@ class MiningCreep {
               return spawn.energy < spawn.energyCapacity && haulers.length === 0
             case STRUCTURE_TOWER:
               const tower = structure as StructureTower
-              return tower.energy < tower.energyCapacity && haulers.length > 0
+              return tower.energy < tower.energyCapacity && haulers.length === 0
           }
 
           return false
@@ -142,6 +142,8 @@ class MiningCreep {
         if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit })
         }
+      } else {
+        creep.drop(RESOURCE_ENERGY)
       }
       // }
     }
