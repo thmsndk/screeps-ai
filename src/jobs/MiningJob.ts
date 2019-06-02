@@ -87,6 +87,7 @@ export class MiningJob extends Job {
 // tslint:disable-next-line: max-classes-per-file
 class MiningCreep {
   run(job: MiningJob, creep: Creep, source: Source) {
+    // We should not abandon returning with resources
     if (creep.room.memory.DEFCON.level > DEFCONLEVEL.NONE) {
       // stay 3 fields away from from enemy
       const hostilesInRange = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 4)
@@ -113,36 +114,36 @@ class MiningCreep {
     } else {
       const haulers = Object.keys(job.haulingJob.Creeps)
 
-      if (haulers.length > 0) {
-        creep.drop(RESOURCE_ENERGY)
-      } else {
-        const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-          filter: structure => {
-            switch (structure.structureType) {
-              case STRUCTURE_CONTAINER:
-                const container = structure as StructureContainer
-                return _.sum(container.store) < container.storeCapacity && haulers.length > 0
-              case STRUCTURE_EXTENSION:
-                const extension = structure as StructureExtension
-                return extension.energy < extension.energyCapacity
-              case STRUCTURE_SPAWN:
-                const spawn = structure as StructureSpawn
-                return spawn.energy < spawn.energyCapacity
-              case STRUCTURE_TOWER:
-                const tower = structure as StructureTower
-                return tower.energy < tower.energyCapacity && haulers.length > 0
-            }
-
-            return false
+      // if (haulers.length > 0) {
+      //   creep.drop(RESOURCE_ENERGY)
+      // } else {
+      const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        filter: structure => {
+          switch (structure.structureType) {
+            case STRUCTURE_CONTAINER:
+              const container = structure as StructureContainer
+              return _.sum(container.store) < container.storeCapacity && haulers.length > 0
+            case STRUCTURE_EXTENSION:
+              const extension = structure as StructureExtension
+              return extension.energy < extension.energyCapacity && haulers.length === 0
+            case STRUCTURE_SPAWN:
+              const spawn = structure as StructureSpawn
+              return spawn.energy < spawn.energyCapacity && haulers.length === 0
+            case STRUCTURE_TOWER:
+              const tower = structure as StructureTower
+              return tower.energy < tower.energyCapacity && haulers.length > 0
           }
-        })
 
-        if (target) {
-          if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit })
-          }
+          return false
+        }
+      })
+
+      if (target) {
+        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit })
         }
       }
+      // }
     }
   }
 }
