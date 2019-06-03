@@ -129,9 +129,9 @@ class MiningCreep {
             case STRUCTURE_SPAWN:
               const spawn = structure as StructureSpawn
               return spawn.energy < spawn.energyCapacity && haulers.length === 0
-            case STRUCTURE_TOWER:
-              const tower = structure as StructureTower
-              return tower.energy < tower.energyCapacity && haulers.length === 0
+            // case STRUCTURE_TOWER:
+            //   const tower = structure as StructureTower
+            //   return tower.energy < tower.energyCapacity && haulers.length === 0
           }
 
           return false
