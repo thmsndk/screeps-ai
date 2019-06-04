@@ -65,6 +65,8 @@ export class MiningJob extends Job {
         this.memory.priority = JobPriority.Medium + 1 // might need more priority levels
       }
 
+      // TODO: predict / calculate death of miners and request a replacement before the old one dies.
+
       if (assignedCreeps < this.sourceMemory.miningPositions.length) {
         // TODO memory should be private and we should store it in object
         // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
@@ -88,7 +90,7 @@ export class MiningJob extends Job {
 class MiningCreep {
   run(job: MiningJob, creep: Creep, source: Source) {
     // We should not abandon returning with resources
-    if (creep.room.memory.DEFCON.level > DEFCONLEVEL.NONE) {
+    if (creep.room.memory.DEFCON && creep.room.memory.DEFCON.level > DEFCONLEVEL.NONE) {
       // stay 3 fields away from from enemy
       const hostilesInRange = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 4)
       if (hostilesInRange.length > 0) {

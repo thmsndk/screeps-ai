@@ -12,6 +12,7 @@ import { Role } from "role/roles"
 import { HaulingJob } from "jobs/HaulingJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
 import DEFCON from "./DEFCON"
+import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
 
 // global.DEFCON = DEFCON
 
@@ -75,6 +76,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
   // deseralize jobs
   const jobs: Dictionary<Job[]> = deseralizeJobs()
+
+  queueFlagMissions()
 
   for (const roomName in Game.rooms) {
     if (Game.rooms.hasOwnProperty(roomName)) {
@@ -216,6 +219,43 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 })
+
+function queueFlagMissions() {
+  const remoteFlags: Dictionary<Flag[]> = {}
+  for (const flagName in Game.flags) {
+    if (Game.flags.hasOwnProperty(flagName)) {
+      const flag = Game.flags[flagName]
+      if (flag.name.startsWith("remote") || flag.name.startsWith("source")) {
+        if (!remoteFlags[flag.pos.roomName]) {
+          remoteFlags[flag.pos.roomName] = []
+        }
+        remoteFlags[flag.pos.roomName].push(flag)
+      }
+    }
+  }
+
+  // Remote Mining Mission
+  for (const roomName in remoteFlags) {
+    if (remoteFlags.hasOwnProperty(roomName)) {
+      const flags = remoteFlags[roomName]
+
+      if (!Memory.rooms[roomName]) {
+        Memory.rooms[roomName] = {}
+      }
+
+      const remoteFlag = flags.find(flag => flag.name.startsWith("remote"))
+
+      const remoteEnergyMissionMemory = Memory.rooms[roomName].remoteEnergyMission
+
+      if (
+        !remoteEnergyMissionMemory ||
+        (remoteFlag && remoteEnergyMissionMemory && remoteEnergyMissionMemory.flagId !== remoteFlag.name)
+      ) {
+        const remoteEnergyMission = new RemoteEnergyMission({ roomName, flags })
+      }
+    }
+  }
+}
 
 function deseralizeJobs() {
   const jobs: Dictionary<Job[]> = {} // should this be a dictionary with target as id? what if a target has multiple jobs then? e.g. Mining and Hauler Job

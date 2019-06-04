@@ -23,12 +23,7 @@ export class UpgradeControllerJob extends Job {
   public run() {
     const assignedCreeps = Object.keys(this.Creeps).length
 
-    const positions = getPositions(
-      this.controller.room,
-      new Room.Terrain(this.controller.room.name),
-      this.controller.pos,
-      3
-    )
+    const positions = getPositions(new Room.Terrain(this.controller.room.name), this.controller.pos, 3)
 
     // max potential upgrade positions is 22, so we need to be smart about filling them and how many upgraders we have
     const maxCreeps = positions.length

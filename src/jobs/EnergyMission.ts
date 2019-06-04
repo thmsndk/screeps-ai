@@ -4,19 +4,22 @@ import { JobType } from "_lib/interfaces"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { MiningJob } from "./MiningJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
+import { IEnergyMission } from "types"
 const roomScanner = new RoomScanner()
 
 /**
  * Responsible for mining in visible rooms
  */
 export class EnergyMission {
-  room: Room
+  private room: Room
+  private memory: IEnergyMission
 
   constructor(room: Room) {
     this.room = room
     if (!this.room.memory.energymission) {
       this.room.memory.energymission = { jobs: {} }
     }
+    this.memory = this.room.memory.energymission
   }
 
   /**
@@ -29,17 +32,18 @@ export class EnergyMission {
     // generate mining jobs
     // prioritize mining jobs
     const jobs: Array<MiningJob | MiningHaulingJob> = []
-    for (const sourceId in this.room.memory.sources) {
+    const sources = this.room.memory.sources || {}
+    for (const sourceId in sources) {
       // sort sources by range from spawn, give  closer spawns higher priority
-      if (this.room.memory.sources.hasOwnProperty(sourceId)) {
+      if (sources.hasOwnProperty(sourceId)) {
         const source = Game.getObjectById<Source>(sourceId)
 
         if (source) {
-          const sourceMemory = this.room.memory.sources[sourceId]
+          const sourceMemory = sources[sourceId]
 
           // TODO: if there is no container, or miners do not drop resources, there is no point in haulers for this
           // Should haulingjob be a subroutine/job for miningjob aswell, so mining job knows it has a hauler? Creeps should could be split into Haulers and Miners?
-          if (!this.room.memory.energymission.jobs[sourceId]) {
+          if (!this.memory.jobs[sourceId]) {
             // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
 
             const distanceWeight = 0.3
@@ -54,11 +58,11 @@ export class EnergyMission {
             miningJob.memory.missionPriority = missionPriroty
             haulingJob.memory.missionPriority = missionPriroty
 
-            this.room.memory.energymission.jobs[sourceId] = miningJob.memory
+            this.memory.jobs[sourceId] = miningJob.memory
             jobs.push(miningJob)
             jobs.push(haulingJob)
           } else {
-            const miningMemory = this.room.memory.energymission.jobs[sourceId]
+            const miningMemory = this.memory.jobs[sourceId]
             if (miningMemory) {
               if (miningMemory.jobs) {
                 const haulerMemory = miningMemory.jobs[0]
