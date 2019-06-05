@@ -157,9 +157,9 @@ export class Hatchery {
 
     let spendingCap
     const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
-    if (harvesters.length === 0) {
-      spendingCap = 300
-    }
+    // if (harvesters.length === 0) {
+    spendingCap = 500
+    // }
 
     const body = this.mutate(request.mutation, spendingCap)
 
