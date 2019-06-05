@@ -80,6 +80,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   queueFlagMissions()
 
+  // What defines an energymission, that we have a spawn?
+  const energyMission = new EnergyMission(Game.spawns.Spawn1.room)
+  energyMission.run()
+
   for (const roomName in Memory.rooms) {
     if (Memory.rooms.hasOwnProperty(roomName)) {
       const room = Game.rooms[roomName]
@@ -105,10 +109,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
     }
   }
-
-  // What defines an energymission, that we have a spawn?
-  const energyMission = new EnergyMission(Game.spawns.Spawn1.room)
-  energyMission.run()
 
   // TODO: detect jobs
   // MiningJob how to detect a job exists, search jobs for sourceId

@@ -49,6 +49,7 @@ interface RemoteEnergyMissionConstructor {
   flags?: Flag[]
 }
 
+// TODO: remote hauler was just standing still
 export class RemoteEnergyMission extends Mission {
   private roomName: string
   private roomMemory: RoomMemory
@@ -172,6 +173,8 @@ export class RemoteEnergyMission extends Mission {
     for (const sourceId in this.memory.jobs) {
       if (this.memory.jobs.hasOwnProperty(sourceId)) {
         const source = Game.getObjectById<Source>(sourceId)
+        // TODO: getObjectById only works if it is visible, miningjob and mininghaulingjob needs to work without visibility, e.g. the exact object
+        // console.log("REM source " + sourceId, source)
         if (source && this.roomMemory.sources) {
           const sourceMemory = this.roomMemory.sources[sourceId]
           const miningMemory = this.memory.jobs[sourceId]
@@ -182,6 +185,7 @@ export class RemoteEnergyMission extends Mission {
               const miners = deseralizeJobCreeps(miningMemory)
               const haulingJob = new MiningHaulingJob(source, sourceMemory, haulerMemory, haulers)
               const miningJob = new MiningJob(source, sourceMemory, haulingJob, miningMemory, miners)
+              console.log("REM deseralize mining and hauling job")
               jobs.push(miningJob)
               jobs.push(haulingJob)
             }
@@ -201,6 +205,7 @@ export class RemoteEnergyMission extends Mission {
     })
 
     jobs.forEach(job => {
+      console.log("running " + job.target)
       job.run()
     })
   }

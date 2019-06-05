@@ -38,7 +38,6 @@ export type JobTypeBuilding = 4
 
 // tslint:disable-next-line: interface-name
 export interface IMemoryJob {
-  mode?: number
   type: JobTypes
   missionPriority?: number
   priority: number
@@ -56,6 +55,7 @@ export const JobType = {
 
 declare global {
   interface CreepMemory {
+    mode?: number
     cost: number
     role: string
     target: string
