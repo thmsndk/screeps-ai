@@ -94,45 +94,24 @@ export class RemoteEnergyMission extends Mission {
     // yes => have we queued miningjobs for sources? (move assigned creeps from flag to source)
     // no => have we calculates source flags?
     //  yes => have we requested enough creeps?
-    const roomHasBeenScanned = !!this.roomMemory.sources
-    if (!roomHasBeenScanned) {
-      // check requested creeps
-      if (this.memory) {
-        const flagId = this.memory.flagId
-        const remoteFlag = Game.flags[flagId]
+
+    if (this.memory) {
+      const flagId = this.memory.flagId
+      const remoteFlag = Game.flags[flagId]
+
+      const roomHasBeenScanned = !!this.roomMemory.sources
+      if (!roomHasBeenScanned) {
+        // check requested creeps
+        const missionCreeps = this.getMissionCreeps(flagId)
 
         const hatchery = new Hatchery(Game.spawns.Spawn1) // TODO: Hatchery should be a singleton?
         let requestedHarvesters = hatchery.getRequests(flagId, CreepMutations.HARVESTER)
-        let miningPositions = 0
-        if (this.memory.sourceFlags) {
-          miningPositions = this.memory.sourceFlags
-            .map(flagName => Game.flags[flagName].memory.miningPositions)
-            .reduce((sum, positions) => {
-              return sum + positions
-            })
-        }
-
-        const missionCreeps = _.filter(Game.creeps, creep => creep.memory.target === flagId)
+        const miningPositions = this.getMiningPositionsFromFlags()
 
         if (miningPositions > requestedHarvesters + missionCreeps.length) {
-          // TODO: prevent creep getting picked up by someone else needing that role
-          if (requestedHarvesters === 0) {
-            hatchery.queue({
-              target: flagId,
-              mutation: CreepMutations.HARVESTER,
-              priority: JobPriority.High
-            })
-            requestedHarvesters += 1
-          }
+          requestedHarvesters = requestPriorityHarvester(requestedHarvesters, hatchery, flagId)
 
-          for (let index = requestedHarvesters; index < miningPositions; index++) {
-            hatchery.queue({
-              target: flagId,
-              mutation: CreepMutations.HARVESTER,
-              priority: JobPriority.Medium,
-              employed: true
-            })
-          }
+          requestRemainingHarvesters(requestedHarvesters, miningPositions, hatchery, flagId)
         }
 
         // make creeps move to target
@@ -141,21 +120,73 @@ export class RemoteEnergyMission extends Mission {
           creep.moveTo(remoteFlag.pos)
         })
 
-        // room visibility
-        // peform scan
-        if (remoteFlag.room) {
-          new RoomScanner().scan(remoteFlag.room)
-        }
-      }
-    } else {
-      // console.log("scanned room!!")
-      // room has been scanned, do we have remote mining jobs?
-      /* no => create mining jobs for each sourceFlag
+        // room is visible
+        isRoomVisible(remoteFlag)
+      } else {
+        // console.log("scanned room!!")
+        // room has been scanned, do we have remote mining jobs?
+        /* no => create mining jobs for each sourceFlag
               => grab creeps assigned to remote mining mission
                 => assign to sources
                   => delete source flags
         yes => run job
       */
+        // temporary untill migration is implemented
+        const missionCreeps = this.getMissionCreeps(flagId)
+        missionCreeps.forEach(creep => {
+          creep.moveTo(remoteFlag.pos)
+        })
+      }
     }
+  }
+
+  private getMissionCreeps(flagId: string) {
+    return _.filter(Game.creeps, creep => creep.memory.target === flagId)
+  }
+
+  private getMiningPositionsFromFlags() {
+    let miningPositions = 0
+    if (this.memory && this.memory.sourceFlags) {
+      miningPositions = this.memory.sourceFlags
+        .map(flagName => Game.flags[flagName].memory.miningPositions)
+        .reduce((sum, positions) => {
+          return sum + positions
+        })
+    }
+    return miningPositions
+  }
+}
+
+function requestRemainingHarvesters(
+  requestedHarvesters: number,
+  miningPositions: number,
+  hatchery: Hatchery,
+  flagId: string
+) {
+  for (let index = requestedHarvesters; index < miningPositions; index++) {
+    hatchery.queue({
+      target: flagId,
+      mutation: CreepMutations.HARVESTER,
+      priority: JobPriority.Medium,
+      employed: true
+    })
+  }
+}
+
+function requestPriorityHarvester(requestedHarvesters: number, hatchery: Hatchery, flagId: string) {
+  if (requestedHarvesters === 0) {
+    hatchery.queue({
+      target: flagId,
+      mutation: CreepMutations.HARVESTER,
+      priority: JobPriority.High
+    })
+    requestedHarvesters += 1
+  }
+  return requestedHarvesters
+}
+
+function isRoomVisible(remoteFlag: Flag) {
+  if (remoteFlag.room) {
+    new RoomScanner().scan(remoteFlag.room)
   }
 }
