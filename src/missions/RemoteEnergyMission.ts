@@ -1,8 +1,13 @@
 import { JobPriority } from "jobs/Job"
-import { IRemoteEnergyMissionMemory } from "types"
+import { IRemoteEnergyMissionMemory, ISourceMemory } from "types"
 import { Mission, IMissionMemory } from "./Mission"
 import { getPositions, RoomScanner } from "RoomScanner"
 import { Hatchery, CreepMutations } from "Hatchery"
+import { MiningHaulingJob } from "jobs/MiningHaulingJob"
+import { MiningJob } from "jobs/MiningJob"
+import { IMemoryJob } from "_lib/interfaces"
+import { Dictionary } from "lodash"
+import { deseralizeJobCreeps } from "utils/MemoryUtil"
 
 /**
  * Remote Energy mission
@@ -120,24 +125,84 @@ export class RemoteEnergyMission extends Mission {
           creep.moveTo(remoteFlag.pos)
         })
 
-        // room is visible
-        isRoomVisible(remoteFlag)
+        scanRoomIfVisible(remoteFlag)
       } else {
-        // console.log("scanned room!!")
-        // room has been scanned, do we have remote mining jobs?
-        /* no => create mining jobs for each sourceFlag
-              => grab creeps assigned to remote mining mission
-                => assign to sources
-                  => delete source flags
-        yes => run job
-      */
-        // temporary untill migration is implemented
-        const missionCreeps = this.getMissionCreeps(flagId)
-        missionCreeps.forEach(creep => {
-          creep.moveTo(remoteFlag.pos)
-        })
+        if (this.memory.sourceFlags) {
+          const memoryJobs = this.memory.jobs
+          const sourceFlagsToDelete: string[] = []
+          this.memory.sourceFlags.forEach(flagName => {
+            const sourceFlag = Game.flags[flagName]
+            const source = sourceFlag.pos.findClosestByRange(FIND_SOURCES)
+            if (source && this.roomMemory.sources) {
+              const sourceMemory = this.roomMemory.sources[source.id]
+
+              if (!memoryJobs[source.id]) {
+                const missionCreeps = this.getMissionCreeps(flagId)
+                const harvesters = missionCreeps.reduce<Dictionary<Creep>>((creeps, creep) => {
+                  creeps[creep.id] = creep
+                  return creeps
+                }, {})
+
+                addMiningAndHaulingjob(sourceMemory, source, memoryJobs, harvesters)
+                // jobs.push(miningJob)
+                // jobs.push(haulingJob)
+                sourceFlagsToDelete.push(flagName)
+                sourceFlag.remove()
+              }
+            }
+          })
+
+          // clean up source flags
+          this.memory.sourceFlags = this.memory.sourceFlags.filter(flagName => !sourceFlagsToDelete.includes(flagName))
+        }
+
+        // deseralize jobs
+        const jobs: Array<MiningJob | MiningHaulingJob> = this.deseralizeMiningAndHaulingJobs()
+
+        this.sortMiningJobsByPriorityAndRun(jobs)
       }
     }
+  }
+
+  private deseralizeMiningAndHaulingJobs() {
+    const jobs: Array<MiningJob | MiningHaulingJob> = []
+    if (!this.memory) {
+      return jobs
+    }
+    for (const sourceId in this.memory.jobs) {
+      if (this.memory.jobs.hasOwnProperty(sourceId)) {
+        const source = Game.getObjectById<Source>(sourceId)
+        if (source && this.roomMemory.sources) {
+          const sourceMemory = this.roomMemory.sources[sourceId]
+          const miningMemory = this.memory.jobs[sourceId]
+          if (miningMemory) {
+            if (miningMemory.jobs) {
+              const haulerMemory = miningMemory.jobs[0]
+              const haulers = deseralizeJobCreeps(haulerMemory)
+              const miners = deseralizeJobCreeps(miningMemory)
+              const haulingJob = new MiningHaulingJob(source, sourceMemory, haulerMemory, haulers)
+              const miningJob = new MiningJob(source, sourceMemory, haulingJob, miningMemory, miners)
+              jobs.push(miningJob)
+              jobs.push(haulingJob)
+            }
+          }
+        }
+      }
+    }
+    return jobs
+  }
+
+  private sortMiningJobsByPriorityAndRun(jobs: Array<MiningJob | MiningHaulingJob>) {
+    jobs.sort((a, b) => {
+      const aPriority = a.memory.missionPriority ? a.memory.missionPriority : -1
+      const bPriority = b.memory.missionPriority ? b.memory.missionPriority : -1
+      //
+      return aPriority - bPriority
+    })
+
+    jobs.forEach(job => {
+      job.run()
+    })
   }
 
   private getMissionCreeps(flagId: string) {
@@ -155,6 +220,23 @@ export class RemoteEnergyMission extends Mission {
     }
     return miningPositions
   }
+}
+
+function addMiningAndHaulingjob(
+  sourceMemory: ISourceMemory,
+  source: Source,
+  memoryJobs: Dictionary<IMemoryJob>,
+  harvesters: Dictionary<Creep>
+) {
+  const distanceWeight = 0.3
+  const miningPositionsWeight = 1
+  const missionPriroty =
+    sourceMemory.distanceToSpawn * distanceWeight + sourceMemory.miningPositions.length * miningPositionsWeight
+  const haulingJob = new MiningHaulingJob(source, sourceMemory)
+  const miningJob = new MiningJob(source, sourceMemory, haulingJob, undefined, harvesters)
+  miningJob.memory.missionPriority = missionPriroty
+  haulingJob.memory.missionPriority = missionPriroty
+  memoryJobs[source.id] = miningJob.memory
 }
 
 function requestRemainingHarvesters(
@@ -185,7 +267,7 @@ function requestPriorityHarvester(requestedHarvesters: number, hatchery: Hatcher
   return requestedHarvesters
 }
 
-function isRoomVisible(remoteFlag: Flag) {
+function scanRoomIfVisible(remoteFlag: Flag) {
   if (remoteFlag.room) {
     new RoomScanner().scan(remoteFlag.room)
   }
