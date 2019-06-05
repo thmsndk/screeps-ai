@@ -74,24 +74,24 @@ class HaulingCreep {
   run(job: MiningHaulingJob, creep: Creep, source: Source) {
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
 
-    switch (job.memory.mode) {
+    switch (creep.memory.mode) {
       case Mode.collecting:
         if (creep.carry.energy === creep.carryCapacity) {
-          job.memory.mode = Mode.delivering
+          creep.memory.mode = Mode.delivering
         }
         break
       case Mode.delivering:
         if (creep.carry.energy === 0) {
-          job.memory.mode = Mode.collecting
+          creep.memory.mode = Mode.collecting
         }
         break
 
       default:
-        job.memory.mode = Mode.collecting
+        creep.memory.mode = Mode.collecting
         break
     }
 
-    if (job.memory.mode === Mode.collecting) {
+    if (creep.memory.mode === Mode.collecting) {
       // creep.say('🔄');
       // find dropped resources near mine, put into container
       // when no more dropped resources or container full, pull from container and move back to spawn
@@ -126,6 +126,7 @@ class HaulingCreep {
     } else {
       const target: any = creep.pos.findClosestByRange(FIND_STRUCTURES, {
         filter: structure => {
+          // console.log("MHJ", structure.structureType)
           switch (structure.structureType) {
             case STRUCTURE_EXTENSION:
               const extension = structure as StructureExtension
