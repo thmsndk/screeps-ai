@@ -89,8 +89,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (room) {
         DEFCON.scan(room)
 
-        const energyMission = new EnergyMission(room)
-        energyMission.run()
+        // if (roomMemory.energymission) {
+        //   const energyMission = new EnergyMission(room)
+        //   energyMission.run()
+        // }
       }
 
       // room not visible
@@ -103,6 +105,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
     }
   }
+
+  // What defines an energymission, that we have a spawn?
+  const energyMission = new EnergyMission(Game.spawns.Spawn1.room)
+  energyMission.run()
 
   // TODO: detect jobs
   // MiningJob how to detect a job exists, search jobs for sourceId

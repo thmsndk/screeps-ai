@@ -8,6 +8,7 @@ import { Dictionary } from "lodash"
 // We need a list of hatcheries accessable by ?? roomName? what if there are multiple hatcheries in a room
 // Do we have one global hatchery, or a hatchery per spawn? how do they coordinate? If we can have multiple spawns in a room, how do we handle that?
 
+// TODO: Hatchery is responsible for knowing all spawns, looking at energy available, where the creep is requested (distance?) it should request creeps for that location
 const comparePriority = (a: Priority, b: Priority) => b.priority - a.priority
 
 export class Hatchery {
@@ -106,7 +107,7 @@ export class Hatchery {
     // const population = Object.keys(Game.creeps).length
     if (!spawning /*&& population < maxPopulation*/) {
       const next = this.dequeue()
-      if (next && !this.hatch(next.mutation)) {
+      if (next && !this.hatch(next)) {
         this.queue(next)
       }
     }
@@ -137,9 +138,9 @@ export class Hatchery {
     }
   }
 
-  private hatch(mutation: CreepMutations) {
+  private hatch(request: HatchRequest) {
     let role = Role.Larvae
-    switch (mutation) {
+    switch (request.mutation) {
       case CreepMutations.HARVESTER:
         role = Role.harvester
         break
@@ -160,12 +161,14 @@ export class Hatchery {
       spendingCap = 300
     }
 
-    const body = this.mutate(mutation, spendingCap)
+    const body = this.mutate(request.mutation, spendingCap)
 
     if (this.Spawn.room.energyAvailable >= body.cost) {
-      const creepName = `${this.Spawn.room.name} ${mutation} ${Game.time}`
+      const target = Game.getObjectById<RoomObject>(request.target)
+      const targetRoomName = target ? target.pos.roomName : "" // this.Spawn.room.name
+      const creepName = `${targetRoomName} ${request.mutation} ${Game.time}`
       const result = this.Spawn.spawnCreep(body.parts, creepName, {
-        memory: { role, cost: body.cost, unemployed: true }
+        memory: { role, cost: body.cost, unemployed: !request.employed, target: request.target }
       } as SpawnOptions)
 
       if (result === OK) {
@@ -280,6 +283,7 @@ interface Priority {
 export interface MemoryHatchRequest extends Priority {
   mutation: CreepMutations
   target: string
+  employed?: boolean
 }
 
 export interface HatchRequest extends MemoryHatchRequest {
