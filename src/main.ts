@@ -13,6 +13,7 @@ import { HaulingJob } from "jobs/HaulingJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
 import DEFCON from "./DEFCON"
 import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
+import { IRemoteEnergyMissionMemory } from "types"
 
 // global.DEFCON = DEFCON
 
@@ -79,15 +80,29 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   queueFlagMissions()
 
-  for (const roomName in Game.rooms) {
-    if (Game.rooms.hasOwnProperty(roomName)) {
+  for (const roomName in Memory.rooms) {
+    if (Memory.rooms.hasOwnProperty(roomName)) {
       const room = Game.rooms[roomName]
-      DEFCON.scan(room)
+      const roomMemory = Memory.rooms[roomName]
+
+      // room visible
+      if (room) {
+        DEFCON.scan(room)
+
+        const energyMission = new EnergyMission(room)
+        energyMission.run()
+      }
+
+      // room not visible
+      if (roomMemory.remoteEnergyMission) {
+        const remoteEnergyMission = new RemoteEnergyMission({
+          roomName,
+          memory: roomMemory.remoteEnergyMission
+        })
+        remoteEnergyMission.run()
+      }
     }
   }
-
-  const energyMission = new EnergyMission(Game.spawns.Spawn1.room)
-  energyMission.run()
 
   // TODO: detect jobs
   // MiningJob how to detect a job exists, search jobs for sourceId

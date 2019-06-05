@@ -30,7 +30,7 @@ declare global {
     energymission?: IEnergyMission
     DEFCON?: IMemoryDefcon
     // missions: IMissionMemory[]
-    remoteEnergyMission?: IRemoteEnergyMission
+    remoteEnergyMission?: IRemoteEnergyMissionMemory
   }
   interface Global {
     log: any
@@ -47,11 +47,11 @@ interface ISourceMemory {
   distanceToSpawn: number
 }
 
-interface IEnergyMission {
+interface IEnergyMission extends IMissionMemory {
   jobs: Dictionary<IMemoryJob>
 }
 
-interface IRemoteEnergyMission extends IEnergyMission {
+interface IRemoteEnergyMissionMemory extends IEnergyMission {
   flagId: string
   sourceFlags?: string[]
 }

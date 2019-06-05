@@ -1,3 +1,4 @@
+import { IRemoteEnergyMissionMemory } from "types"
 import { Mission, IMissionMemory } from "./Mission"
 import { getPositions } from "RoomScanner"
 
@@ -37,33 +38,38 @@ import { getPositions } from "RoomScanner"
 
 interface RemoteEnergyMissionConstructor {
   roomName: string
-  memory?: IMissionMemory
+  memory?: IRemoteEnergyMissionMemory
   flags?: Flag[]
 }
 
 export class RemoteEnergyMission extends Mission {
   private roomName: string
   private roomMemory: RoomMemory
+  public memory?: IRemoteEnergyMissionMemory
 
   constructor(params: RemoteEnergyMissionConstructor) {
-    let roomMemory = Memory.rooms[params.roomName]
+    const roomMemory = Memory.rooms[params.roomName]
 
     if (!params.memory) {
-      // no memory, we need to initialize it
+      console.log("memoery null", params.memory)
       if (params.flags) {
-        // extract out "remote" flag, we need an id in memory to determine if we should create a new mission
         const remoteFlag = params.flags.find(flag => flag.name.startsWith("remote"))
         if (remoteFlag) {
           const sourceFlags = params.flags.filter(flag => flag.name.startsWith("source"))
 
-          params.memory = roomMemory.remoteEnergyMission = {
-            flagId: remoteFlag.name,
-            jobs: {},
-            sourceFlags: sourceFlags.map(flag => flag.name)
+          if (!roomMemory.remoteEnergyMission) {
+            roomMemory.remoteEnergyMission = {
+              flagId: remoteFlag.name,
+              jobs: {},
+              sourceFlags: sourceFlags.map(flag => flag.name)
+            }
           }
 
+          params.memory = roomMemory.remoteEnergyMission
+
           const roomTerrain = new Room.Terrain(params.roomName)
-          // foreach source flag, calculate positions
+
+          // calculate mining positions
           sourceFlags.forEach(sourceFlag => {
             const miningPositions = getPositions(roomTerrain, sourceFlag.pos)
             sourceFlag.memory.miningPositions = miningPositions.length
@@ -73,6 +79,7 @@ export class RemoteEnergyMission extends Mission {
     }
 
     super(params.memory)
+    this.memory = roomMemory.remoteEnergyMission
     this.roomName = params.roomName
     this.roomMemory = roomMemory
   }
