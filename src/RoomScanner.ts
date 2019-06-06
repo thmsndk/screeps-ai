@@ -92,7 +92,7 @@ export class RoomScanner {
 
     cpuUsage = Game.cpu.getUsed() - cpuUsage
     room.visual.text(`CPU Usage: ${cpuUsage}`, 0, 0, { align: "left" })
-    // uses ~1 cpu and also generates excessive walls
+    // uses ~1 cpu and also generates excessive walls, should probably use pathfinding
   }
 
   /** Scans the room for static data, currently source nodes and miningpositions */
