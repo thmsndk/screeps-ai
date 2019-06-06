@@ -17,6 +17,7 @@ Problems:
     ☐ We have no harvesters assigned in a room that should have harvesters
         A request for the cheapest harvester available should be made, set spendingcap to 300 or the max amount of energy we have
         the request should contain a flag indicating "cheapest"
+        what about remote missions? what do they count as?
     ☐ "Initial" phase ,when we have no energyflow, is slow
         set spending cap based on available energy, and energyflow
     ☐ Other Creeps are stealing energy used for spawning
@@ -30,3 +31,6 @@ Problems:
         We need a way to calculate how many upgraders we can actually sustain with our current energy income.
     ☐ Jobs "stops" when their  target is not visible
         We need to implement the logic in such a way that creeps assigned to a job in a non visible place can still move to the target
+    ☐ Creeps go to the same node to collect energy
+        We need to "reserve" energy and take that into consideration when finding a target to collect energy from
+        A further development of this could be when wanting to delivery energy, take into consideration when they would arrive, compared to the creep wanting to delivery energy.

@@ -65,6 +65,36 @@ export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, off
 }
 // tslint:disable-next-line: max-classes-per-file
 export class RoomScanner {
+  public exitWalls(room: Room) {
+    let cpuUsage = Game.cpu.getUsed()
+    const walls: RoomPosition[] = []
+    const exits = room.find(FIND_EXIT)
+    exits.forEach(exit => {
+      const walkable = getPositions(room.getTerrain(), exit, 1)
+      walkable
+        .filter(pos => pos.x !== exit.x && pos.y !== exit.y)
+        .forEach(pos => {
+          const roomPosition = room.getPositionAt(pos.x, pos.y)
+          const hasPosition =
+            walls.findIndex((wall: RoomPosition) => {
+              return wall.x === pos.x && wall.y === pos.y
+            }) >= 0
+
+          if (roomPosition && !hasPosition) {
+            walls.push(roomPosition)
+          }
+        })
+    })
+
+    walls.forEach(wall => {
+      room.visual.circle(wall, { fill: "transparent", radius: 0.55, stroke: "red" })
+    })
+
+    cpuUsage = Game.cpu.getUsed() - cpuUsage
+    room.visual.text(`CPU Usage: ${cpuUsage}`, 0, 0, { align: "left" })
+    // uses ~1 cpu and also generates excessive walls
+  }
+
   /** Scans the room for static data, currently source nodes and miningpositions */
   public scan(room: Room) {
     if (!room) {

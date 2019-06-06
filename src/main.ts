@@ -1,3 +1,4 @@
+import { RoomScanner } from "./RoomScanner"
 import { BuilderJob } from "./jobs/BuilderJob"
 import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
@@ -75,6 +76,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO: harvesters going to a resource node with a keeper lair ?
 
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
+
   // deseralize jobs
   const jobs: Dictionary<Job[]> = deseralizeJobs()
 
@@ -91,6 +93,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       // room visible
       if (room) {
+        calculateAverageEnergy(room)
+
+        // const exitWalls = new RoomScanner().exitWalls(room)
+
         DEFCON.scan(room)
 
         // if (roomMemory.energymission) {
@@ -240,6 +246,43 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 })
+
+function calculateAverageEnergy(room: Room) {
+  const storageEnergy = room.storage ? room.storage.store[RESOURCE_ENERGY] : 0
+  const energyAvail = room.energyAvailable
+  // const energyCap = room.energyCapacityAvailable
+  const containers = room.find<StructureContainer>(FIND_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_CONTAINER
+  })
+  const containerEnergy = _.sum(containers, c => c.store.energy)
+  // const links = room.find<StructureLink>(FIND_STRUCTURES, {
+  //   filter: s => s.structureType === STRUCTURE_LINK && s.my
+  // })
+  // const linkEnergy = _.sum(links, l => l.energy)
+
+  const energy = storageEnergy + energyAvail + containerEnergy
+
+  if (!room.memory.averageEnergy) {
+    room.memory.averageEnergy = { points: 1, average: energy, spawn: energyAvail }
+  }
+
+  room.memory.averageEnergy.points += 1
+  room.memory.averageEnergy.average = calculateCumulativeMovingAverage(
+    room.memory.averageEnergy.average,
+    room.memory.averageEnergy.points,
+    energy
+  )
+  room.memory.averageEnergy.spawn = calculateCumulativeMovingAverage(
+    room.memory.averageEnergy.spawn,
+    room.memory.averageEnergy.points,
+    energyAvail
+  )
+}
+
+function calculateCumulativeMovingAverage(average: number, points: number, mesurement: number) {
+  // https://en.wikipedia.org/wiki/Moving_average
+  return average + (mesurement + 1 - average) / (points + 1)
+}
 
 function queueFlagMissions() {
   const remoteFlags: Dictionary<Flag[]> = {}

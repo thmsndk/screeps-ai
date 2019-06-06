@@ -31,6 +31,7 @@ declare global {
     DEFCON?: IMemoryDefcon
     // missions: IMissionMemory[]
     remoteEnergyMission?: IRemoteEnergyMissionMemory
+    averageEnergy?: { points: number; average: number; spawn: number }
   }
   interface Global {
     log: any
