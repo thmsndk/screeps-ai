@@ -59,7 +59,6 @@ export class RemoteEnergyMission extends Mission {
     const roomMemory = Memory.rooms[params.roomName]
 
     if (!params.memory) {
-      console.log("memoery null", params.memory)
       if (params.flags) {
         const remoteFlag = params.flags.find(flag => flag.name.startsWith("remote"))
         if (remoteFlag) {
@@ -113,8 +112,9 @@ export class RemoteEnergyMission extends Mission {
         const hatchery = new Hatchery(Game.spawns.Spawn1) // TODO: Hatchery should be a singleton?
         let requestedHarvesters = hatchery.getRequests(flagId, CreepMutations.HARVESTER)
         const miningPositions = this.getMiningPositionsFromFlags()
-
-        if (miningPositions > requestedHarvesters + missionCreeps.length) {
+        const assignedCreeps = requestedHarvesters + missionCreeps.length
+        console.log("REM ", assignedCreeps)
+        if (miningPositions > assignedCreeps) {
           requestedHarvesters = requestPriorityHarvester(requestedHarvesters, hatchery, flagId)
 
           requestRemainingHarvesters(requestedHarvesters, miningPositions, hatchery, flagId)
@@ -265,7 +265,8 @@ function requestPriorityHarvester(requestedHarvesters: number, hatchery: Hatcher
     hatchery.queue({
       target: flagId,
       mutation: CreepMutations.HARVESTER,
-      priority: JobPriority.High
+      priority: JobPriority.High,
+      employed: true
     })
     requestedHarvesters += 1
   }
