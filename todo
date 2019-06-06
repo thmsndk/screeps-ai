@@ -11,3 +11,22 @@
 ☐ builders should find closest builder to assign
 ☐ spawn placement, closest to sources with most spots, not too far away from other spots, calculate that with pathing, this could be a visual tool? when there is no spawn in the room?
 ☐ builders should sacrifice / delete / whatever at spawn when there are no more construction jobs
+
+
+Problems:
+    ☐ We have no harvesters assigned in a room that should have harvesters
+        A request for the cheapest harvester available should be made, set spendingcap to 300 or the max amount of energy we have
+        the request should contain a flag indicating "cheapest"
+    ☐ "Initial" phase ,when we have no energyflow, is slow
+        set spending cap based on available energy, and energyflow
+    ☐ Other Creeps are stealing energy used for spawning
+        upgraders and builders are stealing all the spawn / extension energy
+    ☐ We are spawning too many builders
+        We are spawning 1 builder per construction site
+        We should be able to adjust a "building mission" depending on how fast we want it done
+        We should request N workers for the mission, someone should decide if that means spawning a creep
+            or waiting on existing builders to be available
+    ☐ We are spawning too many upgraders
+        We need a way to calculate how many upgraders we can actually sustain with our current energy income.
+    ☐ Jobs "stops" when their  target is not visible
+        We need to implement the logic in such a way that creeps assigned to a job in a non visible place can still move to the target

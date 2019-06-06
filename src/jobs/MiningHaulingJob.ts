@@ -98,13 +98,13 @@ class HaulingCreep {
       // first iteration we just pull from container and move to spawn & extensions, makes the initial spawn kinda broken though, cause I won't have containers as fast
       // we also need to make sure it does not pickup resources from a container, and then puts them back in, getting stuck, we could persist target in memory
       // const droppedResource
-      let resource = source.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+      let resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
       if (resource) {
-        if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
+        if (resource && creep.pickup(resource[0]) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(resource[0], { visualizePathStyle: PathStyle.Hauling })
         }
       } else {
-        const target = source.pos.findClosestByRange(FIND_STRUCTURES, {
+        const target = source.pos.findInRange(FIND_STRUCTURES, 2, {
           filter: structure => {
             switch (structure.structureType) {
               case STRUCTURE_CONTAINER:
@@ -119,8 +119,8 @@ class HaulingCreep {
 
         // job.memory.target = target ? target.id : undefined
 
-        if (target && creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target, { visualizePathStyle: PathStyle.Hauling })
+        if (target && creep.withdraw(target[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target[0], { visualizePathStyle: PathStyle.Hauling })
         }
       }
     } else {
