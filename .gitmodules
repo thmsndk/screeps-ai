@@ -1,0 +1,3 @@
+[submodule "src/_lib/Profiler"]
+	path = src/_lib/Profiler
+	url = https://github.com/screepers/screeps-typescript-profiler.git
