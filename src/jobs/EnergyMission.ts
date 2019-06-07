@@ -1,10 +1,8 @@
 import { Job, JobPriority } from "./Job"
 import { RoomScanner } from "RoomScanner"
-import { JobType } from "_lib/interfaces"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { MiningJob } from "./MiningJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
-import { IEnergyMission } from "types"
 const roomScanner = new RoomScanner()
 
 /**

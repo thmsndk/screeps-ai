@@ -1,6 +1,5 @@
 import { CreepMutations } from "./../Hatchery"
 import { PathStyle } from "./MovementPathStyles"
-import { IMemoryJob, JobType } from "_lib/interfaces"
 import { Dictionary } from "lodash"
 import { Job, JobPriority } from "./Job"
 import { Role } from "role/roles"

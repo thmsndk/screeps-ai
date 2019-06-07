@@ -1,11 +1,9 @@
 import { JobPriority } from "jobs/Job"
-import { IRemoteEnergyMissionMemory, ISourceMemory } from "types"
-import { Mission, IMissionMemory } from "./Mission"
+import { Mission } from "./Mission"
 import { getPositions, RoomScanner } from "RoomScanner"
 import { Hatchery, CreepMutations } from "Hatchery"
 import { MiningHaulingJob } from "jobs/MiningHaulingJob"
 import { MiningJob } from "jobs/MiningJob"
-import { IMemoryJob } from "_lib/interfaces"
 import { Dictionary } from "lodash"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
 

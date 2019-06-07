@@ -1,46 +1,50 @@
-import { Dictionary } from "lodash"
-import { DEFCON, IMemoryDefcon } from "./DEFCON"
-import { IMemoryJob } from "_lib/interfaces"
-import { IMissionMemory } from "missions/Mission"
-
 // memory extension samples
 interface CreepMemory {
+  mode?: number
+  cost: number
   role: string
-  room: string
+  target: string
+  unemployed: boolean
+  upgrading: boolean
+  harvest: boolean
+  building: boolean
   working: boolean
+}
+
+interface RoomMemory {
+  sources?: import("lodash").Dictionary<ISourceMemory>
+  miningPositions?: number
+  energymission?: IEnergyMission
+  DEFCON?: import("./DEFCON").IMemoryDefcon
+  // missions: IMissionMemory[]
+  remoteEnergyMission?: IRemoteEnergyMissionMemory
+  averageEnergy?: { points: number; average: number; spawn: number }
+}
+
+interface FlagMemory {
+  miningPositions: number
 }
 
 interface Memory {
   uuid: number
   log: any
+  SCRIPT_VERSION: string
+  BUILD_TIME: number
+  stats: IStats
+  jobs: import("lodash").Dictionary<IMemoryJob[]>
 }
 
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
     log: any
-    DEFCON: DEFCON
+    DEFCON: import("./DEFCON").DEFCON
   }
 }
 
-declare global {
-  interface RoomMemory {
-    sources?: Dictionary<ISourceMemory>
-    miningPositions?: number
-    energymission?: IEnergyMission
-    DEFCON?: IMemoryDefcon
-    // missions: IMissionMemory[]
-    remoteEnergyMission?: IRemoteEnergyMissionMemory
-    averageEnergy?: { points: number; average: number; spawn: number }
-  }
-  interface Global {
-    log: any
-    DEFCON: DEFCON
-  }
-  interface FlagMemory {
-    miningPositions: number
-  }
-} // TODO: in use / unused mining position?
+// declare global {
+
+// } // TODO: in use / unused mining position?
 
 interface ISourceMemory {
   miningPositions: IPosition[]
@@ -49,7 +53,7 @@ interface ISourceMemory {
 }
 
 interface IEnergyMission extends IMissionMemory {
-  jobs: Dictionary<IMemoryJob>
+  jobs: import("lodash").Dictionary<IMemoryJob>
 }
 
 interface IRemoteEnergyMissionMemory extends IEnergyMission {
@@ -67,3 +71,49 @@ interface IPosition {
    */
   y: number
 }
+
+// TODO: extract out interfaces
+interface CPUExtended extends CPU {
+  used: number
+}
+// tslint:disable-next-line: interface-name
+interface IStats {
+  tick?: number
+  cpu?: CPUExtended
+  gcl?: GlobalControlLevel
+  memory?: {
+    used: number
+    // Other memory stats here?
+  }
+  market?: {
+    credits: number
+    num_orders: number
+  }
+  roomSummary?: {}
+  jobs: import("lodash").Dictionary<IMemoryJob[]>
+}
+
+type JobTypes = JobTypeMining | JobTypeUpgradeController | JobTypeHauling | JobTypeBuilding
+type JobTypeMining = 1
+type JobTypeUpgradeController = 2
+type JobTypeHauling = 3
+type JobTypeBuilding = 4
+
+// tslint:disable-next-line: interface-name
+interface IMemoryJob {
+  type: JobTypes
+  missionPriority?: number
+  priority: number
+  target?: string
+  creeps: string[]
+  jobs?: IMemoryJob[]
+}
+
+declare enum JobType {
+  Mining = 1, //as JobTypeMining
+  UpgradeController = 2, //as JobTypeUpgradeController
+  Hauling = 3, //as JobTypeHauling
+  Building = 4 //as JobTypeBuilding
+}
+
+interface IMissionMemory {}

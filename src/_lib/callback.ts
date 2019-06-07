@@ -1,6 +1,4 @@
-﻿import { IStats } from "./interfaces"
-
-// Callback is a class (use with new) that stores functions to call
+﻿// Callback is a class (use with new) that stores functions to call
 // back later, and they're called with a specified object.
 
 export type CallbackFunction = (params: IStats) => void

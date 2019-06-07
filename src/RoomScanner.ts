@@ -1,5 +1,3 @@
-import { ISourceMemory, IPosition } from "types"
-
 class Position implements IPosition {
   public x: number
   public y: number

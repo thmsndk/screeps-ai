@@ -2,7 +2,6 @@ import { RoomScanner } from "./RoomScanner"
 import { BuilderJob } from "./jobs/BuilderJob"
 import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
-import { JobType, IStats } from "_lib/interfaces"
 import { collect_stats, add_stats_callback } from "_lib/screepsplus"
 import { Hatchery } from "Hatchery"
 import { Job, JobPriority } from "jobs/Job"
@@ -14,7 +13,6 @@ import { HaulingJob } from "jobs/HaulingJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
 import DEFCON from "./DEFCON"
 import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
-import { IRemoteEnergyMissionMemory } from "types"
 
 // global.DEFCON = DEFCON
 

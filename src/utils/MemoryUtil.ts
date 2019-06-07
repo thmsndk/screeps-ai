@@ -1,4 +1,3 @@
-import { IMemoryJob } from "_lib/interfaces"
 import { Dictionary } from "lodash"
 
 export function deseralizeJobCreeps(seralizedJob: IMemoryJob): Dictionary<Creep> {

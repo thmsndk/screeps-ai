@@ -1,11 +1,9 @@
 import { emoji } from "_lib/emoji"
-import { IMemoryJob, JobType } from "_lib/interfaces"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { Job, JobPriority } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
 import { CreepMutations } from "Hatchery"
-import { ISourceMemory } from "types"
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners

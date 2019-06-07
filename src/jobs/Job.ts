@@ -1,7 +1,6 @@
 import { CreepMutations, Hatchery } from "Hatchery"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
-import { IMemoryJob, JobTypes } from "_lib/interfaces"
 
 export class Job {
   public type: JobTypes

@@ -1,4 +1,3 @@
-import { IMemoryJob, JobType } from "_lib/interfaces"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { CreepMutations } from "./../Hatchery"

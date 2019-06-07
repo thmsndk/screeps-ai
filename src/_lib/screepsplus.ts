@@ -20,7 +20,6 @@
 // This module uses my resources module, which analyzes the state of affairs
 // for every room you can see.
 import { Callback, CallbackFunction } from "./callback"
-import "./interfaces"
 import { summarize_rooms } from "./resources"
 // const resources = require('_lib.resources');
 // const cb = require('_lib.callback');
