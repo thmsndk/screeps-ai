@@ -12,6 +12,9 @@
 ☐ spawn placement, closest to sources with most spots, not too far away from other spots, calculate that with pathing, this could be a visual tool? when there is no spawn in the room?
 ☐ builders should sacrifice / delete / whatever at spawn when there are no more construction jobs
 
+Roadmap:
+    ☐ room intel
+        ☐ room intel visualizer
 
 Problems:
     ☐ We have no harvesters assigned in a room that should have harvesters
@@ -34,3 +37,4 @@ Problems:
     ☐ Creeps go to the same node to collect energy
         We need to "reserve" energy and take that into consideration when finding a target to collect energy from
         A further development of this could be when wanting to delivery energy, take into consideration when they would arrive, compared to the creep wanting to delivery energy.
+    ☐ Idle creeps?

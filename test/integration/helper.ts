@@ -1,7 +1,7 @@
-const { readFileSync } = require('fs');
-const _ = require('lodash');
-const { ScreepsServer, stdHooks } = require('screeps-server-mockup');
-const DIST_MAIN_JS = 'dist/main.js';
+const { readFileSync } = require("fs")
+// import { ScreepsServer, stdHooks } from "screeps-server-mockup"
+const { ScreepsServer, stdHooks } = require("screeps-server-mockup")
+const DIST_MAIN_JS = "dist/main.js"
 
 /*
  * Helper class for creating a ScreepsServer and resetting it between tests.
@@ -9,55 +9,55 @@ const DIST_MAIN_JS = 'dist/main.js';
  * manipulating the terrain and game state.
  */
 class IntegrationTestHelper {
-  private _server;
-  private _player;
+  private _server
+  private _player
 
   get server() {
-    return this._server;
+    return this._server
   }
 
   get player() {
-    return this._player;
+    return this._player
   }
 
   async beforeEach() {
-    this._server = new ScreepsServer();
+    this._server = new ScreepsServer()
 
     // reset world but add invaders and source keepers bots
-    await this._server.world.reset();
+    await this._server.world.reset()
 
     // create a stub world composed of 9 rooms with sources and controller
-    await this._server.world.stubWorld();
+    await this._server.world.stubWorld()
 
     // add a player with the built dist/main.js file
     const modules = {
-        main: readFileSync(DIST_MAIN_JS).toString(),
-    };
-    this._player = await this._server.world.addBot({ username: 'player', room: 'W0N1', x: 15, y: 15, modules });
+      main: readFileSync(DIST_MAIN_JS).toString()
+    }
+    this._player = await this._server.world.addBot({ username: "player", room: "W0N1", x: 15, y: 15, modules })
 
     // Start server
-    await this._server.start();
+    await this._server.start()
   }
 
   async afterEach() {
-    await this._server.stop();
+    await this._server.stop()
   }
 }
 
 beforeEach(async () => {
-  await helper.beforeEach();
-});
-
-afterEach(async () => {
-  await helper.afterEach();
-});
-
-before(() => {
-  stdHooks.hookWrite();
-});
-
-after(() => {
-  process.exit();
+  await helper.beforeEach()
 })
 
-export const helper = new IntegrationTestHelper();
+afterEach(async () => {
+  await helper.afterEach()
+})
+
+before(() => {
+  stdHooks.hookWrite()
+})
+
+after(() => {
+  process.exit()
+})
+
+export const helper = new IntegrationTestHelper()
