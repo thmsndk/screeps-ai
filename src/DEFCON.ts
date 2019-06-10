@@ -1,3 +1,5 @@
+import { profile } from "_lib/Profiler"
+
 export interface IMemoryDefcon {
   level: number
   // hostiles: RoomPosition[]
@@ -9,6 +11,7 @@ export enum DEFCONLEVEL {
   POSSIBLE_ATTACK
 }
 
+@profile
 export class DEFCON {
   /**
    * scan

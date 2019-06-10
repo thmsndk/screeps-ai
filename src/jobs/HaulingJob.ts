@@ -3,12 +3,14 @@ import { Role } from "role/roles"
 import { CreepMutations } from "./../Hatchery"
 import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
+import { profile } from "_lib/Profiler"
 
 /**
  * This is a generic purpose hauling job, it can haul to a target
  * Currently that target should be a structure
  *
  */
+@profile
 export class HaulingJob extends Job {
   public structure: Structure
   public memory: IMemoryJob
@@ -69,6 +71,7 @@ export class HaulingJob extends Job {
 }
 
 // tslint:disable-next-line: max-classes-per-file
+@profile
 class HaulingCreep {
   run(creep: Creep, structure: Structure) {
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?

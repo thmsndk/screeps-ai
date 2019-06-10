@@ -6,12 +6,13 @@ import { Role } from "role/roles"
 import { emoji } from "_lib/emoji"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { DEFCONLEVEL } from "DEFCON"
+import { profile } from "_lib/Profiler"
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
 Mining job should have a list of containers, and if there is none, spawn it
 */
-
+@profile
 export class MiningJob extends Job {
   public source: Source
   public sourceMemory: ISourceMemory
@@ -85,6 +86,7 @@ export class MiningJob extends Job {
 }
 
 // tslint:disable-next-line: max-classes-per-file
+@profile
 class MiningCreep {
   run(job: MiningJob, creep: Creep, source: Source) {
     // We should not abandon returning with resources

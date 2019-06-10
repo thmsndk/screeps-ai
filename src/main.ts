@@ -96,7 +96,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       if (room) {
         calculateAverageEnergy(room)
 
-        const exitWalls = new RoomScanner().exitWalls(room)
+        // const exitWalls = new RoomScanner().exitWalls(room)
 
         DEFCON.scan(room)
 

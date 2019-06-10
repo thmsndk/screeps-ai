@@ -6,6 +6,7 @@ import { MiningHaulingJob } from "jobs/MiningHaulingJob"
 import { MiningJob } from "jobs/MiningJob"
 import { Dictionary } from "lodash"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
+import { profile } from "_lib/Profiler"
 
 /**
  * Remote Energy mission
@@ -48,6 +49,7 @@ interface RemoteEnergyMissionConstructor {
 }
 
 // TODO: remote hauler was just standing still
+@profile
 export class RemoteEnergyMission extends Mission {
   private roomName: string
   private roomMemory: RoomMemory

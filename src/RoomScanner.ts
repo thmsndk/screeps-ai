@@ -1,3 +1,5 @@
+import { profile } from "_lib/Profiler"
+
 class Position implements IPosition {
   public x: number
   public y: number
@@ -62,6 +64,7 @@ export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, off
   return positions
 }
 // tslint:disable-next-line: max-classes-per-file
+@profile
 export class RoomScanner {
   public exitWalls(room: Room) {
     let cpuUsage = Game.cpu.getUsed()

@@ -4,9 +4,11 @@ import { Dictionary } from "lodash"
 import { Job, JobPriority, JobType } from "./Job"
 import { Role } from "role/roles"
 import { emoji } from "_lib/emoji"
+import { profile } from "_lib/Profiler"
 
 // TODO: What if the target is removed? clean up job and release builders?
 
+@profile
 export class BuilderJob extends Job {
   public constructionSite: ConstructionSite
   public memory: IMemoryJob
@@ -122,6 +124,7 @@ export class BuilderJob extends Job {
 }
 
 // tslint:disable-next-line: max-classes-per-file
+@profile
 class BuilderCreep {
   run(constructionSite: ConstructionSite, creep: Creep) {
     // TODO:

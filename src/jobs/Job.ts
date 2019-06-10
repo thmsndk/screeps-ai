@@ -1,7 +1,9 @@
 import { CreepMutations, Hatchery } from "Hatchery"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
+import { profile } from "_lib/Profiler"
 
+@profile
 export class Job {
   public type: JobTypes
   public target?: string
@@ -94,7 +96,7 @@ export class Job {
         if (neededWorkers > 0) {
           for (let index = 0; index < neededWorkers; index++) {
             // request new creeps
-            console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
+            // console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
             this.hatchery.queue({
               mutation,
               target: this.target,

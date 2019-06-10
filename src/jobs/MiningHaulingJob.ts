@@ -4,11 +4,13 @@ import { Role } from "role/roles"
 import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
 import { CreepMutations } from "Hatchery"
+import { profile } from "_lib/Profiler"
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners
  *
  */
+@profile
 export class MiningHaulingJob extends Job {
   public source: Source
   public sourceMemory: ISourceMemory
@@ -68,6 +70,7 @@ enum Mode {
 }
 
 // tslint:disable-next-line: max-classes-per-file
+@profile
 class HaulingCreep {
   run(job: MiningHaulingJob, creep: Creep, source: Source) {
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?

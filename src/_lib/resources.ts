@@ -1,4 +1,4 @@
-﻿import { Dictionary } from 'lodash'
+﻿import { Dictionary } from "lodash"
 
 interface IStructureInfo {
   count: number
@@ -90,7 +90,7 @@ export function count_source_containers(room: Room) {
 
   source_container_search: for (const source of roomSources) {
     const nearbyContainers = source.pos.findInRange(FIND_STRUCTURES, 2, {
-      filter: s => s.structureType === STRUCTURE_CONTAINER,
+      filter: s => s.structureType === STRUCTURE_CONTAINER
     })
     // console.log(room.name + ', source: ' + source.id + ', nearby containers: ' + nearby_containers.length);
     for (const nc of nearbyContainers) {
@@ -123,20 +123,16 @@ export function summarize_room_internal(room: Room): IRoomSummary | null {
   const controllerNeeded = room.controller.progressTotal
   const controllerDowngrade = room.controller.ticksToDowngrade
   const controllerBlocked = room.controller.upgradeBlocked
-  const controllerSafemode = room.controller.safeMode
-    ? room.controller.safeMode
-    : 0
+  const controllerSafemode = room.controller.safeMode ? room.controller.safeMode : 0
   const controllerSafemodeAvail = room.controller.safeModeAvailable
   const controllerSafemodeCooldown = room.controller.safeModeCooldown
   const hasStorage = room.storage != null
   const storageEnergy = room.storage ? room.storage.store[RESOURCE_ENERGY] : 0
-  const storageMinerals = room.storage
-    ? _.sum(room.storage.store) - storageEnergy
-    : 0
+  const storageMinerals = room.storage ? _.sum(room.storage.store) - storageEnergy : 0
   const energyAvail = room.energyAvailable
   const energyCap = room.energyCapacityAvailable
   const containers = room.find<StructureContainer>(FIND_STRUCTURES, {
-    filter: s => s.structureType === STRUCTURE_CONTAINER,
+    filter: s => s.structureType === STRUCTURE_CONTAINER
   })
   const numContainers = containers == null ? 0 : containers.length
   const containerEnergy = _.sum(containers, c => c.store.energy)
@@ -144,66 +140,55 @@ export function summarize_room_internal(room: Room): IRoomSummary | null {
   const numSources = sources == null ? 0 : sources.length
   const sourceEnergy = _.sum(sources, s => s.energy)
   const links = room.find<StructureLink>(FIND_STRUCTURES, {
-    filter: s => s.structureType === STRUCTURE_LINK && s.my,
+    filter: s => s.structureType === STRUCTURE_LINK && s.my
   })
   const numLinks = links == null ? 0 : links.length
   const linkEnergy = _.sum(links, l => l.energy)
   const minerals = room.find(FIND_MINERALS)
   const mineral = minerals && minerals.length > 0 ? minerals[0] : null
-  const mineralType = mineral ? mineral.mineralType : ''
+  const mineralType = mineral ? mineral.mineralType : ""
   const mineralAmount = mineral ? mineral.mineralAmount : 0
   const extractors = room.find(FIND_STRUCTURES, {
-    filter: s => s.structureType === STRUCTURE_EXTRACTOR,
+    filter: s => s.structureType === STRUCTURE_EXTRACTOR
   })
   const numExtractors = extractors.length
-  const creeps = _.filter(
-    Game.creeps,
-    c => c.pos.roomName === room.name && c.my
-  )
+  const creeps = _.filter(Game.creeps, c => c.pos.roomName === room.name && c.my)
   const numCreeps = creeps ? creeps.length : 0
   const enemyCreeps = room.find(FIND_HOSTILE_CREEPS)
-  const creepEnergy = _.sum(Game.creeps, c =>
-    c.pos.roomName === room.name ? c.carry.energy : 0
-  )
+  const creepEnergy = _.sum(Game.creeps, c => (c.pos.roomName === room.name ? c.carry.energy : 0))
   const numEnemies = enemyCreeps ? enemyCreeps.length : 0
   const spawns = room.find(FIND_MY_SPAWNS)
   const numSpawns = spawns ? spawns.length : 0
   const spawnsSpawning = _.sum(spawns, s => (s.spawning ? 1 : 0))
   const towers = room.find<StructureTower>(FIND_STRUCTURES, {
-    filter: s => s.structureType === STRUCTURE_TOWER && s.my,
+    filter: s => s.structureType === STRUCTURE_TOWER && s.my
   })
   const numTowers = towers ? towers.length : 0
   const towerEnergy = _.sum(towers, t => t.energy)
   const constSites = room.find(FIND_CONSTRUCTION_SITES)
   const myConstSites = room.find(FIND_CONSTRUCTION_SITES, {
-    filter: cs => cs.my,
+    filter: cs => cs.my
   })
   const numConstructionSites = constSites.length
   const numMyConstructionSites = myConstSites.length
   const numSourceContainers = count_source_containers(room)
   const hasTerminal = room.terminal != null
-  const terminalEnergy = room.terminal
-    ? room.terminal.store[RESOURCE_ENERGY]
-    : 0
-  const terminalMinerals = room.terminal
-    ? _.sum(room.terminal.store) - terminalEnergy
-    : 0
+  const terminalEnergy = room.terminal ? room.terminal.store[RESOURCE_ENERGY] : 0
+  const terminalMinerals = room.terminal ? _.sum(room.terminal.store) - terminalEnergy : 0
 
   // Get info on all our structures
   // TODO: Split roads to those on swamps vs those on dirt
-  const structureTypes = new Set(
-    room.find(FIND_STRUCTURES).map(s => s.structureType)
-  )
+  const structureTypes = new Set(room.find(FIND_STRUCTURES).map(s => s.structureType))
 
   const structureInfo: StructureInfoDictionary<IStructureInfo> = {}
   for (const s of structureTypes) {
     const ss = room.find(FIND_STRUCTURES, {
-      filter: str => str.structureType === s,
+      filter: str => str.structureType === s
     })
     structureInfo[s] = {
       count: ss.length,
-      min_hits: _.min(ss, 'hits').hits,
-      max_hits: _.max(ss, 'hits').hits,
+      min_hits: _.min(ss, "hits").hits,
+      max_hits: _.max(ss, "hits").hits
     }
   }
   // console.log(JSON.stringify(structure_info));
@@ -280,7 +265,7 @@ export function summarize_room_internal(room: Room): IRoomSummary | null {
     num_construction_sites: numConstructionSites,
     num_my_construction_sites: numMyConstructionSites,
     ground_resources: reducedResources,
-    num_source_containers: numSourceContainers,
+    num_source_containers: numSourceContainers
   }
 
   // console.log('Room ' + room.name + ': ' + JSON.stringify(retval));

@@ -5,7 +5,9 @@ import { Job, JobPriority, JobType } from "./Job"
 import { Role } from "role/roles"
 import { emoji } from "_lib/emoji"
 import { getPositions } from "RoomScanner"
+import { profile } from "_lib/Profiler"
 
+@profile
 export class UpgradeControllerJob extends Job {
   public controller: StructureController
   public memory: IMemoryJob
@@ -88,6 +90,7 @@ export class UpgradeControllerJob extends Job {
 }
 
 // tslint:disable-next-line: max-classes-per-file
+@profile
 class UpgradeControllerCreep {
   run(controller: StructureController, creep: Creep) {
     // TODO: General upgrade logic should perhaps exist in a base class?

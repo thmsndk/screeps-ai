@@ -3,6 +3,7 @@ import { MemoryHatchRequest } from "./Hatchery"
 import PriorityQueue from "ts-priority-queue"
 import { Role } from "role/roles"
 import { Dictionary } from "lodash"
+import { profile } from "_lib/Profiler"
 
 // Hatchery"Job"?
 // We need a list of hatcheries accessable by ?? roomName? what if there are multiple hatcheries in a room
@@ -11,6 +12,7 @@ import { Dictionary } from "lodash"
 // TODO: Hatchery is responsible for knowing all spawns, looking at energy available, where the creep is requested (distance?) it should request creeps for that location
 const comparePriority = (a: Priority, b: Priority) => b.priority - a.priority
 
+@profile
 export class Hatchery {
   public Spawn: StructureSpawn
   private requests: PriorityQueue<HatchRequest>
