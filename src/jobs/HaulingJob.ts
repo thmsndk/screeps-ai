@@ -1,7 +1,7 @@
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { CreepMutations } from "./../Hatchery"
-import { Job, JobPriority } from "./Job"
+import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
 
 /**

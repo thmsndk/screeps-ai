@@ -1,7 +1,7 @@
 import { emoji } from "_lib/emoji"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
-import { Job, JobPriority } from "./Job"
+import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
 import { CreepMutations } from "Hatchery"
 

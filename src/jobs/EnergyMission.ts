@@ -3,11 +3,13 @@ import { RoomScanner } from "RoomScanner"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { MiningJob } from "./MiningJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
+import { profile } from "_lib/Profiler"
 const roomScanner = new RoomScanner()
 
 /**
  * Responsible for mining in visible rooms
  */
+@profile
 export class EnergyMission {
   private room: Room
   private memory: IEnergyMission

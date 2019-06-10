@@ -39,6 +39,7 @@ declare namespace NodeJS {
   interface Global {
     log: any
     DEFCON: import("./DEFCON").DEFCON
+    Profiler: Profiler //import("./_lib/Profiler/Profiler/typings").Profiler
   }
 }
 
@@ -107,13 +108,6 @@ interface IMemoryJob {
   target?: string
   creeps: string[]
   jobs?: IMemoryJob[]
-}
-
-declare enum JobType {
-  Mining = 1, //as JobTypeMining
-  UpgradeController = 2, //as JobTypeUpgradeController
-  Hauling = 3, //as JobTypeHauling
-  Building = 4 //as JobTypeBuilding
 }
 
 interface IMissionMemory {}

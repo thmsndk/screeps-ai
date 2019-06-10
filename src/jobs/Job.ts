@@ -107,6 +107,13 @@ export class Job {
   }
 }
 
+export enum JobType {
+  Mining = 1, //as JobTypeMining
+  UpgradeController = 2, //as JobTypeUpgradeController
+  Hauling = 3, //as JobTypeHauling
+  Building = 4 //as JobTypeBuilding
+}
+
 export const JobPriority = {
   Low: 5,
   Medium: 10,

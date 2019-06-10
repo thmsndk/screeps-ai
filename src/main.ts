@@ -4,7 +4,7 @@ import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { collect_stats, add_stats_callback } from "_lib/screepsplus"
 import { Hatchery } from "Hatchery"
-import { Job, JobPriority } from "jobs/Job"
+import { Job, JobPriority, JobType } from "jobs/Job"
 import { Dictionary } from "lodash"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { summarize_room } from "_lib/resources"
@@ -13,6 +13,9 @@ import { HaulingJob } from "jobs/HaulingJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
 import DEFCON from "./DEFCON"
 import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
+import { init } from "./_lib/Profiler"
+
+global.Profiler = init()
 
 // global.DEFCON = DEFCON
 

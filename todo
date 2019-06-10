@@ -38,3 +38,5 @@ Problems:
         We need to "reserve" energy and take that into consideration when finding a target to collect energy from
         A further development of this could be when wanting to delivery energy, take into consideration when they would arrive, compared to the creep wanting to delivery energy.
     ☐ Idle creeps?
+    ☐ Creeps recalculate their target/mission every tick
+        e.g. upgraders travel back and forth between dropped resources due to it being picked up and then going for anotther
