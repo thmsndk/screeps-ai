@@ -123,75 +123,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // queue upgradeController job, how to determine how many upgraders we want?
   if (Game.spawns.Spawn1) {
-    const controller = Game.spawns.Spawn1.room.controller
-    if (controller) {
-      if (!jobs[controller.id]) {
-        Memory.jobs[controller.id] = []
-        // having to construct the memory this way and then sending it in, to be able to push the memory, is sily
-        const jobMemory = {
-          type: JobType.UpgradeController,
-          target: controller.id,
-          creeps: [],
-          priority: JobPriority.Low
-        }
+    queueUpgraderJobsForSpawn1(jobs)
 
-        Memory.jobs[controller.id].push(jobMemory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+    queueBuildingJobs(jobs)
 
-        const job = new UpgradeControllerJob(controller, jobMemory)
-
-        jobs[controller.id] = [job]
-      }
-    }
-
-    // queue building jobs
-    const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
-    // group construction sites by type?, the type could be utilized as id, might be deleted then by earlier logic
-    // road work, what priority is that? Low?
-    // extension, what priority is that? Medium
-    // container, what priority? HIGH
-    // walls ?
-    // priority is not that important when we do not sort jobs by priority.
-    // We wish to accomplish "enough" workers assigned to "all" construction jobs, we also wish workers to get assigned to the closest job
-
-    constructionSites.forEach(site => {
-      if (!jobs[site.id]) {
-        const job = new BuilderJob(site)
-        jobs[site.id] = [job]
-      }
-    })
-
-    // queue tower hauling jobs
-    const towers = Game.spawns.Spawn1.room.find<StructureTower>(FIND_MY_STRUCTURES, {
-      filter: (structure: Structure) => structure.structureType === STRUCTURE_TOWER
-    })
-
-    towers.forEach(tower => {
-      if (!jobs[tower.id]) {
-        const job = new HaulingJob(tower)
-        jobs[tower.id] = [job]
-      }
-
-      // prefer shooting enemies
-      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-      if (closestHostile) {
-        tower.attack(closestHostile)
-      } else {
-        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-          // walls does not appear to be in "FIND_MY_STRUCTURES"
-          filter: (structure: Structure) => {
-            // console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
-            return (
-              (structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_WALL) ||
-              structure.hits / structure.hitsMax < 0.0004
-            )
-          }
-        })
-
-        if (closestDamagedStructure) {
-          tower.repair(closestDamagedStructure)
-        }
-      }
-    })
+    handleTowersAndQueueTowerHaulers(jobs)
 
     // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
 
@@ -247,6 +183,74 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 })
+
+function queueUpgraderJobsForSpawn1(jobs: Dictionary<Job[]>) {
+  const controller = Game.spawns.Spawn1.room.controller
+  if (controller) {
+    if (!jobs[controller.id]) {
+      Memory.jobs[controller.id] = []
+      // having to construct the memory this way and then sending it in, to be able to push the memory, is sily
+      const jobMemory = {
+        type: JobType.UpgradeController,
+        target: controller.id,
+        creeps: [],
+        priority: JobPriority.Low
+      }
+      Memory.jobs[controller.id].push(jobMemory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+      const job = new UpgradeControllerJob(controller, jobMemory)
+      jobs[controller.id] = [job]
+    }
+  }
+}
+
+function handleTowersAndQueueTowerHaulers(jobs: Dictionary<Job[]>) {
+  const towers = Game.spawns.Spawn1.room.find<StructureTower>(FIND_MY_STRUCTURES, {
+    filter: (structure: Structure) => structure.structureType === STRUCTURE_TOWER
+  })
+  towers.forEach(tower => {
+    // queue tower hauling jobs
+    if (!jobs[tower.id]) {
+      const job = new HaulingJob(tower)
+      jobs[tower.id] = [job]
+    }
+    // prefer shooting enemies
+    const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+    if (closestHostile) {
+      tower.attack(closestHostile)
+    } else {
+      const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+        // walls does not appear to be in "FIND_MY_STRUCTURES"
+        filter: (structure: Structure) => {
+          // console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
+          return (
+            (structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_WALL) ||
+            structure.hits / structure.hitsMax < 0.0004
+          )
+        }
+      })
+      if (closestDamagedStructure) {
+        tower.repair(closestDamagedStructure)
+      }
+    }
+  })
+}
+
+function queueBuildingJobs(jobs: Dictionary<Job[]>) {
+  const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
+  // group construction sites by type?, the type could be utilized as id, might be deleted then by earlier logic
+  // road work, what priority is that? Low?
+  // extension, what priority is that? Medium
+  // container, what priority? HIGH
+  // walls ?
+  // priority is not that important when we do not sort jobs by priority.
+  // We wish to accomplish "enough" workers assigned to "all" construction jobs, we also wish workers to get assigned to the closest job
+  constructionSites.forEach(site => {
+    if (!jobs[site.id]) {
+      const job = new BuilderJob(site)
+      jobs[site.id] = [job]
+    }
+  })
+}
 
 function calculateAverageEnergy(room: Room) {
   const storageEnergy = room.storage ? room.storage.store[RESOURCE_ENERGY] : 0
