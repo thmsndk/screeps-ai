@@ -108,7 +108,7 @@ export class RoomScanner {
     sources.forEach(source => {
       const positions = getPositions(roomTerrain, source.pos)
 
-      if (room.memory.miningPositions) {
+      if (room.memory.miningPositions !== undefined) {
         room.memory.miningPositions += positions.length
       }
 
@@ -126,14 +126,11 @@ export class RoomScanner {
           distanceToSpawn = path.cost
         }
         sourceMemory = {
-          assignedCreepIds: [],
-          miningPositions: [],
-          distanceToSpawn
+          distanceToSpawn,
+          miningPositions: []
         } as ISourceMemory
         room.memory.sources[source.id] = sourceMemory
       }
-
-      sourceMemory.assignedCreepIds = _.filter(sourceMemory.assignedCreepIds, creepId => Game.getObjectById(creepId))
 
       sourceMemory.miningPositions = positions
     })

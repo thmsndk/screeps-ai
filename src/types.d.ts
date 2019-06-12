@@ -49,7 +49,6 @@ declare namespace NodeJS {
 
 interface ISourceMemory {
   miningPositions: IPosition[]
-  assignedCreepIds: string[]
   distanceToSpawn: number
 }
 

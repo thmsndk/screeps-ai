@@ -1,9 +1,10 @@
+import { CreepMutations } from "Hatchery"
 import { RoomScanner } from "./RoomScanner"
 import { BuilderJob } from "./jobs/BuilderJob"
 import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { collect_stats, add_stats_callback } from "_lib/screepsplus"
-import { Hatchery } from "Hatchery"
+import { Hatchery } from "./Hatchery"
 import { Job, JobPriority, JobType } from "jobs/Job"
 import { Dictionary } from "lodash"
 import { ErrorMapper } from "utils/ErrorMapper"
@@ -19,22 +20,24 @@ global.Profiler = init()
 
 // global.DEFCON = DEFCON
 
-add_stats_callback((stats: IStats) => {
-  if (stats) {
-    stats.jobs = Memory.jobs
+// add_stats_callback((stats: IStats) => {
+//   if (stats) {
+//     stats.jobs = Memory.jobs
 
-    // Memory.jobs.forEach(job => {
-    //   if (stats && stats.jobs && job.target) {
-    //     let jobTarget = stats.jobs[job.target]
-    //     if (!jobTarget) {
-    //       stats.jobs[job.target] = jobTarget = []
-    //     }
-    //     jobTarget.push(job)
-    //     // TODO: what about subjobs?
-    //   }
-    // })
-  }
-})
+//     // Memory.jobs.forEach(job => {
+//     //   if (stats && stats.jobs && job.target) {
+//     //     let jobTarget = stats.jobs[job.target]
+//     //     if (!jobTarget) {
+//     //       stats.jobs[job.target] = jobTarget = []
+//     //     }
+//     //     jobTarget.push(job)
+//     //     // TODO: what about subjobs?
+//     //   }
+//     // })
+//   }
+// })
+
+const roomScanner = new RoomScanner()
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -65,6 +68,33 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  // Processes / Directives
+  // RCL = 1
+  // A colony is defined by having one or more spawners? or RCL?
+  // Colony should have general purpose harvesters
+  for (const spawnName in Game.spawns) {
+    if (Game.spawns.hasOwnProperty(spawnName)) {
+      const spawn = Game.spawns[spawnName]
+      // TODO: only scan the room for static data once
+      roomScanner.scan(spawn.room)
+
+      // Determine mining positions, request missing harvesters
+      // TODO determine if it should be the cheapest harvesters?
+      const hatchery = new Hatchery(spawn)
+      // // How do we get number of assigned harvesters? - count creeps assigned to job
+      // hatchery.queue({
+      //   CreepMutations.HARVESTER,
+      //   target: this.target,
+      //   priority
+      // })
+
+      // should the job be responsible for requesting and assigning harvesters?
+      // should energy reservations have a priority?
+
+      hatchery.run()
+    }
+  }
+
   // TODO: how to handle memory after death? clear jobs? scrub parts of the memory?
   // TODO: if our energy income can not sustain  the amount of workers or upgraders we have, can we release them? what do they require to be "converted" to "bad versions" of haulers and miners? and when they are converted and we create a new spawn, can we release them again?
   // TODO: upgrader creeps gets released, but why do we have upgrader creeps? - render jobs somewwhere, with the amount of workers, color code and render a rectangle at job position
@@ -78,81 +108,81 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
 
-  // deseralize jobs
-  const jobs: Dictionary<Job[]> = deseralizeJobs()
+  // // deseralize jobs
+  // const jobs: Dictionary<Job[]> = deseralizeJobs()
 
-  queueFlagMissions()
+  // queueFlagMissions()
 
-  // What defines an energymission, that we have a spawn?
-  const energyMission = new EnergyMission(Game.spawns.Spawn1.room)
-  energyMission.run()
+  // // What defines an energymission, that we have a spawn?
+  // const energyMission = new EnergyMission(Game.spawns.Spawn1.room)
+  // energyMission.run()
 
-  for (const roomName in Memory.rooms) {
-    if (Memory.rooms.hasOwnProperty(roomName)) {
-      const room = Game.rooms[roomName]
-      const roomMemory = Memory.rooms[roomName]
+  // for (const roomName in Memory.rooms) {
+  //   if (Memory.rooms.hasOwnProperty(roomName)) {
+  //     const room = Game.rooms[roomName]
+  //     const roomMemory = Memory.rooms[roomName]
 
-      // room visible
-      if (room) {
-        calculateAverageEnergy(room)
+  //     // room visible
+  //     if (room) {
+  //       calculateAverageEnergy(room)
 
-        // const exitWalls = new RoomScanner().exitWalls(room)
+  //       // const exitWalls = new RoomScanner().exitWalls(room)
 
-        DEFCON.scan(room)
+  //       DEFCON.scan(room)
 
-        // if (roomMemory.energymission) {
-        //   const energyMission = new EnergyMission(room)
-        //   energyMission.run()
-        // }
-      }
+  //       // if (roomMemory.energymission) {
+  //       //   const energyMission = new EnergyMission(room)
+  //       //   energyMission.run()
+  //       // }
+  //     }
 
-      // room not visible
-      if (roomMemory.remoteEnergyMission) {
-        const remoteEnergyMission = new RemoteEnergyMission({
-          roomName,
-          memory: roomMemory.remoteEnergyMission
-        })
-        remoteEnergyMission.run()
-      }
-    }
-  }
+  //     // room not visible
+  //     if (roomMemory.remoteEnergyMission) {
+  //       const remoteEnergyMission = new RemoteEnergyMission({
+  //         roomName,
+  //         memory: roomMemory.remoteEnergyMission
+  //       })
+  //       remoteEnergyMission.run()
+  //     }
+  //   }
+  // }
 
-  // TODO: detect jobs
-  // MiningJob how to detect a job exists, search jobs for sourceId
-  // TODO:How do we prioritize the jobs?
+  // // TODO: detect jobs
+  // // MiningJob how to detect a job exists, search jobs for sourceId
+  // // TODO:How do we prioritize the jobs?
 
-  // queue upgradeController job, how to determine how many upgraders we want?
-  if (Game.spawns.Spawn1) {
-    queueUpgraderJobsForSpawn1(jobs)
+  // // queue upgradeController job, how to determine how many upgraders we want?
+  // if (Game.spawns.Spawn1) {
+  //   queueUpgraderJobsForSpawn1(jobs)
 
-    queueBuildingJobs(jobs)
+  //   queueBuildingJobs(jobs)
 
-    handleTowersAndQueueTowerHaulers(jobs)
+  //   handleTowersAndQueueTowerHaulers(jobs)
 
-    // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
+  //   // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
 
-    for (const target in jobs) {
-      if (jobs.hasOwnProperty(target)) {
-        const targetJobs = jobs[target]
-        targetJobs.forEach(job => {
-          job.run()
-        })
-      }
-    }
+  //   for (const target in jobs) {
+  //     if (jobs.hasOwnProperty(target)) {
+  //       const targetJobs = jobs[target]
+  //       targetJobs.forEach(job => {
+  //         job.run()
+  //       })
+  //     }
+  //   }
 
-    // seralize jobs
-    // Memory.jobs = jobs
+  //   // seralize jobs
+  //   // Memory.jobs = jobs
 
-    // Map Sources
+  //   // Map Sources
 
-    for (const spawnName in Game.spawns) {
-      if (Game.spawns.hasOwnProperty(spawnName)) {
-        const spawn = Game.spawns[spawnName]
-        const hatchery = new Hatchery(spawn)
-        hatchery.run()
-      }
-    }
-  }
+  //   for (const spawnName in Game.spawns) {
+  //     if (Game.spawns.hasOwnProperty(spawnName)) {
+  //       const spawn = Game.spawns[spawnName]
+  //       const hatchery = new Hatchery(spawn)
+  //       hatchery.run()
+  //     }
+  //   }
+  // }
 
   // How do I make sure collect stats resets room stats when I die?
 
