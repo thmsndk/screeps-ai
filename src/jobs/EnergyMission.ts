@@ -1,10 +1,8 @@
 import { Job, JobPriority } from "./Job"
-import { RoomScanner } from "RoomScanner"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { MiningJob } from "./MiningJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
 import { profile } from "_lib/Profiler"
-const roomScanner = new RoomScanner()
 
 /**
  * Responsible for mining in visible rooms
@@ -26,8 +24,26 @@ export class EnergyMission {
    * run
    */
   public run() {
-    // TODO: only run the static scan once per new room
-    roomScanner.scan(this.room)
+    if (!this.room) {
+      console.log("[Warning] room is not visible, skipping energy mission")
+      return
+    }
+
+    // TODO determine if it should be the cheapest harvesters?
+    // const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
+    // if (harvesters.length === 0) {
+    //   spendingCap = 300
+    // }
+
+    // should energy reservations have a priority? should we reserve energy for the spawn?
+    // hatchery.queue({
+    //   CreepMutations.HARVESTER,
+    //   target: this.target,
+    //   priority
+    // })
+
+    // TODO: We need to calculate our current energy consumption rate vs what energy harvest rate we need
+    // based on this calculation we should adjust how many harvesters we want and what spending cap they should have
 
     // generate mining jobs
     // prioritize mining jobs

@@ -78,22 +78,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
       // TODO: only scan the room for static data once
       roomScanner.scan(spawn.room)
 
-      // Determine mining positions, request missing harvesters
-      // TODO determine if it should be the cheapest harvesters?
       const hatchery = new Hatchery(spawn)
-      // // How do we get number of assigned harvesters? - count creeps assigned to job
-      // hatchery.queue({
-      //   CreepMutations.HARVESTER,
-      //   target: this.target,
-      //   priority
-      // })
-
-      // should the job be responsible for requesting and assigning harvesters?
-      // should energy reservations have a priority?
 
       hatchery.run()
+
+      // How do we determine what hatchery the mission should utilize? Thats a problem for RCL 7+
+      // TODO: energymission should only be run once per room
+      const energyMission = new EnergyMission(spawn.room)
+      energyMission.run()
     }
   }
+  // ramparts? walls? basebuilding directive?
 
   // TODO: how to handle memory after death? clear jobs? scrub parts of the memory?
   // TODO: if our energy income can not sustain  the amount of workers or upgraders we have, can we release them? what do they require to be "converted" to "bad versions" of haulers and miners? and when they are converted and we create a new spawn, can we release them again?
@@ -114,8 +109,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // queueFlagMissions()
 
   // // What defines an energymission, that we have a spawn?
-  // const energyMission = new EnergyMission(Game.spawns.Spawn1.room)
-  // energyMission.run()
 
   // for (const roomName in Memory.rooms) {
   //   if (Memory.rooms.hasOwnProperty(roomName)) {
