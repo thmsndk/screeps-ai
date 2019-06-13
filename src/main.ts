@@ -90,6 +90,28 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
   // ramparts? walls? basebuilding directive?
 
+  const jobs: Dictionary<Job[]> = deseralizeJobs()
+
+  // Visible rooms
+  for (const roomName in Game.rooms) {
+    if (Game.rooms.hasOwnProperty(roomName)) {
+      const room = Game.rooms[roomName]
+
+      if (room) {
+        queueUpgraderJob(room, jobs)
+      }
+    }
+  }
+
+  for (const target in jobs) {
+    if (jobs.hasOwnProperty(target)) {
+      const targetJobs = jobs[target]
+      targetJobs.forEach(job => {
+        job.run()
+      })
+    }
+  }
+
   // TODO: how to handle memory after death? clear jobs? scrub parts of the memory?
   // TODO: if our energy income can not sustain  the amount of workers or upgraders we have, can we release them? what do they require to be "converted" to "bad versions" of haulers and miners? and when they are converted and we create a new spawn, can we release them again?
   // TODO: upgrader creeps gets released, but why do we have upgrader creeps? - render jobs somewwhere, with the amount of workers, color code and render a rectangle at job position
@@ -104,7 +126,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // TODO: should we have jobs in each room? what about "general purpose" jobs?
 
   // // deseralize jobs
-  // const jobs: Dictionary<Job[]> = deseralizeJobs()
 
   // queueFlagMissions()
 
@@ -154,15 +175,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   //   // hatchery, should contain a list of requested creep types for jobs, but we also need to determine what hatchery should hatch it later
 
-  //   for (const target in jobs) {
-  //     if (jobs.hasOwnProperty(target)) {
-  //       const targetJobs = jobs[target]
-  //       targetJobs.forEach(job => {
-  //         job.run()
-  //       })
-  //     }
-  //   }
-
   //   // seralize jobs
   //   // Memory.jobs = jobs
 
@@ -207,8 +219,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 })
 
-function queueUpgraderJobsForSpawn1(jobs: Dictionary<Job[]>) {
-  const controller = Game.spawns.Spawn1.room.controller
+function queueUpgraderJob(room: Room, jobs: Dictionary<Job[]>) {
+  const controller = room.controller
   if (controller) {
     if (!jobs[controller.id]) {
       Memory.jobs[controller.id] = []
@@ -219,7 +231,7 @@ function queueUpgraderJobsForSpawn1(jobs: Dictionary<Job[]>) {
         creeps: [],
         priority: JobPriority.Low
       }
-      Memory.jobs[controller.id].push(jobMemory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+      Memory.jobs[controller.id].push(jobMemory)
       const job = new UpgradeControllerJob(controller, jobMemory)
       jobs[controller.id] = [job]
     }
