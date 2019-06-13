@@ -98,7 +98,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
       const room = Game.rooms[roomName]
 
       if (room) {
+        calculateAverageEnergy(room)
+
         queueUpgraderJob(room, jobs)
+
+        // const exitWalls = new RoomScanner().exitWalls(room)
+        DEFCON.scan(room)
       }
     }
   }
@@ -138,11 +143,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   //     // room visible
   //     if (room) {
-  //       calculateAverageEnergy(room)
-
-  //       // const exitWalls = new RoomScanner().exitWalls(room)
-
-  //       DEFCON.scan(room)
 
   //       // if (roomMemory.energymission) {
   //       //   const energyMission = new EnergyMission(room)
@@ -221,7 +221,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 function queueUpgraderJob(room: Room, jobs: Dictionary<Job[]>) {
   const controller = room.controller
-  if (controller) {
+  if (controller && controller.my) {
     if (!jobs[controller.id]) {
       Memory.jobs[controller.id] = []
       // having to construct the memory this way and then sending it in, to be able to push the memory, is sily

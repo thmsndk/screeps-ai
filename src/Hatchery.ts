@@ -115,13 +115,17 @@ export class Hatchery {
     }
 
     // RoomVisual
+    const averageEnergy = Math.floor(
+      this.Spawn.room ? (this.Spawn.room.memory.averageEnergy ? this.Spawn.room.memory.averageEnergy.average : 0) : 0
+    )
+
     if (this.Spawn && this.Spawn.spawning) {
       const spawningCreep = Game.creeps[this.Spawn.spawning.name]
       const progress = Math.floor(
         ((this.Spawn.spawning.needTime - this.Spawn.spawning.remainingTime) / this.Spawn.spawning.needTime) * 100
       )
       this.Spawn.room.visual.text(
-        `🛠️ ${spawningCreep.memory.cost} ${progress}%`,
+        `🛠️ ${spawningCreep.memory.cost} (${averageEnergy}) ${progress}%`,
         this.Spawn.pos.x + 1,
         this.Spawn.pos.y,
         { align: "left", opacity: 0.8 }
@@ -129,7 +133,7 @@ export class Hatchery {
     } else {
       const next = this.requests.length > 0 ? this.requests.peek() : null
       this.Spawn.room.visual.text(
-        `⚡ ${this.Spawn.room.energyAvailable} / ${this.Spawn.room.energyCapacityAvailable} => ${
+        `⚡ ${this.Spawn.room.energyAvailable} / ${this.Spawn.room.energyCapacityAvailable} (${averageEnergy}) => ${
           next ? next.mutation : "empty"
         }`,
         this.Spawn.pos.x + 1,

@@ -22,22 +22,30 @@ export class UpgradeControllerJob extends Job {
   }
 
   public run() {
-    const assignedCreeps = Object.keys(this.Creeps).length
+    const creeps = Object.values(this.Creeps)
+    const assignedCreeps = creeps.length
 
-    const positions = getPositions(new Room.Terrain(this.controller.room.name), this.controller.pos, 3)
+    // const positions = getPositions(new Room.Terrain(this.controller.room.name), this.controller.pos, 3)
 
-    // max potential upgrade positions is 22, so we need to be smart about filling them and how many upgraders we have
-    const maxCreeps = positions.length
+    // Whats the average energy consumption of 1 upgrader?
+    // Upgrades a controller for 1 energy unit per tick.
 
-    const progress = Math.floor((this.controller.progress / this.controller.progressTotal) * 100)
-    if (this.controller.room) {
-      this.controller.room.visual.text(
-        `${assignedCreeps} / ${maxCreeps} ⚡ ${progress}%`,
-        this.controller.pos.x,
-        this.controller.pos.y - 1,
-        { align: "center", opacity: 0.8 }
-      )
-    }
+    const averageEnergyUsage =
+      creeps.reduce(
+        (energyUsage, creep) =>
+          energyUsage +
+          creep.body.filter(part => part.type === WORK).length +
+          CARRY_CAPACITY * creep.body.filter(part => part.type === CARRY).length,
+        0
+      ) / assignedCreeps
+    const averageEnergy = this.controller.room
+      ? this.controller.room.memory.averageEnergy
+        ? this.controller.room.memory.averageEnergy.average
+        : 0
+      : 0
+    const maxCreeps = assignedCreeps + Math.floor(averageEnergy / (averageEnergyUsage || averageEnergy))
+
+    this.visualizeProgress(assignedCreeps, maxCreeps)
 
     // ? should we look at all available energy and calculate a percentage? - e.g containers, extensions and spawn
     let neededWorkers = maxCreeps - assignedCreeps
@@ -86,6 +94,18 @@ export class UpgradeControllerJob extends Job {
       //     released++
       // }
     })
+  }
+
+  private visualizeProgress(assignedCreeps: number, maxCreeps: number) {
+    const progress = Math.floor((this.controller.progress / this.controller.progressTotal) * 100)
+    if (this.controller.room) {
+      this.controller.room.visual.text(
+        `${assignedCreeps} / ${maxCreeps} ⚡ ${progress}%`,
+        this.controller.pos.x,
+        this.controller.pos.y - 1,
+        { align: "center", opacity: 0.8 }
+      )
+    }
   }
 }
 
