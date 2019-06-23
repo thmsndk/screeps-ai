@@ -54,7 +54,7 @@ export class UpgradeControllerJob extends Job {
     if (assignedCreeps < maxCreeps && energyPercentage > 0.25) {
       if (assignedCreeps === 0) {
         neededWorkers = 1
-        this.memory.priority = JobPriority.High
+        this.memory.priority = JobPriority.Medium
       } else {
         // if ((assignedCreeps / maxCreeps) >= 0.25 && this.memory.priority >= JobPriority.Medium) {
         this.memory.priority = JobPriority.Low

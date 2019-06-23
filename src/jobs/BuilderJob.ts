@@ -85,6 +85,7 @@ export class BuilderJob extends Job {
         creep.say("[Builder]  Job's done ")
 
         // TODO: delete job
+        // TODO: no buildings jobs left? return energy and recycle.
       }
       // disable builder release for now, untill we get a smart way to do it
       // if (energyPercentage && energyPercentage < 0.30) {
