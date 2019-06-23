@@ -166,7 +166,12 @@ export class Hatchery {
 
     let spendingCap
     let harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
-    if (harvesters.length === 0) {
+    if (
+      harvesters.length <=
+      (this.Spawn.room && this.Spawn.room.memory && this.Spawn.room.memory.miningPositions
+        ? this.Spawn.room.memory.miningPositions / 3
+        : 0)
+    ) {
       spendingCap = Math.max(this.Spawn.room.energyAvailable, 300)
     }
 
