@@ -121,40 +121,47 @@ class BuilderCreep {
         })
       }
     } else {
-      const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: structure => {
-          switch (structure.structureType) {
-            case STRUCTURE_CONTAINER:
-              const container = structure as StructureContainer
-              return _.sum(container.store) >= creep.carryCapacity
-            case STRUCTURE_EXTENSION:
-              const extension = structure as StructureExtension
-              return extension.energy >= creep.carryCapacity
-            case STRUCTURE_SPAWN:
-              const spawn = structure as StructureSpawn
-              return spawn.energy >= creep.carryCapacity
-            case STRUCTURE_TOWER:
-              const tower = structure as StructureTower
-              return tower.energy >= creep.carryCapacity
+      let resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+      if (resource) {
+        if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
+        }
+      } else {
+        const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+          filter: structure => {
+            switch (structure.structureType) {
+              case STRUCTURE_CONTAINER:
+                const container = structure as StructureContainer
+                return _.sum(container.store) >= creep.carryCapacity
+              case STRUCTURE_EXTENSION:
+                const extension = structure as StructureExtension
+                return extension.energy >= creep.carryCapacity
+              case STRUCTURE_SPAWN:
+                const spawn = structure as StructureSpawn
+                return spawn.energy >= creep.carryCapacity
+              case STRUCTURE_TOWER:
+                const tower = structure as StructureTower
+                return tower.energy >= creep.carryCapacity
+            }
+
+            return false
           }
+        })
 
-          return false
+        if (target) {
+          if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(target, { visualizePathStyle: PathStyle.Collection })
+          }
         }
-      })
-
-      if (target) {
-        if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target, { visualizePathStyle: PathStyle.Collection })
-        }
+        // do not fallback to mining
+        // else {
+        //     // creep.say('🔄 harvest');
+        //     let sources = creep.room.find(FIND_SOURCES);
+        //     if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+        //         creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+        //     }
+        // }
       }
-      // do not fallback to mining
-      // else {
-      //     // creep.say('🔄 harvest');
-      //     let sources = creep.room.find(FIND_SOURCES);
-      //     if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-      //         creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-      //     }
-      // }
     }
   }
 }
