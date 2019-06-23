@@ -1,10 +1,10 @@
-import { CreepMutations } from "Hatchery"
+import PriorityQueue from "ts-priority-queue"
 import { RoomScanner } from "./RoomScanner"
 import { BuilderJob } from "./jobs/BuilderJob"
 import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { collect_stats, add_stats_callback } from "_lib/screepsplus"
-import { Hatchery } from "./Hatchery"
+import { Hatchery, CreepMutations } from "./Hatchery"
 import { Job, JobPriority, JobType } from "jobs/Job"
 import { Dictionary } from "lodash"
 import { ErrorMapper } from "utils/ErrorMapper"
@@ -38,6 +38,8 @@ global.Profiler = init()
 // })
 
 const roomScanner = new RoomScanner()
+
+// https://github.com/bencbartlett/creep-tasks
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -108,6 +110,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  queueBuildingJobs(jobs)
+
   for (const target in jobs) {
     if (jobs.hasOwnProperty(target)) {
       const targetJobs = jobs[target]
@@ -168,8 +172,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // // queue upgradeController job, how to determine how many upgraders we want?
   // if (Game.spawns.Spawn1) {
   //   queueUpgraderJobsForSpawn1(jobs)
-
-  //   queueBuildingJobs(jobs)
 
   //   handleTowersAndQueueTowerHaulers(jobs)
 
@@ -270,21 +272,69 @@ function handleTowersAndQueueTowerHaulers(jobs: Dictionary<Job[]>) {
   })
 }
 
+const comparePriority = (a: BuilderJob, b: BuilderJob) => b.memory.priority - a.memory.priority
+
 function queueBuildingJobs(jobs: Dictionary<Job[]>) {
   const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
-  // group construction sites by type?, the type could be utilized as id, might be deleted then by earlier logic
+  // group construction sites by type?, the type could be utilized as id, might be deleted then by earlier logic that deletes jobs if target is not found
   // road work, what priority is that? Low?
   // extension, what priority is that? Medium
   // container, what priority? HIGH
   // walls ?
   // priority is not that important when we do not sort jobs by priority.
   // We wish to accomplish "enough" workers assigned to "all" construction jobs, we also wish workers to get assigned to the closest job
+
+  // how do we handle construction requests in other rooms?
+  // when do we spawn new creeps?
+
+  // Should workers both construct and repair stuff?
+  // should we calculate how long time it will take to construct stuff and assign workers based on that?
+  // should we mark a construction job with a tick we want it finished? and based on that a decision as to how many creeps should be requested?
+
+  // The problem with "queueing" building jobs, is that it's for detecting jobs I manually place.... they should be automated, then I don't have to queue them.
+  // We need a "Building Mission" it should be responsible of prioritizing jobs, determine if we need more builders for all the jobs, bigger builders and what order they should be done in
+
+  var constructionJobs: PriorityQueue<BuilderJob> = new PriorityQueue({ comparator: comparePriority })
+
   constructionSites.forEach(site => {
     if (!jobs[site.id]) {
       const job = new BuilderJob(site)
       jobs[site.id] = [job]
     }
+
+    constructionJobs.queue(jobs[site.id][0] as BuilderJob)
   })
+
+  if (constructionJobs.length > 0) {
+    const nextConstructionJob = constructionJobs.dequeue()
+    // TODO: sort constructionJobs by priority, take the first, we need a PriorityQueue
+    const maxCreeps = 5
+    const assignedCreeps = Object.keys(nextConstructionJob.Creeps).length
+
+    const energyPercentage = nextConstructionJob.constructionSite.room
+      ? nextConstructionJob.constructionSite.room.energyAvailable /
+        nextConstructionJob.constructionSite.room.energyCapacityAvailable
+      : null
+    if (assignedCreeps < maxCreeps && energyPercentage && energyPercentage > 0.25) {
+      if (assignedCreeps === 0) {
+        nextConstructionJob.memory.priority = JobPriority.High
+      }
+
+      nextConstructionJob.memory.priority = JobPriority.Medium
+
+      if (assignedCreeps / maxCreeps >= 0.25 && nextConstructionJob.memory.priority >= JobPriority.Medium) {
+        nextConstructionJob.memory.priority = JobPriority.Low
+      }
+
+      // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
+      // TODO: acquire free builders with energy close to build site, sort unemployed by priority
+      // TODO: should find closest builder to assign
+      let neededWorkers = maxCreeps - assignedCreeps
+      neededWorkers = nextConstructionJob.assign(neededWorkers, nextConstructionJob.memory, Role.builder)
+
+      nextConstructionJob.requestHatch(neededWorkers, CreepMutations.WORKER, nextConstructionJob.memory.priority)
+    }
+  }
 }
 
 function calculateAverageEnergy(room: Room) {

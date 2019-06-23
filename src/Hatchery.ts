@@ -10,6 +10,9 @@ import { profile } from "_lib/Profiler"
 // Do we have one global hatchery, or a hatchery per spawn? how do they coordinate? If we can have multiple spawns in a room, how do we handle that?
 
 // TODO: Hatchery is responsible for knowing all spawns, looking at energy available, where the creep is requested (distance?) it should request creeps for that location
+interface Priority {
+  priority: number
+}
 const comparePriority = (a: Priority, b: Priority) => b.priority - a.priority
 
 @profile

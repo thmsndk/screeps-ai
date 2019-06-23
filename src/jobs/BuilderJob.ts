@@ -22,7 +22,7 @@ export class BuilderJob extends Job {
         target: constructionSite.id,
         creeps: [],
         priority: JobPriority.Medium
-      } // TODO: move down into job, requires refactoring of other stuff
+      }
 
       if (!Memory.jobs[constructionSite.id]) {
         Memory.jobs[constructionSite.id] = []
@@ -73,31 +73,6 @@ export class BuilderJob extends Job {
           { align: "left", opacity: 0.8 }
         )
       }
-    }
-
-    const energyPercentage = this.constructionSite.room
-      ? this.constructionSite.room.energyAvailable / this.constructionSite.room.energyCapacityAvailable
-      : null
-    if (assignedCreeps < maxCreeps && energyPercentage && energyPercentage > 0.25) {
-      if (assignedCreeps === 0) {
-        this.memory.priority = JobPriority.High
-      }
-
-      this.memory.priority = JobPriority.Medium
-
-      if (assignedCreeps / maxCreeps >= 0.25 && this.memory.priority >= JobPriority.Medium) {
-        this.memory.priority = JobPriority.Low
-      }
-
-      // TODO: should the job be responsible for finding creeps to solve the task? I don't think so
-      // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
-      // TODO: acquire free builders with energy close to build site, sort unemployed by priority
-      // TODO: should find closest builder to assign
-      let neededWorkers = maxCreeps - assignedCreeps
-      neededWorkers = super.assign(neededWorkers, this.memory, Role.builder)
-
-      // we at max request 1 additional worker per builder job
-      super.requestHatch(1, CreepMutations.WORKER, this.memory.priority)
     }
 
     super.run(creep => {
