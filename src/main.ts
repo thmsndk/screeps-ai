@@ -62,7 +62,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name]
-      console.log("Clearing non-existing creep memory:", name)
+      // console.log("Clearing non-existing creep memory:", name)
     } else {
       if (!creep.role) {
         creep.role = Role.Larvae
