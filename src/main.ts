@@ -106,6 +106,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
         // const exitWalls = new RoomScanner().exitWalls(room)
         DEFCON.scan(room)
+
+        handleTowersAndQueueTowerHaulers(room, jobs)
       }
     }
   }
@@ -240,8 +242,8 @@ function queueUpgraderJob(room: Room, jobs: Dictionary<Job[]>) {
   }
 }
 
-function handleTowersAndQueueTowerHaulers(jobs: Dictionary<Job[]>) {
-  const towers = Game.spawns.Spawn1.room.find<StructureTower>(FIND_MY_STRUCTURES, {
+function handleTowersAndQueueTowerHaulers(room: Room, jobs: Dictionary<Job[]>) {
+  const towers = room.find<StructureTower>(FIND_MY_STRUCTURES, {
     filter: (structure: Structure) => structure.structureType === STRUCTURE_TOWER
   })
   towers.forEach(tower => {
