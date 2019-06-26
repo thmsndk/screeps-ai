@@ -123,6 +123,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  // Major issues
+  // Energy requests
+  //  upgraders should only pickup "available"/spare energy
+  //  our spawn mechanic spawns the biggest creature it can, so it will always "claim" all the energy to produce more upgraders, leaving no energy for them.
+  //  unless the requests are queue based and a hauler is responsible for delivering it, or the creep requesting the energy for that matter.
+  // Too specialized? (tasks?)
+  //  e.g. I want a hauler creep that hauls from miners and everywhere else if miners do not have resources
+
   // TODO: how to handle memory after death? clear jobs? scrub parts of the memory?
   // TODO: if our energy income can not sustain  the amount of workers or upgraders we have, can we release them? what do they require to be "converted" to "bad versions" of haulers and miners? and when they are converted and we create a new spawn, can we release them again?
   // TODO: upgrader creeps gets released, but why do we have upgrader creeps? - render jobs somewwhere, with the amount of workers, color code and render a rectangle at job position

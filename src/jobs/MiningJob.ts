@@ -116,29 +116,39 @@ class MiningCreep {
     } else {
       const haulers = Object.keys(job.haulingJob.Creeps)
 
-      // if (haulers.length > 0) {
-      //   creep.drop(RESOURCE_ENERGY)
-      // } else {
-      const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+      let nearbyContainer = job.source.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: structure => {
           switch (structure.structureType) {
             case STRUCTURE_CONTAINER:
               const container = structure as StructureContainer
               return _.sum(container.store) < container.storeCapacity && haulers.length > 0
-            case STRUCTURE_EXTENSION:
-              const extension = structure as StructureExtension
-              return extension.energy < extension.energyCapacity && haulers.length === 0
-            case STRUCTURE_SPAWN:
-              const spawn = structure as StructureSpawn
-              return spawn.energy < spawn.energyCapacity && haulers.length === 0
-            // case STRUCTURE_TOWER:
-            //   const tower = structure as StructureTower
-            //   return tower.energy < tower.energyCapacity && haulers.length === 0
           }
 
           return false
         }
       })
+
+      let target = nearbyContainer.length > 0 ? nearbyContainer[0] : null
+
+      if (!target) {
+        target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+          filter: structure => {
+            switch (structure.structureType) {
+              case STRUCTURE_EXTENSION:
+                const extension = structure as StructureExtension
+                return extension.energy < extension.energyCapacity && haulers.length === 0
+              case STRUCTURE_SPAWN:
+                const spawn = structure as StructureSpawn
+                return spawn.energy < spawn.energyCapacity && haulers.length === 0
+              // case STRUCTURE_TOWER:
+              //   const tower = structure as StructureTower
+              //   return tower.energy < tower.energyCapacity && haulers.length === 0
+            }
+
+            return false
+          }
+        })
+      }
 
       if (target) {
         if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
@@ -147,7 +157,6 @@ class MiningCreep {
       } else {
         creep.drop(RESOURCE_ENERGY)
       }
-      // }
     }
   }
 }
