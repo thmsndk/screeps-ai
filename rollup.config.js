@@ -21,7 +21,7 @@ export default {
     file: "dist/main.js",
     format: "cjs",
     sourcemap: true,
-    intro: "const __PROFILER_ENABLED__ = true;"
+    intro: `const __PROFILER_ENABLED__ = ${dest === "sim" ? "false" : "true"};`
   },
 
   plugins: [
