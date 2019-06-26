@@ -3,5 +3,6 @@ export enum Role {
   upgrader = "upgrader",
   builder = "builder",
   Larvae = "Larvae",
-  Worker = "Worker"
+  Worker = "Worker",
+  DEFENDER = "Defender"
 }

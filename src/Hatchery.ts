@@ -162,6 +162,9 @@ export class Hatchery {
       case CreepMutations.WORKER:
         role = Role.builder
         break
+      case CreepMutations.DEFENDER:
+        role = Role.DEFENDER
+        break
     }
 
     let spendingCap

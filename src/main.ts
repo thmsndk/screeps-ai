@@ -12,9 +12,10 @@ import { summarize_room } from "_lib/resources"
 import { Role } from "role/roles"
 import { HaulingJob } from "jobs/HaulingJob"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
-import DEFCON from "./DEFCON"
+import DEFCON, { DEFCONLEVEL } from "./DEFCON"
 import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
 import { init } from "./_lib/Profiler"
+import { PathStyle } from "jobs/MovementPathStyles"
 
 global.Profiler = init()
 
@@ -74,13 +75,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // RCL = 1
   // A colony is defined by having one or more spawners? or RCL?
   // Colony should have general purpose harvesters
+  let hatchery: Hatchery | undefined
   for (const spawnName in Game.spawns) {
     if (Game.spawns.hasOwnProperty(spawnName)) {
       const spawn = Game.spawns[spawnName]
       // TODO: only scan the room for static data once
       roomScanner.scan(spawn.room)
 
-      const hatchery = new Hatchery(spawn)
+      hatchery = new Hatchery(spawn)
 
       hatchery.run()
 
@@ -105,7 +107,31 @@ export const loop = ErrorMapper.wrapLoop(() => {
         queueUpgraderJob(room, jobs)
 
         // const exitWalls = new RoomScanner().exitWalls(room)
-        DEFCON.scan(room)
+        const scanResult = DEFCON.scan(room)
+
+        if (room.memory.DEFCON && hatchery) {
+          switch (room.memory.DEFCON.level) {
+            case DEFCONLEVEL.POSSIBLE_ATTACK:
+              const defenderRequests = hatchery.getRequests(room.name, CreepMutations.DEFENDER)
+              const currentDefenders = _.filter(Game.creeps, creep => creep.memory.role === Role.DEFENDER)
+              if (defenderRequests === 0 && currentDefenders.length === 0) {
+                hatchery.queue({
+                  mutation: CreepMutations.DEFENDER,
+                  target: room.name,
+                  priority: JobPriority.Medium + 5
+                })
+              }
+
+              currentDefenders.forEach(defender => {
+                const target = scanResult.attack.pop()
+                if (target && defender.rangedAttack(target) === ERR_NOT_IN_RANGE) {
+                  defender.moveTo(target, { visualizePathStyle: PathStyle.Attack })
+                }
+              })
+
+              break
+          }
+        }
 
         handleTowersAndQueueTowerHaulers(room, jobs)
       }
@@ -126,6 +152,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Major issues
   // Energy requests
   //  upgraders should only pickup "available"/spare energy
+  //    does this mean upgraders never pick up energy from extensions or spawn?
+  //    should upgraders only get energy from containers? should they request energy and a hauler brings it to them?
   //  our spawn mechanic spawns the biggest creature it can, so it will always "claim" all the energy to produce more upgraders, leaving no energy for them.
   //  unless the requests are queue based and a hauler is responsible for delivering it, or the creep requesting the energy for that matter.
   // Too specialized? (tasks?)

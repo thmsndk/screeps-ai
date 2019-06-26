@@ -16,7 +16,7 @@ export class DEFCON {
   /**
    * scan
    */
-  public scan(room: Room) {
+  public scan(room: Room): { attack: Creep[] } {
     const hostiles = room.find(FIND_HOSTILE_CREEPS)
     const possibleAttackers = hostiles.filter(
       c => c.getActiveBodyparts(ATTACK) > 0 || c.getActiveBodyparts(RANGED_ATTACK) > 0
@@ -38,6 +38,7 @@ export class DEFCON {
     }
 
     room.memory.DEFCON.level = level
+    return { attack: possibleAttackers }
   }
 }
 
