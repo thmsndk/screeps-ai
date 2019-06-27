@@ -20,18 +20,23 @@ export class HaulingJob extends Job {
     this.structure = target
 
     if (!memory) {
-      memory = {
-        type: JobType.Hauling,
-        target: target.id,
-        creeps: [],
-        priority: JobPriority.High
-      } // TODO: move down into job, requires refactoring of other stuff
-
       if (!Memory.jobs[target.id]) {
         Memory.jobs[target.id] = []
       }
+      const jobMemory = Memory.jobs[target.id]
 
-      Memory.jobs[target.id].push(memory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+      memory = _.find(jobMemory, { type: JobType.Hauling })
+
+      if (!memory) {
+        memory = {
+          type: JobType.Hauling,
+          target: target.id,
+          creeps: [],
+          priority: JobPriority.High
+        } // TODO: move down into job, requires refactoring of other stuff
+
+        Memory.jobs[target.id].push(memory) // "Seralize job" TODO: change structure to a dictionary per jobType and a list
+      }
     }
 
     this.memory = memory
@@ -70,15 +75,35 @@ export class HaulingJob extends Job {
   }
 }
 
+enum Mode {
+  collecting,
+  delivering
+}
+
 // tslint:disable-next-line: max-classes-per-file
 @profile
 class HaulingCreep {
   run(creep: Creep, structure: Structure) {
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
 
-    const collecting = creep.carry.energy < creep.carryCapacity
+    switch (creep.memory.mode) {
+      case Mode.collecting:
+        if (creep.carry.energy === creep.carryCapacity) {
+          creep.memory.mode = Mode.delivering
+        }
+        break
+      case Mode.delivering:
+        if (creep.carry.energy === 0) {
+          creep.memory.mode = Mode.collecting
+        }
+        break
 
-    if (collecting) {
+      default:
+        creep.memory.mode = Mode.collecting
+        break
+    }
+
+    if (creep.memory.mode === Mode.collecting) {
       // creep.say('🔄');
       // find dropped resources near mine, put into container
       // when no more dropped resources or container full, pull from container and move back to spawn

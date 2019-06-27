@@ -284,7 +284,7 @@ function handleTowersAndQueueTowerHaulers(room: Room, jobs: Dictionary<Job[]>) {
   })
   towers.forEach(tower => {
     // queue tower hauling jobs
-    if (!jobs[tower.id]) {
+    if (!jobs[tower.id] || jobs[tower.id].length === 0) {
       const job = new HaulingJob(tower)
       jobs[tower.id] = [job]
     }
@@ -490,6 +490,15 @@ function deseralizeJobs() {
               const creeps = deseralizeJobCreeps(seralizedJob)
 
               jobs[targetId].push(new BuilderJob(site, seralizedJob, creeps))
+            }
+            break
+          case JobType.Hauling:
+            // seralizedJob.priority = JobPriority.Medium // mokeypatched memory
+            const structure = target as Structure
+            if (structure) {
+              const creeps = deseralizeJobCreeps(seralizedJob)
+
+              jobs[targetId].push(new HaulingJob(structure, seralizedJob, creeps))
             }
             break
         }
