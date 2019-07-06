@@ -1,3 +1,17 @@
+Areas to work on:
+Creep tasks:
+We should be able to give a creep a task and it should do that task, 
+we should be able to chain tasks together, tasks should be prioritized, and possible to insert new tasks. 
+Should a task be able to disrupt a current task? 
+Room planning:
+We should automate room planning 
+Placing of extensions, roads
+Grafana:
+Gcl rcl estimate 
+Creep tasks
+
+
+
 ☐ Prioritize close resource nodes when assigning job priorty, also prefer close ones with more mining spots
 ☐ Spawn requests for jobs designated in a remote room
 ☐ handle case where we have no harvesters left and upgraders gather all the energy
