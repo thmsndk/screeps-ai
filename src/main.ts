@@ -16,7 +16,7 @@ import DEFCON, { DEFCONLEVEL } from "./DEFCON"
 import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
 import { init } from "./_lib/Profiler"
 import { PathStyle } from "jobs/MovementPathStyles"
-
+// import "./_lib/client-abuse/injectBirthday.js"
 global.Profiler = init()
 
 // global.DEFCON = DEFCON
@@ -45,6 +45,7 @@ const roomScanner = new RoomScanner()
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
+  // global.injectBirthday()
   // console.log(`Current game tick is ${Game.time}`);
 
   // https://screepers.gitbook.io/screeps-typescript-starter/in-depth/cookbook/environment-letiables

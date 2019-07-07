@@ -40,6 +40,7 @@ declare namespace NodeJS {
     log: any
     DEFCON: import("./DEFCON").DEFCON
     Profiler: Profiler //import("./_lib/Profiler/Profiler/typings").Profiler
+    injectBirthday: () => void
   }
 }
 

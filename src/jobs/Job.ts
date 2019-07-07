@@ -2,6 +2,7 @@ import { CreepMutations, Hatchery } from "Hatchery"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { profile } from "_lib/Profiler"
+import { emoji } from "_lib/emoji"
 
 @profile
 export class Job {
@@ -45,6 +46,7 @@ export class Job {
         if (run) {
           run(creep)
         }
+        // creep.say(emoji.bug)
       }
     }
   }
