@@ -1,9 +1,20 @@
+import "../constants"
+import { Game, Memory } from "./mock"
 import { Hatchery, CreepMutations } from "./../../src/Hatchery"
 import { assert } from "chai"
-import { Game, Memory } from "./mock"
 
 describe("hatchery", () => {
   before(() => {
+    // stub({
+    //   rooms: {
+    //     "TEST": {
+    //       controller: {
+    //         exists: true,
+    //         my: true
+    //       }
+    //     }
+    //   }
+    // })
     // runs before all test in this block
     Memory.spawns.Spawn1 = {
       requests: {
@@ -62,14 +73,14 @@ describe("hatchery", () => {
   })
 
   it("should process requests")
-  describe(
-    "mutation" /*, () => {
-    // Sadly I can't test this because the mocha environment can't find the screeps constants like CLAIM
-    it("should give basic worker", () => {
-      const hatchery = new Hatchery("Spawn1")
-      var mutation = hatchery.mutate("worker")
+  // describe(
+  //   "mutation" /*, () => {
+  //   // Sadly I can't test this because the mocha environment can't find the screeps constants like CLAIM
+  //   it("should give basic worker", () => {
+  //     const hatchery = new Hatchery("Spawn1")
+  //     var mutation = hatchery.mutate("worker")
 
-    });
-  }*/
-  )
+  //   });
+  // }*/
+  // )
 })

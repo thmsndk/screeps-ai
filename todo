@@ -1,58 +1,87 @@
-Areas to work on:
-Creep tasks:
-We should be able to give a creep a task and it should do that task, 
-we should be able to chain tasks together, tasks should be prioritized, and possible to insert new tasks. 
-Should a task be able to disrupt a current task? 
-Room planning:
-We should automate room planning 
-Placing of extensions, roads
-Grafana:
-Gcl rcl estimate 
-Creep tasks
-
-
-
-☐ Prioritize close resource nodes when assigning job priorty, also prefer close ones with more mining spots
-☐ Spawn requests for jobs designated in a remote room
-☐ handle case where we have no harvesters left and upgraders gather all the energy
-    ☐ upgraders should be paused when they have no energy and our current energy ratio does not support all the spawned
-    ☐ upgraders should not be requested if our energy gathering rate can't withstand the amount of harvesters, e.g. modify "maxCreeps" accordingly
-    ✔ upgraders should only get resources from dropped resources, containers and tombstones @started(19-05-31 11:42) @done(19-05-31 11:56) @lasted(14m31s)
-☐ There appear to be an issue with requesting too many harvesters, there should only be 8 in my current spawn, but there is 13
-☐ energy mining ratio? - when we make bigger creeps, does it make sense to have all creeps on resource node to mine, how do we optimize this?
-✔ initial spawn on official, everything is spawned as employed larvae @done(19-06-02 13:49)
-    helps to be on the correct branch
-☐ builders should find closest builder to assign
-☐ spawn placement, closest to sources with most spots, not too far away from other spots, calculate that with pathing, this could be a visual tool? when there is no spawn in the room?
-☐ builders should sacrifice / delete / whatever at spawn when there are no more construction jobs
-☐ should we spawn a hauler for a builder?
-
 Roadmap:
-    ☐ room intel
-        ☐ room intel visualizer
+    Theme:
+    Vikings? https://en.wikipedia.org/wiki/Vikings
+    Town  = spawn
+    Village = owned controller without spawn.
 
-Problems:
-    ☐ We have no harvesters assigned in a room that should have harvesters
-        A request for the cheapest harvester available should be made, set spendingcap to 300 or the max amount of energy we have
-        the request should contain a flag indicating "cheapest"
-        what about remote missions? what do they count as?
-    ☐ "Initial" phase ,when we have no energyflow, is slow
-        set spending cap based on available energy, and energyflow
-    ☐ Other Creeps are stealing energy used for spawning
-        upgraders and builders are stealing all the spawn / extension energy
-        We could reserve energy
-    ☐ We are spawning too many builders
-        We are spawning 1 builder per construction site
-        We should be able to adjust a "building mission" depending on how fast we want it done
-        We should request N workers for the mission, someone should decide if that means spawning a creep
-            or waiting on existing builders to be available
-    ☐ We are spawning too many upgraders
-        We need a way to calculate how many upgraders we can actually sustain with our current energy income.
-    ☐ Jobs "stops" when their  target is not visible
-        We need to implement the logic in such a way that creeps assigned to a job in a non visible place can still move to the target
-    ☐ Creeps go to the same node to collect energy
-        We need to "reserve" energy and take that into consideration when finding a target to collect energy from
-        A further development of this could be when wanting to delivery energy, take into consideration when they would arrive, compared to the creep wanting to delivery energy.
-    ☐ Idle creeps?
-    ☐ Creeps recalculate their target/mission every tick
-        e.g. upgraders travel back and forth between dropped resources due to it being picked up and then going for anotther
+    Task Decision:
+        We need missions / directives or something that is responsible for determining needed tasks
+        we then need to assign theese tasks to creeps, but how do we know if a creep has this task?
+        and if there are no creeps with this task, should we request spawning a creep born with this task?
+        if we assign creeps to a task and the task is aware of assigned creeps,
+            what do we do when the creep dies, or the task is removed from the creep?
+        we want to acquire a creep suitability score for the task and choose a creep based on this.
+            idle creep?
+            body parts? (build power, repair power, deconstruct power, ranged power, melee power, healpower, ranged heal power)
+            boosts?
+    Creep tasks:
+        We should be able to give a creep a task and it should do that task,
+        we should be able to chain tasks together, tasks should be prioritized, and possible to insert new tasks.
+        Should a task be able to disrupt a current task?
+        Should a task be able to be done simultaniously e.g. pulling a creep (static miner) while navigating to a position (source hauler)
+        once this is accomplished, we can have a GenericCreep.run() that executes the tasks assigned to the creep
+        should a creep deny a task if it does not have the correct body parts to accomplish it? - no reason to check that in the creep,
+        when finding a creep for a task, the one finding the creep should take that into consideration
+        what about tasks with no target? or multiple targets? - is that even a thing?
+    Room planning:
+        We should automate room planning
+        Placing of extensions, roads
+        https://github.com/screepers/RoomVisual
+    Invader Defence:
+        figure out how to defend against invaders, with and without towers
+    Grafana:
+        Gcl rcl estimate
+        Creep tasks
+    Room Intel:
+        ☐ scouts
+        ☐ tie roomintel into roomplanning
+            e.g. amount of source nodes, mining spots, max energy / t while not emptying source nodes too fast
+        ☐ room intel
+            ☐ room intel visualizer
+
+
+
+    ☐ Prioritize close resource nodes when assigning job priorty, also prefer close ones with more mining spots
+    ☐ Spawn requests for jobs designated in a remote room
+    ☐ handle case where we have no harvesters left and upgraders gather all the energy
+        ☐ upgraders should be paused when they have no energy and our current energy ratio does not support all the spawned
+        ☐ upgraders should not be requested if our energy gathering rate can't withstand the amount of harvesters, e.g. modify "maxCreeps" accordingly
+        ✔ upgraders should only get resources from dropped resources, containers and tombstones @started(19-05-31 11:42) @done(19-05-31 11:56) @lasted(14m31s)
+    ☐ There appear to be an issue with requesting too many harvesters, there should only be 8 in my current spawn, but there is 13
+    ☐ energy mining ratio? - when we make bigger creeps, does it make sense to have all creeps on resource node to mine, how do we optimize this?
+    ✔ initial spawn on official, everything is spawned as employed larvae @done(19-06-02 13:49)
+        helps to be on the correct branch
+    ☐ builders should find closest builder to assign
+    ☐ spawn placement, closest to sources with most spots, not too far away from other spots, calculate that with pathing, this could be a visual tool? when there is no spawn in the room?
+    ☐ builders should sacrifice / delete / whatever at spawn when there are no more construction jobs
+    ☐ should we spawn a hauler for a builder?
+
+    Problems:
+        ☐ We have no harvesters assigned in a room that should have harvesters
+            A request for the cheapest harvester available should be made, set spendingcap to 300 or the max amount of energy we have
+            the request should contain a flag indicating "cheapest"
+            what about remote missions? what do they count as?
+        ☐ "Initial" phase ,when we have no energyflow, is slow
+            set spending cap based on available energy, and energyflow
+        ☐ Other Creeps are stealing energy used for spawning
+            upgraders and builders are stealing all the spawn / extension energy
+            We could reserve energy
+        ☐ We are spawning too many builders
+            We are spawning 1 builder per construction site
+            We should be able to adjust a "building mission" depending on how fast we want it done
+            We should request N workers for the mission, someone should decide if that means spawning a creep
+                or waiting on existing builders to be available
+        ☐ We are spawning too many upgraders
+            We need a way to calculate how many upgraders we can actually sustain with our current energy income.
+        ☐ Jobs "stops" when their  target is not visible
+            We need to implement the logic in such a way that creeps assigned to a job in a non visible place can still move to the target
+        ☐ Creeps go to the same node to collect energy
+            We need to "reserve" energy and take that into consideration when finding a target to collect energy from
+            A further development of this could be when wanting to delivery energy, take into consideration when they would arrive, compared to the creep wanting to delivery energy.
+        ☐ Idle creeps?
+        ☐ Creeps recalculate their target/mission every tick
+            e.g. upgraders travel back and forth between dropped resources due to it being picked up and then going for anotther
+        ☐ Recovery Mode is too slow
+            After a room wipe the initial harvester is created "fast" e.g. 300 energy.
+            but everything following that goes to as many parts as possible, and that takes forever.
+            We need to determine how long we are in recoverymode.

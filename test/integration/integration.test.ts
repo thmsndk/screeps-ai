@@ -1,3 +1,5 @@
+import "../constants"
+import { Hatchery, CreepMutations } from "./../../src/Hatchery"
 import { assert } from "chai"
 import { helper } from "./helper"
 
@@ -31,16 +33,13 @@ describe("main", () => {
     assert.equal(memory.foo, "bar")
   })
 
-  it("should process requests", () => {
-    describe(
-      "mutation" /*, () => {
-      // Sadly I can't test this because the mocha environment can't find the screeps constants like CLAIM
-      it("should give basic worker", () => {
-        const hatchery = new Hatchery("Spawn1")
-        var mutation = hatchery.mutate("worker")
-
-      });
-    }*/
-    )
-  })
+  // it("should process requests", () => {
+  //   describe("mutation", () => {
+  //     // Sadly I can't test this because the mocha environment can't find the screeps constants like CLAIM
+  //     it("should give basic worker", () => {
+  //       const hatchery = new Hatchery("Spawn1")
+  //       var mutation = hatchery.mutate("worker")
+  //     })
+  //   })
+  // })
 })
