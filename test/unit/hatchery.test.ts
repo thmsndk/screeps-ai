@@ -37,7 +37,7 @@ describe("hatchery", () => {
     global.Memory = _.clone(Memory)
   })
 
-  it("should import spawn requests ", () => {
+  it("should import spawn requests from memory", () => {
     const hatchery = new Hatchery("Spawn1")
     assert.equal(hatchery.getRequests("test", CreepMutations.UPGRADER), 1)
     assert.equal(hatchery.getRequests("test", CreepMutations.HAULER), 1)

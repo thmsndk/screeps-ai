@@ -63,7 +63,6 @@
     "mocha-pretty-spec-reporter": "0.1.0-beta.2"
   },
   "dependencies": {
-    "screeps-fns": "0.0.6",
     "screeps-server-mockup": "^1.4.3",
     "source-map": "~0.6.1",
     "ts-priority-queue": "^0.1.1"

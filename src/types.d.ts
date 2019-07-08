@@ -32,6 +32,7 @@ interface Memory {
   BUILD_TIME: number
   stats: IStats
   jobs: import("lodash").Dictionary<IMemoryJob[]>
+  foo: any
 }
 
 // `global` extension samples

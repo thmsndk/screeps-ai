@@ -1,3 +1,5 @@
+// https://github.com/Arcath/screeps-fns/blob/b5cd5bc/src/stub/constants.ts#L6
+
 /* tslint:disable:object-literal-sort-keys */
 
 /**
