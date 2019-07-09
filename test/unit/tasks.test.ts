@@ -50,8 +50,6 @@ describe("tasks", () => {
       }
     }
 
-    console.log("instance", creep.task)
-
     const task = creep.task
     assert.isNotNull(task)
     if (task && creep.memory.task) {

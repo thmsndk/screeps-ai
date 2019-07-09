@@ -1,7 +1,6 @@
 // Universal reference properties
 
 export function deref(ref: string): RoomObject | null {
-  console.log("Game", Game)
   // dereference any object from identifier; see ref in RoomObjects
   return Game.getObjectById(ref) || Game.flags[ref] || Game.creeps[ref] || Game.spawns[ref] || null
 }
