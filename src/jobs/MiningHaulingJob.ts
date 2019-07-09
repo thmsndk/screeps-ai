@@ -1,10 +1,10 @@
 import { emoji } from "_lib/emoji"
+import { profile } from "_lib/Profiler"
+import { CreepMutations } from "Hatchery"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
-import { CreepMutations } from "Hatchery"
-import { profile } from "_lib/Profiler"
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners
@@ -72,7 +72,7 @@ enum Mode {
 // tslint:disable-next-line: max-classes-per-file
 @profile
 class HaulingCreep {
-  run(job: MiningHaulingJob, creep: Creep, source: Source) {
+  public run(job: MiningHaulingJob, creep: Creep, source: Source) {
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
 
     switch (creep.memory.mode) {
@@ -99,7 +99,7 @@ class HaulingCreep {
       // first iteration we just pull from container and move to spawn & extensions, makes the initial spawn kinda broken though, cause I won't have containers as fast
       // we also need to make sure it does not pickup resources from a container, and then puts them back in, getting stuck, we could persist target in memory
       // const droppedResource
-      let resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
+      const resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
       if (resource) {
         if (resource && creep.pickup(resource[0]) === ERR_NOT_IN_RANGE) {
           creep.moveTo(resource[0], { visualizePathStyle: PathStyle.Hauling })
@@ -149,7 +149,7 @@ class HaulingCreep {
       })
 
       if (target && creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        var result = creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit })
+        const result = creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit })
         switch (result) {
           case OK:
             break

@@ -24,7 +24,7 @@ export class DEFCON {
     let level = DEFCONLEVEL.NONE
     if (!room.memory.DEFCON) {
       room.memory.DEFCON = {
-        level: level
+        level
         // hostiles: 0
       }
     }

@@ -1,21 +1,21 @@
+import { summarize_room } from "_lib/resources"
+import { add_stats_callback, collect_stats } from "_lib/screepsplus"
+import { HaulingJob } from "jobs/HaulingJob"
+import { Job, JobPriority, JobType } from "jobs/Job"
+import { PathStyle } from "jobs/MovementPathStyles"
+import { Dictionary } from "lodash"
+import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
+import { Role } from "role/roles"
 import PriorityQueue from "ts-priority-queue"
-import { RoomScanner } from "./RoomScanner"
+import { ErrorMapper } from "utils/ErrorMapper"
+import { deseralizeJobCreeps } from "utils/MemoryUtil"
+import { init } from "./_lib/Profiler"
+import DEFCON, { DEFCONLEVEL } from "./DEFCON"
+import { CreepMutations, Hatchery } from "./Hatchery"
 import { BuilderJob } from "./jobs/BuilderJob"
 import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
-import { collect_stats, add_stats_callback } from "_lib/screepsplus"
-import { Hatchery, CreepMutations } from "./Hatchery"
-import { Job, JobPriority, JobType } from "jobs/Job"
-import { Dictionary } from "lodash"
-import { ErrorMapper } from "utils/ErrorMapper"
-import { summarize_room } from "_lib/resources"
-import { Role } from "role/roles"
-import { HaulingJob } from "jobs/HaulingJob"
-import { deseralizeJobCreeps } from "utils/MemoryUtil"
-import DEFCON, { DEFCONLEVEL } from "./DEFCON"
-import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
-import { init } from "./_lib/Profiler"
-import { PathStyle } from "jobs/MovementPathStyles"
+import { RoomScanner } from "./RoomScanner"
 // import "./_lib/client-abuse/injectBirthday.js"
 global.Profiler = init()
 
@@ -235,7 +235,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   collect_stats()
 
   if (Game.spawns.Spawn1) {
-    let spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
+    const spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
     let y = 25
     if (spawn1Stats) {
       // Game.spawns.Spawn1.room.visual.text(
@@ -333,7 +333,7 @@ function queueBuildingJobs(jobs: Dictionary<Job[]>) {
   // The problem with "queueing" building jobs, is that it's for detecting jobs I manually place.... they should be automated, then I don't have to queue them.
   // We need a "Building Mission" it should be responsible of prioritizing jobs, determine if we need more builders for all the jobs, bigger builders and what order they should be done in
 
-  var constructionJobs: PriorityQueue<BuilderJob> = new PriorityQueue({ comparator: comparePriority })
+  const constructionJobs: PriorityQueue<BuilderJob> = new PriorityQueue({ comparator: comparePriority })
 
   constructionSites.forEach(site => {
     if (!jobs[site.id]) {

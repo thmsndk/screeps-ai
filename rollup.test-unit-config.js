@@ -7,6 +7,7 @@ import typescript from "rollup-plugin-typescript2"
 import buble from "rollup-plugin-buble"
 import multiEntry from "rollup-plugin-multi-entry"
 import replace from "rollup-plugin-replace"
+import builtins from "rollup-plugin-node-builtins"
 
 export default {
   input: "test/unit/**/*.test.ts",
@@ -36,7 +37,8 @@ export default {
     resolve(),
     commonjs(),
     typescript({ tsconfig: "./tsconfig.json" }),
-    multiEntry()
+    multiEntry(),
     // buble()
+    builtins()
   ]
 }

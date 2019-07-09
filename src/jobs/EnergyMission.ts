@@ -1,8 +1,8 @@
+import { profile } from "_lib/Profiler"
+import { deseralizeJobCreeps } from "utils/MemoryUtil"
 import { Job, JobPriority } from "./Job"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { MiningJob } from "./MiningJob"
-import { deseralizeJobCreeps } from "utils/MemoryUtil"
-import { profile } from "_lib/Profiler"
 
 /**
  * Responsible for mining in visible rooms

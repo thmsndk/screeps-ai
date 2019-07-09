@@ -1,4 +1,3 @@
-// memory extension samples
 interface CreepMemory {
   mode?: number
   cost: number
@@ -15,7 +14,7 @@ interface RoomMemory {
   sources?: import("lodash").Dictionary<ISourceMemory>
   miningPositions?: number
   energymission?: IEnergyMission
-  DEFCON?: import("./DEFCON").IMemoryDefcon
+  DEFCON?: import("../DEFCON").IMemoryDefcon
   // missions: IMissionMemory[]
   remoteEnergyMission?: IRemoteEnergyMissionMemory
   averageEnergy?: { points: number; average: number; spawn: number }
@@ -35,20 +34,6 @@ interface Memory {
   foo: any
 }
 
-// `global` extension samples
-declare namespace NodeJS {
-  interface Global {
-    log: any
-    DEFCON: import("./DEFCON").DEFCON
-    Profiler: Profiler //import("./_lib/Profiler/Profiler/typings").Profiler
-    injectBirthday: () => void
-  }
-}
-
-// declare global {
-
-// } // TODO: in use / unused mining position?
-
 interface ISourceMemory {
   miningPositions: IPosition[]
   distanceToSpawn: number
@@ -63,45 +48,6 @@ interface IRemoteEnergyMissionMemory extends IEnergyMission {
   sourceFlags?: string[]
 }
 
-interface IPosition {
-  /**
-   * X position in the room.
-   */
-  x: number
-  /**
-   * Y position in the room.
-   */
-  y: number
-}
-
-// TODO: extract out interfaces
-interface CPUExtended extends CPU {
-  used: number
-}
-// tslint:disable-next-line: interface-name
-interface IStats {
-  tick?: number
-  cpu?: CPUExtended
-  gcl?: GlobalControlLevel
-  memory?: {
-    used: number
-    // Other memory stats here?
-  }
-  market?: {
-    credits: number
-    num_orders: number
-  }
-  roomSummary?: {}
-  jobs: import("lodash").Dictionary<IMemoryJob[]>
-}
-
-type JobTypes = JobTypeMining | JobTypeUpgradeController | JobTypeHauling | JobTypeBuilding
-type JobTypeMining = 1
-type JobTypeUpgradeController = 2
-type JobTypeHauling = 3
-type JobTypeBuilding = 4
-
-// tslint:disable-next-line: interface-name
 interface IMemoryJob {
   type: JobTypes
   missionPriority?: number

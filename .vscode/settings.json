@@ -19,5 +19,13 @@
   },
   "[typescript]": {
     "editor.formatOnSave": true
-  }
+  },
+  "mocha.requires": [
+    "ts-node/register",
+    "babel-register"
+  ],
+  "mocha.files.glob": "test/**/*.ts",
+  "mocha.showInExplorer": true,
+  "prettier.eslintIntegration": true,
+  "eslint.autoFixOnSave": true
 }

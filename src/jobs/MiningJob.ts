@@ -1,12 +1,12 @@
-import { CreepMutations } from "./../Hatchery"
-import { PathStyle } from "./MovementPathStyles"
-import { Dictionary } from "lodash"
-import { Job, JobPriority, JobType } from "./Job"
-import { Role } from "role/roles"
 import { emoji } from "_lib/emoji"
-import { MiningHaulingJob } from "./MiningHaulingJob"
-import { DEFCONLEVEL } from "DEFCON"
 import { profile } from "_lib/Profiler"
+import { DEFCONLEVEL } from "DEFCON"
+import { Dictionary } from "lodash"
+import { Role } from "role/roles"
+import { CreepMutations } from "./../Hatchery"
+import { Job, JobPriority, JobType } from "./Job"
+import { MiningHaulingJob } from "./MiningHaulingJob"
+import { PathStyle } from "./MovementPathStyles"
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
@@ -88,7 +88,7 @@ export class MiningJob extends Job {
 // tslint:disable-next-line: max-classes-per-file
 @profile
 class MiningCreep {
-  run(job: MiningJob, creep: Creep, source: Source) {
+  public run(job: MiningJob, creep: Creep, source: Source) {
     // We should not abandon returning with resources
     if (creep.room.memory.DEFCON && creep.room.memory.DEFCON.level > DEFCONLEVEL.NONE) {
       // stay 3 fields away from from enemy
@@ -116,7 +116,7 @@ class MiningCreep {
     } else {
       const haulers = Object.keys(job.haulingJob.Creeps)
 
-      let nearbyContainer = job.source.pos.findInRange(FIND_STRUCTURES, 2, {
+      const nearbyContainer = job.source.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: structure => {
           switch (structure.structureType) {
             case STRUCTURE_CONTAINER:

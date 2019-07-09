@@ -8,7 +8,7 @@ export const Game = {
 }
 
 export const Memory = {
-  creeps: [],
+  creeps: {} as Dictionary<Creep>,
   spawns: {} as Dictionary<SpawnMemory>,
   profiler: {}
 }

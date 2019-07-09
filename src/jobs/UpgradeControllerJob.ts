@@ -1,11 +1,11 @@
-import { CreepMutations } from "./../Hatchery"
-import { PathStyle } from "./MovementPathStyles"
-import { Dictionary } from "lodash"
-import { Job, JobPriority, JobType } from "./Job"
-import { Role } from "role/roles"
 import { emoji } from "_lib/emoji"
-import { getPositions } from "RoomScanner"
 import { profile } from "_lib/Profiler"
+import { Dictionary } from "lodash"
+import { Role } from "role/roles"
+import { getPositions } from "RoomScanner"
+import { CreepMutations } from "./../Hatchery"
+import { Job, JobPriority, JobType } from "./Job"
+import { PathStyle } from "./MovementPathStyles"
 
 @profile
 export class UpgradeControllerJob extends Job {
@@ -112,7 +112,7 @@ export class UpgradeControllerJob extends Job {
 // tslint:disable-next-line: max-classes-per-file
 @profile
 class UpgradeControllerCreep {
-  run(controller: StructureController, creep: Creep) {
+  public run(controller: StructureController, creep: Creep) {
     // TODO: General upgrade logic should perhaps exist in a base class?
     if (creep.memory.upgrading && creep.carry.energy === 0) {
       creep.memory.upgrading = false
@@ -138,13 +138,13 @@ class UpgradeControllerCreep {
       //     creep.moveTo(tombstone, { visualizePathStyle: PathStyle.Hauling })
       //   }
       // } else {
-      let resource = controller.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+      const resource = controller.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
       if (resource) {
         if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
           creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
         }
       } else {
-        var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
           filter: structure => {
             switch (structure.structureType) {
               case STRUCTURE_CONTAINER:

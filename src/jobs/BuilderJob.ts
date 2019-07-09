@@ -1,10 +1,10 @@
-import { CreepMutations } from "./../Hatchery"
-import { PathStyle } from "./MovementPathStyles"
-import { Dictionary } from "lodash"
-import { Job, JobPriority, JobType } from "./Job"
-import { Role } from "role/roles"
 import { emoji } from "_lib/emoji"
 import { profile } from "_lib/Profiler"
+import { Dictionary } from "lodash"
+import { Role } from "role/roles"
+import { CreepMutations } from "./../Hatchery"
+import { Job, JobPriority, JobType } from "./Job"
+import { PathStyle } from "./MovementPathStyles"
 
 // TODO: What if the target is removed? clean up job and release builders?
 
@@ -53,7 +53,7 @@ export class BuilderJob extends Job {
 
     const progress = Math.floor((this.constructionSite.progress / this.constructionSite.progressTotal) * 100)
     if (this.constructionSite.room) {
-      let visualize = assignedCreeps > 0
+      const visualize = assignedCreeps > 0
 
       // if (assignedCreeps === 0) {
       // visualize = false
@@ -102,7 +102,7 @@ export class BuilderJob extends Job {
 // tslint:disable-next-line: max-classes-per-file
 @profile
 class BuilderCreep {
-  run(constructionSite: ConstructionSite, creep: Creep) {
+  public run(constructionSite: ConstructionSite, creep: Creep) {
     // TODO:
     if (creep.memory.building && creep.carry.energy === 0) {
       creep.memory.building = false
@@ -122,7 +122,7 @@ class BuilderCreep {
         })
       }
     } else {
-      let resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+      const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
       if (resource) {
         if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
           creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })

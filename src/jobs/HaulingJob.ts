@@ -1,9 +1,9 @@
+import { profile } from "_lib/Profiler"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { CreepMutations } from "./../Hatchery"
 import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
-import { profile } from "_lib/Profiler"
 
 /**
  * This is a generic purpose hauling job, it can haul to a target
@@ -83,7 +83,7 @@ enum Mode {
 // tslint:disable-next-line: max-classes-per-file
 @profile
 class HaulingCreep {
-  run(creep: Creep, structure: Structure) {
+  public run(creep: Creep, structure: Structure) {
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
 
     switch (creep.memory.mode) {
@@ -110,7 +110,7 @@ class HaulingCreep {
       // first iteration we just pull from container and move to spawn & extensions, makes the initial spawn kinda broken though, cause I won't have containers as fast
       // we also need to make sure it does not pickup resources from a container, and then puts them back in, getting stuck, we could persist target in memory
       // const droppedResource
-      let resource = structure.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+      const resource = structure.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
       if (resource) {
         if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
           creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })

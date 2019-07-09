@@ -1,9 +1,8 @@
-import { Larvae } from "./Larvae"
-import { MemoryHatchRequest } from "./Hatchery"
-import PriorityQueue from "ts-priority-queue"
-import { Role } from "role/roles"
-import { Dictionary } from "lodash"
 import { profile } from "_lib/Profiler"
+import { Dictionary } from "lodash"
+import { Role } from "role/roles"
+import PriorityQueue from "ts-priority-queue"
+import { MemoryHatchRequest } from "./Hatchery"
 
 // Hatchery"Job"?
 // We need a list of hatcheries accessable by ?? roomName? what if there are multiple hatcheries in a room
@@ -107,7 +106,7 @@ export class Hatchery {
   public run() {
     // TODO: cancelation of in progress spawn if next order is a HIGH priority order?
 
-    let spawning = !!this.Spawn.spawning // code runs so fast that spawncreep does not update spawning in this tick?
+    const spawning = !!this.Spawn.spawning // code runs so fast that spawncreep does not update spawning in this tick?
     // const maxPopulation = 45
     // const population = Object.keys(Game.creeps).length
     if (!spawning /*&& population < maxPopulation*/) {
@@ -168,7 +167,7 @@ export class Hatchery {
     }
 
     let spendingCap
-    let harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
+    const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
     if (
       harvesters.length <=
       (this.Spawn.room && this.Spawn.room.memory && this.Spawn.room.memory.miningPositions
@@ -216,7 +215,7 @@ export class Hatchery {
 
     // how much energy do we have? how much can we mutate?
 
-    let cost = bodyCost(body)
+    const cost = bodyCost(body)
 
     const extension = bodyExtensions[mutation]
     const extensionCost = bodyCost(extension)

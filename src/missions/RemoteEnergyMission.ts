@@ -1,12 +1,12 @@
+import { profile } from "_lib/Profiler"
+import { CreepMutations, Hatchery } from "Hatchery"
 import { JobPriority } from "jobs/Job"
-import { Mission } from "./Mission"
-import { getPositions, RoomScanner } from "RoomScanner"
-import { Hatchery, CreepMutations } from "Hatchery"
 import { MiningHaulingJob } from "jobs/MiningHaulingJob"
 import { MiningJob } from "jobs/MiningJob"
 import { Dictionary } from "lodash"
+import { getPositions, RoomScanner } from "RoomScanner"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
-import { profile } from "_lib/Profiler"
+import { Mission } from "./Mission"
 
 /**
  * Remote Energy mission

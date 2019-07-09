@@ -1,8 +1,8 @@
+import { emoji } from "_lib/emoji"
+import { profile } from "_lib/Profiler"
 import { CreepMutations, Hatchery } from "Hatchery"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
-import { profile } from "_lib/Profiler"
-import { emoji } from "_lib/emoji"
 
 @profile
 export class Job {
@@ -112,10 +112,10 @@ export class Job {
 }
 
 export enum JobType {
-  Mining = 1, //as JobTypeMining
-  UpgradeController = 2, //as JobTypeUpgradeController
-  Hauling = 3, //as JobTypeHauling
-  Building = 4 //as JobTypeBuilding
+  Mining = 1, // as JobTypeMining
+  UpgradeController = 2, // as JobTypeUpgradeController
+  Hauling = 3, // as JobTypeHauling
+  Building = 4 // as JobTypeBuilding
 }
 
 export const JobPriority = {
