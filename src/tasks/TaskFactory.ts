@@ -1,6 +1,6 @@
 import { Task } from "./Task"
 import { deref } from "./utilities"
-class DummyTask extends Task {
+export class DummyTask extends Task {
   public static taskName = "dummy"
   public target: any
 

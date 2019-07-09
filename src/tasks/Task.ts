@@ -81,14 +81,14 @@ export abstract class Task implements ITask {
     }
   }
 
-  set memory(protoTask: TaskMemory) {
+  set memory(memory: TaskMemory) {
     // Don't write to this.name; used in task switcher
-    this._creep = protoTask._creep
-    this._target = protoTask._target
-    this._parent = protoTask._parent
-    this.options = protoTask.options
-    this.data = protoTask.data
-    this.tick = protoTask.tick
+    this._creep = memory._creep
+    this._target = memory._target
+    this._parent = memory._parent
+    this.options = memory.options
+    this.data = memory.data
+    this.tick = memory.tick
   }
 
   // Getter/setter for task.creep
