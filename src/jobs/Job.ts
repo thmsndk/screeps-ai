@@ -73,7 +73,7 @@ export class Job {
     // console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
 
     neededWorkers -= creepsToEmploy.length
-
+    // console.log(`found ${creepsToEmploy.length} creeps to employ`)
     creepsToEmploy.forEach(creep => {
       if (!this.Creeps[creep.id]) {
         creep.memory.role = role

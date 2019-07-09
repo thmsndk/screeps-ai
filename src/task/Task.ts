@@ -36,6 +36,7 @@ export abstract class Task implements ITask {
     this._creep = {
       name: ""
     }
+
     if (target) {
       // Handles edge cases like when you're done building something and target disappears
       this._target = {
@@ -52,11 +53,12 @@ export abstract class Task implements ITask {
         }
       }
     }
+
     this._parent = null
     this.settings = {
       targetRange: 1, // range at which you can perform action
-      workOffRoad: false // whether work() should be performed off road
-      //   oneShot: false // remove this task once work() returns OK, regardless of validity
+      workOffRoad: false, // whether work() should be performed off road
+      oneShot: false // remove this task once work() returns OK, regardless of validity
     }
     _.defaults(options, {
       blind: false,
@@ -117,7 +119,9 @@ export abstract class Task implements ITask {
 
   // Getter/setter for task parent
   get parent(): Task | null {
-    return this._parent ? deseralize(this._parent) : null
+    // TODO: figure out how to solve this circular dependency?
+    return null
+    // return this._parent ? deseralize(this._parent) : null
   }
 
   set parent(parentTask: Task | null) {
@@ -234,9 +238,9 @@ export abstract class Task implements ITask {
       //     this.parkCreep(this.creep, this.targetPos, true)
       //   }
       const result = this.work()
-      //   if (this.settings.oneShot && result == OK) {
-      //     this.finish()
-      //   }
+      if (this.settings.oneShot && result === OK) {
+        this.finish()
+      }
       return result
     } else {
       return this.moveToTarget()

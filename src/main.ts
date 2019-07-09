@@ -17,6 +17,9 @@ import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { RoomScanner } from "./RoomScanner"
 // import "./_lib/client-abuse/injectBirthday.js"
+
+import "./task/prototypes"
+
 global.Profiler = init()
 
 // global.DEFCON = DEFCON
@@ -58,10 +61,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
     const creep = Memory.creeps[name]
-    if (creep) {
-      creep.unemployed = true
-    }
-
+    // somehow the intially spawned creeps never got employed
+    // if (creep) {
+    //   creep.unemployed = true // HACK: this hack makes it work, but this should not be here.
+    // }
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name]
       // console.log("Clearing non-existing creep memory:", name)

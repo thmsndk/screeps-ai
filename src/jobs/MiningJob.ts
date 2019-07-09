@@ -7,6 +7,7 @@ import { CreepMutations } from "./../Hatchery"
 import { Job, JobPriority, JobType } from "./Job"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { PathStyle } from "./MovementPathStyles"
+import { Tasks } from "../task" // Path to Tasks.ts
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
@@ -81,7 +82,15 @@ export class MiningJob extends Job {
     // We need to assign a hauler after we've assigned a miner, the behaviour of the creep should change depending on wether or not we have a hauler assigned
     // no need to fill  the rest of the mining positions before we have a hauler
 
-    super.run(creep => roleHarvester.run(this, creep, this.source))
+    super.run(creep => {
+      //roleHarvester.run(this, creep, this.source)
+      // new taskbased "Role"
+      if (creep.isIdle) {
+        RoleHarvester.newTask(this, creep, this.source)
+      }
+      // console.log("attempting to run")
+      creep.run()
+    })
   }
 }
 
@@ -162,3 +171,29 @@ class MiningCreep {
 }
 
 const roleHarvester = new MiningCreep()
+
+// I don't like this, tasks should be assigned at a higher level,
+// we should not be finding creeps by role and running their role.
+
+// tslint:disable-next-line: max-classes-per-file
+class RoleHarvester {
+  // Harvesters harvest from sources, preferring unattended ones and deposit to Spawn1
+  // This module demonstrates the RoomObject.targetedBy functionality
+
+  static newTask(job: MiningJob, creep: Creep, source: Source): void {
+    if (creep.carry.energy < creep.carryCapacity) {
+      // Harvest from an empty source if there is one, else pick any source
+      // const sources = creep.room.find(FIND_SOURCES)
+      // let unattendedSource = _.filter(sources, source => source.targetedBy.length == 0)[0]; // I like this idea
+      // if (unattendedSource) {
+      // 	creep.task = Tasks.harvest(unattendedSource);
+      // } else {
+      creep.task = Tasks.harvest(source)
+      // }
+    } else {
+      const spawnName = "Spawn1"
+      const spawn = Game.spawns[spawnName]
+      creep.task = Tasks.transfer(spawn)
+    }
+  }
+}

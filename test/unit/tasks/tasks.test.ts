@@ -1,10 +1,10 @@
-import { DummyTask } from "tasks/TaskFactory"
-import "../constants"
-import { Game, Memory } from "./mock"
+import { DummyTask } from "task/TaskFactory"
+import "../../constants"
+import { Game, Memory } from "../mock"
 import { assert } from "chai"
-import { Task } from "tasks/Task"
+import { Task } from "task/Task"
 import { Substitute, Arg } from "@fluffy-spoon/substitute"
-import "../../src/tasks/prototypes"
+import "../../../src/task/prototypes"
 
 describe("tasks", () => {
   before(() => {
@@ -18,7 +18,7 @@ describe("tasks", () => {
   })
 
   // can creeps share tasks? co-op tasks? where do we persist tasks?
-  it("should be able to add task to creep" /*, () => {}*/)
+  it("should be able to fork task to creep" /*, () => {}*/)
   it("should be able to chain task to creep" /*, () => {}*/)
   it("should be able to disrupt current task" /*, () => {}*/)
 

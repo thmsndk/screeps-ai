@@ -45,6 +45,7 @@ interface PositionMemory {
 interface TaskSettings {
   targetRange: number
   workOffRoad: boolean
+  oneShot: boolean
 }
 
 interface TaskOptions {

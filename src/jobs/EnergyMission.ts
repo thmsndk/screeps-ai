@@ -79,6 +79,7 @@ export class EnergyMission {
             jobs.push(haulingJob)
           } else {
             const miningMemory = this.memory.jobs[sourceId]
+            // console.log("miningMemeory", JSON.stringify(miningMemory))
             if (miningMemory) {
               if (miningMemory.jobs) {
                 const haulerMemory = miningMemory.jobs[0]
