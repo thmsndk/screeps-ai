@@ -36,7 +36,7 @@ export default {
     clear({ targets: ["dist/test.bundle.js"] }),
     resolve(),
     commonjs(),
-    typescript({ tsconfig: "./tsconfig.json" }),
+    typescript({ tsconfig: "./tsconfig.test-unit.json" }),
     multiEntry(),
     // buble()
     builtins()

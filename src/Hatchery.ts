@@ -31,7 +31,6 @@ export class Hatchery {
     } else {
       this.Spawn = spawn
     }
-
     this.memory = this.Spawn.memory.requests
 
     let allRequests: MemoryHatchRequest[] = []

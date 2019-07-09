@@ -2,19 +2,10 @@ import "../constants"
 import { Game, Memory } from "./mock"
 import { Hatchery, CreepMutations } from "./../../src/Hatchery"
 import { assert } from "chai"
+import { Substitute, Arg } from "@fluffy-spoon/substitute"
 
 describe("hatchery", () => {
   before(() => {
-    // stub({
-    //   rooms: {
-    //     "TEST": {
-    //       controller: {
-    //         exists: true,
-    //         my: true
-    //       }
-    //     }
-    //   }
-    // })
     // runs before all test in this block
     Memory.spawns.Spawn1 = {
       requests: {
@@ -26,13 +17,17 @@ describe("hatchery", () => {
       }
     }
 
-    Game.spawns.Spawn1 = { room: Game.rooms.TEST, memory: Memory.spawns.Spawn1 }
+    const spawn1 = Substitute.for<StructureSpawn>()
+    spawn1.memory.returns(Memory.spawns.Spawn1)
+    Game.spawns.returns({
+      Spawn1: spawn1
+    })
   })
 
   beforeEach(() => {
     // runs before each test in this block
-    // @ts-ignore : allow adding Game to global
-    global.Game = _.clone(Game) as Game
+    // // @ts-ignore : allow adding Game to global
+    // global.Game = Game
     // @ts-ignore : allow adding Memory to global
     global.Memory = _.clone(Memory)
   })

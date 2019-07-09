@@ -3,25 +3,7 @@ import { Game, Memory } from "./mock"
 import { assert } from "chai"
 import { Task } from "tasks/Task"
 import { Substitute, Arg } from "@fluffy-spoon/substitute"
-
-class DummyTask extends Task {
-  public static taskName = "dummy"
-  public target: any
-
-  constructor(target: any, options = {} as TaskOptions) {
-    super(DummyTask.taskName, target, options)
-  }
-
-  public isValidTask(): boolean {
-    throw new Error("Method not implemented.")
-  }
-  public isValidTarget(): boolean {
-    throw new Error("Method not implemented.")
-  }
-  public work(): number {
-    throw new Error("Method not implemented.")
-  }
-}
+import "../../src/tasks/prototypes"
 
 describe("tasks", () => {
   before(() => {
@@ -31,7 +13,7 @@ describe("tasks", () => {
   beforeEach(() => {
     // runs before each test in this block
     // @ts-ignore : allow adding Game to global
-    global.Game = _.clone(Game) as Game
+    // global.Game = _.clone(Game) as Game
     // @ts-ignore : allow adding Memory to global
     global.Memory = _.clone(Memory)
   })
@@ -45,9 +27,8 @@ describe("tasks", () => {
   it("should be persisted to creep memory" /*, () => {}*/)
 
   it("should be loaded from creep memory", () => {
-    const testCreep = Substitute.for<Creep>()
-    console.log(testCreep.memory)
-    testCreep.memory = {
+    const creep = new Creep("test")
+    creep.memory = {
       role: "thrall",
       cost: 200,
       unemployed: true,
@@ -58,7 +39,7 @@ describe("tasks", () => {
       working: false,
       task: {
         tick: 123,
-        name: "testTask",
+        name: "dummy",
         _creep: {
           name: "test"
         },
@@ -68,17 +49,14 @@ describe("tasks", () => {
         }
       }
     }
-    console.log(testCreep.memory)
-    assert.isNotFunction(testCreep.memory)
 
-    const task = testCreep.task
+    console.log("instance", creep.task)
+
+    const task = creep.task
     assert.isNotNull(task)
-
-    assert.isNotNull(testCreep.memory.task)
-    if (task && testCreep.memory.task) {
-      console.log(task)
-      console.log(testCreep.memory)
-      assert.equal(task.memory.name, testCreep.memory.task.name)
+    if (task && creep.memory.task) {
+      assert.isString(task.memory.name)
+      assert.equal(task.memory.name, creep.memory.task.name)
     }
   })
 })
