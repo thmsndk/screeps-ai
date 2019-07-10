@@ -95,10 +95,16 @@ export class MiningJob extends Job {
 }
 
 // tslint:disable-next-line: max-classes-per-file
+
+// tslint:disable-next-line: max-classes-per-file
 @profile
-class MiningCreep {
-  public run(job: MiningJob, creep: Creep, source: Source) {
-    // We should not abandon returning with resources
+class RoleHarvester {
+  // Harvesters harvest from sources, preferring unattended ones and deposit to Spawn1
+  // This module demonstrates the RoomObject.targetedBy functionality
+
+  // I don't like this, tasks should be assigned at a higher level,
+  // we should not be finding creeps by role and running their role.
+  public static newTask(job: MiningJob, creep: Creep, source: Source): void {
     if (creep.room.memory.DEFCON && creep.room.memory.DEFCON.level > DEFCONLEVEL.NONE) {
       // stay 3 fields away from from enemy
       const hostilesInRange = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 4)
@@ -115,13 +121,15 @@ class MiningCreep {
       }
     }
 
-    // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
-    const harvet = creep.carry.energy < creep.carryCapacity
-
-    if (harvet) {
-      if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(source, { visualizePathStyle: PathStyle.Harvest })
-      }
+    if (creep.carry.energy < creep.carryCapacity) {
+      // Harvest from an empty source if there is one, else pick any source
+      // const sources = creep.room.find(FIND_SOURCES)
+      // let unattendedSource = _.filter(sources, source => source.targetedBy.length == 0)[0]; // I like this idea
+      // if (unattendedSource) {
+      // 	creep.task = Tasks.harvest(unattendedSource);
+      // } else {
+      creep.task = Tasks.harvest(source)
+      // }
     } else {
       const haulers = Object.keys(job.haulingJob.Creeps)
 
@@ -160,40 +168,11 @@ class MiningCreep {
       }
 
       if (target) {
-        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit })
-        }
+        creep.task = Tasks.transfer(target as StructureContainer | StructureExtension | StructureSpawn)
       } else {
+        // TODO drop task
         creep.drop(RESOURCE_ENERGY)
       }
-    }
-  }
-}
-
-const roleHarvester = new MiningCreep()
-
-// I don't like this, tasks should be assigned at a higher level,
-// we should not be finding creeps by role and running their role.
-
-// tslint:disable-next-line: max-classes-per-file
-class RoleHarvester {
-  // Harvesters harvest from sources, preferring unattended ones and deposit to Spawn1
-  // This module demonstrates the RoomObject.targetedBy functionality
-
-  static newTask(job: MiningJob, creep: Creep, source: Source): void {
-    if (creep.carry.energy < creep.carryCapacity) {
-      // Harvest from an empty source if there is one, else pick any source
-      // const sources = creep.room.find(FIND_SOURCES)
-      // let unattendedSource = _.filter(sources, source => source.targetedBy.length == 0)[0]; // I like this idea
-      // if (unattendedSource) {
-      // 	creep.task = Tasks.harvest(unattendedSource);
-      // } else {
-      creep.task = Tasks.harvest(source)
-      // }
-    } else {
-      const spawnName = "Spawn1"
-      const spawn = Game.spawns[spawnName]
-      creep.task = Tasks.transfer(spawn)
     }
   }
 }
