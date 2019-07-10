@@ -55,7 +55,10 @@ export class Job {
     // TODO: memory should be in constructor, will solve later
     // TODO: RoleConstant and Mutation should probably be merged
 
-    let unemployed = _.filter(Game.creeps, creep => creep.memory.unemployed && creep.memory.role === role)
+    let unemployed = _.filter(
+      Game.creeps,
+      creep => !creep.spawning && creep.memory.unemployed && creep.memory.role === role
+    )
 
     // Sort by range
     const target = Game.getObjectById<RoomObject>(this.target) // TODO: not sure it is smart to get object again here. we should store position of job on base entry
