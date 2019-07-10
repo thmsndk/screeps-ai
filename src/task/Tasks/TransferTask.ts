@@ -1,5 +1,5 @@
 import { Task } from "../Task"
-import { EnergyStructure, isEnergyStructure, isStoreStructure, StoreStructure } from "../utilities"
+import { EnergyStructure, isEnergyStructure, isStoreStructure, StoreStructure } from "../utilities/utilities"
 
 export type transferTargetType =
   | EnergyStructure

@@ -1,4 +1,4 @@
-import { deseralize } from "./TaskFactory"
+import { deseralize } from "./utilities/TaskFactory"
 
 Object.defineProperty(Creep.prototype, "task", {
   get() {

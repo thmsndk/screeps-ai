@@ -1,5 +1,5 @@
-import { deseralize } from "./TaskFactory"
-import { deref, derefRoomPosition } from "./utilities"
+import { deseralize } from "./utilities/TaskFactory"
+import { deref, derefRoomPosition } from "./utilities/utilities"
 
 export interface targetType {
   ref: string
@@ -118,13 +118,11 @@ export abstract class Task implements ITask {
   }
 
   // Getter/setter for task parent
-  get parent(): Task | null {
-    // TODO: figure out how to solve this circular dependency?
-    return null
-    // return this._parent ? deseralize(this._parent) : null
+  get parent(): ITask | null {
+    return this._parent ? deseralize(this._parent) : null
   }
 
-  set parent(parentTask: Task | null) {
+  set parent(parentTask: ITask | null) {
     this._parent = parentTask ? parentTask.memory : null
     // If the task is already assigned to a creep, update their memory
     if (this.creep) {
@@ -133,8 +131,8 @@ export abstract class Task implements ITask {
   }
 
   // Return a list of [this, this.parent, this.parent.parent, ...] as tasks
-  get manifest(): Task[] {
-    const manifest: Task[] = [this]
+  get manifest(): ITask[] {
+    const manifest: ITask[] = [this]
     let parent = this.parent
     while (parent) {
       manifest.push(parent)

@@ -1,10 +1,10 @@
-import { DummyTask } from "task/TaskFactory"
 import "../../constants"
 import { Game, Memory } from "../mock"
 import { assert } from "chai"
 import { Task } from "task/Task"
 import { Substitute, Arg } from "@fluffy-spoon/substitute"
 import "../../../src/task/prototypes"
+import { DummyTask } from "task/Tasks/DummyTask"
 
 describe("tasks", () => {
   before(() => {

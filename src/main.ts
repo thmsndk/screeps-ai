@@ -1,3 +1,5 @@
+import "./task/prototypes"
+import { Task } from "./task/Task"
 import { summarize_room } from "_lib/resources"
 import { add_stats_callback, collect_stats } from "_lib/screepsplus"
 import { HaulingJob } from "jobs/HaulingJob"
@@ -17,8 +19,6 @@ import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { RoomScanner } from "./RoomScanner"
 // import "./_lib/client-abuse/injectBirthday.js"
-
-import "./task/prototypes"
 
 global.Profiler = init()
 

@@ -1,4 +1,8 @@
-import { Task } from "./Task"
+/**
+ * This class is placed in this sub folder to let rollup generate correct dependencies
+ * due to a circular dependency reference eg.
+ * src\task\utilities\TaskFactory.ts -> src\task\Tasks\GotoTask.ts -> src\task\Task.ts -> src\task\utilities\TaskFactory.ts
+ */
 import { deref, derefRoomPosition } from "./utilities"
 // import { attackTargetType, TaskAttack } from "./Tasks/task_attack"
 // import { buildTargetType, TaskBuild } from "./Tasks/task_build"
@@ -7,9 +11,9 @@ import { deref, derefRoomPosition } from "./utilities"
 // import { fortifyTargetType, TaskFortify } from "./Tasks/task_fortify"
 // import { getBoostedTargetType, TaskGetBoosted } from "./Tasks/task_getBoosted"
 // import { getRenewedTargetType, TaskGetRenewed } from "./Tasks/task_getRenewed"
-import { goToTargetType, GoToTask } from "./Tasks/GotoTask"
+import { goToTargetType, GoToTask } from "../Tasks/GotoTask"
 // import { goToRoomTargetType, TaskGoToRoom } from "./Tasks/task_goToRoom"
-import { harvestTargetType, HarvestTask } from "./Tasks/HarvestTask"
+import { harvestTargetType, HarvestTask } from "../Tasks/HarvestTask"
 // import { healTargetType, TaskHeal } from "./Tasks/task_heal"
 // import { meleeAttackTargetType, TaskMeleeAttack } from "./Tasks/task_meleeAttack"
 // import { pickupTargetType, TaskPickup } from "./Tasks/task_pickup"
@@ -17,36 +21,18 @@ import { harvestTargetType, HarvestTask } from "./Tasks/HarvestTask"
 // import { repairTargetType, TaskRepair } from "./Tasks/task_repair"
 // import { reserveTargetType, TaskReserve } from "./Tasks/task_reserve"
 // import { signControllerTargetType, TaskSignController } from "./Tasks/task_signController"
-import { transferTargetType, TransferTask } from "./Tasks/TransferTask"
+import { transferTargetType, TransferTask } from "../Tasks/TransferTask"
 // import { TaskUpgrade, upgradeTargetType } from "./Tasks/task_upgrade"
 // import { TaskWithdraw, withdrawTargetType } from "./Tasks/task_withdraw"
 // import { dropTargetType, TaskDrop } from "./Tasks/task_drop"
 // import { TaskTransferAll, transferAllTargetType } from "./Tasks/task_transferAll"
 // import { TaskWithdrawAll, withdrawAllTargetType } from "./Tasks/task_withdrawAll"
+import { DummyTask } from "../Tasks/DummyTask"
 
-export class DummyTask extends Task {
-  public static taskName = "dummy"
-  public target: any
-
-  constructor(target: any, options = {} as TaskOptions) {
-    super(DummyTask.taskName, target, options)
-  }
-
-  public isValidTask(): boolean {
-    throw new Error("Method not implemented.")
-  }
-  public isValidTarget(): boolean {
-    throw new Error("Method not implemented.")
-  }
-  public work(): number {
-    throw new Error("Method not implemented.")
-  }
-}
-
-export const deseralize = (memory: TaskMemory): Task | null => {
+export const deseralize = (memory: TaskMemory): ITask | null => {
   let taskName = memory.name
   let target = deref(memory._target.ref)
-  let task: Task
+  let task: ITask
   // Create a task object of the correct type
   switch (taskName) {
     // case TaskAttack.taskName:
