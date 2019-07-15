@@ -302,7 +302,9 @@ function handleTowersAndQueueTowerHaulers(room: Room, jobs: Dictionary<Job[]>) {
         filter: (structure: Structure) => {
           // console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
           return (
-            (structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_WALL) ||
+            (structure.hits < structure.hitsMax
+              && structure.structureType !== STRUCTURE_WALL
+              && structure.structureType !== STRUCTURE_RAMPART) ||
             structure.hits / structure.hitsMax < 0.0004
           )
         }
