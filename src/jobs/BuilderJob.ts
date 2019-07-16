@@ -51,7 +51,7 @@ export class BuilderJob extends Job {
 
     const assignedCreeps = Object.keys(this.Creeps).length
 
-    const progress = Math.floor((this.constructionSite.progress / this.constructionSite.progressTotal) * 100)
+    let progress = Math.floor((this.constructionSite.progress / this.constructionSite.progressTotal) * 100)
     if (this.constructionSite.room) {
       const visualize = assignedCreeps > 0
 
@@ -79,6 +79,8 @@ export class BuilderJob extends Job {
       jobCreep.run(this.constructionSite, creep)
       // creep.say(emoji.lightning)
       // TODO: when job is finished release creep
+      progress = Math.floor((this.constructionSite.progress / this.constructionSite.progressTotal) * 100)
+
       if (progress === 100) {
         // creep.memory.role = Role.Larvae // do we need something else than roles to describe the purpose of the creep?
         creep.memory.unemployed = true
@@ -103,7 +105,6 @@ export class BuilderJob extends Job {
 @profile
 class BuilderCreep {
   public run(constructionSite: ConstructionSite, creep: Creep) {
-    // TODO:
     if (creep.memory.building && creep.carry.energy === 0) {
       creep.memory.building = false
       creep.say("🔄 withdraw ")

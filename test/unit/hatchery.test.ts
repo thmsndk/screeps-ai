@@ -1,8 +1,11 @@
 import "../constants"
-import { Game, Memory } from "./mock"
-import { Hatchery, CreepMutations } from "./../../src/Hatchery"
+
 import { assert } from "chai"
-import { Substitute, Arg } from "@fluffy-spoon/substitute"
+
+import { Arg, Substitute } from "@fluffy-spoon/substitute"
+
+import { CreepMutations, Hatchery } from "../../src/Hatchery"
+import { Game, Memory } from "./mock"
 
 describe("hatchery", () => {
   before(() => {
@@ -10,9 +13,9 @@ describe("hatchery", () => {
     Memory.spawns.Spawn1 = {
       requests: {
         test: [
-          { mutation: CreepMutations.UPGRADER, priority: 10, target: "" },
-          { mutation: CreepMutations.HAULER, priority: 20, target: "" },
-          { mutation: CreepMutations.WORKER, priority: 30, target: "" }
+          { mutation: CreepMutations.UPGRADER, target: "", priority: 10 },
+          { mutation: CreepMutations.HAULER, target: "", priority: 20 },
+          { mutation: CreepMutations.WORKER, target: "", priority: 30 }
         ]
       }
     }
@@ -78,4 +81,5 @@ describe("hatchery", () => {
   //   });
   // }*/
   // )
+  it("should not attempt to generate creeps with more than 50 body parts")
 })
