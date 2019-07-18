@@ -18,9 +18,13 @@ It should be possible to `delay` parts of an infrastructure mission code untill 
 
 It should be possible to toggle visualization of the mission
 
+> Should we queue multiple construction sites to workers so they start moving towards their next target?
+
 ## Ad-hoc infrastructure mission
 When a player manually places construction sites, theese are validated against planned infrastructure.
 - Should override plan if placed construction site is not equal
+- if no plan is found, it should be added to the ad-hoc plan
+  - What if the planner is not done running, what should happen with ad-hoc construction sites then?
 
 ## RCL dependant infrastructure mission
 Infrastructure is different based on each RCL lvl or energyCapacity.
@@ -34,20 +38,13 @@ Infrastructure persists memory to the village (room)
 // {generate:true}
 
 //[note: You can stick notes on diagrams too!{bg:cornsilk}]
-[Infrastructure|layers]
-[Layer|roomName|positions|enabled]
-[InfrastructurePosition|x|y|id|finished]
+[Infrastructure|layers|startTick?|finishTick?]
+[Layer|roomName|positions|enabled|startTick?|finishTick?]
+[InfrastructurePosition|structureType|x|y|id?|startTick?|finishTick?]
 
-[Infrastructure]<>1-*>[Layer]
+[Infrastructure]1-*>[Layer]
 
-[Layer]<>1-*>[InfrastructurePosition]
-// [Customer]<>1-orders 0..*>[Order]
-// [Order]++*-*>[LineItem]
-// [Order]-1>[DeliveryMethod]
-// [Order]*-*>[Product|EAN_Code|promo_price()]
-// [Category]<->[Product]
-// [DeliveryMethod]^[National]
-// [DeliveryMethod]^[International]
+[Layer]1-*>[InfrastructurePosition]
 ```
 
 

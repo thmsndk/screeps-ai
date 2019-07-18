@@ -21,10 +21,9 @@
     "editor.formatOnSave": true
   },
   "mocha.requires": [
-    "ts-node/register",
-    "babel-register"
+    "ts-node/register"
   ],
-  "mocha.files.glob": "test/**/*.ts",
+  "mocha.files.glob": "dist/**/test*bundle.js",//"test/**/*.ts",
   "mocha.showInExplorer": true,
   "prettier.eslintIntegration": true,
   "eslint.autoFixOnSave": true

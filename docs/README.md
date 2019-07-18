@@ -85,3 +85,8 @@ https://www.historyonthenet.com/vikings-and-norse-mythology
 > Freyr, her brother, god of farming, agriculture, fertility and prosperity
 > Njoror, powerful god of the sea
 
+
+http://www.hurstwic.org/history/articles/society/text/social_classes.htm
+
+https://en.natmus.dk/historical-knowledge/denmark/prehistoric-period-until-1050-ad/the-viking-age/power-and-aristocracy/social-order-in-the-viking-age/
+
