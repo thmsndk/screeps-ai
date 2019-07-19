@@ -6,6 +6,7 @@ export const Game = Substitute.for<Game>()
 export const Memory = {
   creeps: {} as Dictionary<Creep>,
   spawns: {} as Dictionary<SpawnMemory>,
+  rooms: {} as Dictionary<RoomMemory>,
   profiler: {}
 }
 

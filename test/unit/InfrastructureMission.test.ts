@@ -5,7 +5,7 @@ import { assert } from "chai"
 import { Arg, Substitute } from "@fluffy-spoon/substitute"
 
 import { CreepMutations, Hatchery } from "../../src/Hatchery"
-import { InfraStructureMission } from "./../../src/missions/InfrastructureMission"
+import { InfraStructureMission, InfrastructureMissionMemory } from "./../../src/missions/InfrastructureMission"
 import { Memory } from "./mock"
 
 const Game = Substitute.for<Game>()
@@ -71,6 +71,25 @@ describe("InfrastructureMission", () => {
 
     assert.equal(mission.Layers[0].Positions[1].pos.x, 1)
     assert.equal(mission.Layers[0].Positions[1].pos.y, 3)
+  })
+
+  it("should persist to memory", () => {
+    const memory = { layers: [] as any[] } as InfrastructureMissionMemory
+    Memory.rooms.N0E0 = { infrastructure: memory } as any
+
+    const mission = new InfraStructureMission({ memory })
+    mission.AddLayer("N0E0")
+    mission.AddPosition(0, STRUCTURE_ROAD, 1, 2)
+    mission.Layers[0].AddPosition(STRUCTURE_ROAD, 1, 3)
+
+    assert.equal(memory.layers.length, 1)
+    assert.equal("N0E0", memory.layers[0].roomName)
+
+    assert.equal(memory.layers[0].positions[0].x, 1)
+    assert.equal(memory.layers[0].positions[0].y, 2)
+
+    assert.equal(memory.layers[0].positions[1].x, 1)
+    assert.equal(memory.layers[0].positions[1].y, 3)
   })
 
   // in case of missing structures

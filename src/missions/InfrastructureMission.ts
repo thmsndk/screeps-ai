@@ -1,9 +1,19 @@
 import { Mission } from "./Mission"
 
-interface InfrastructureMissionMemory extends IMissionMemory {
-  layers: any
-  startTick: number
-  finishTick: number
+interface InfraStructurePositionMemory {
+  structureType: BuildableStructureConstant
+  x: number
+  y: number
+}
+
+interface InfraStructureLayerMemory {
+  roomName: string
+  positions: InfraStructurePositionMemory[]
+}
+export interface InfrastructureMissionMemory extends IMissionMemory {
+  layers: InfraStructureLayerMemory[]
+  startTick?: number
+  finishTick?: number
 }
 
 interface InfraStructureMissionConstructor {
@@ -27,14 +37,28 @@ class InfraStructurePosition {
 
 // tslint:disable-next-line: max-classes-per-file
 class Layer {
+  private memory: InfraStructureLayerMemory
   public roomName: string
   public Positions: InfraStructurePosition[]
-  constructor(roomName: string) {
+  constructor(roomName: string, memory: InfraStructureLayerMemory) {
     this.roomName = roomName
     this.Positions = []
+    this.memory = memory
   }
 
-  public AddPosition(structureType: BuildableStructureConstant, x: number, y: number) {
+  public AddPosition(
+    structureType: BuildableStructureConstant,
+    x: number,
+    y: number,
+    memory?: InfraStructurePositionMemory
+  ) {
+    if (this.memory) {
+      if (!memory) {
+        memory = { structureType, x, y }
+      }
+      this.memory.positions.push(memory)
+    }
+
     this.Positions.push(new InfraStructurePosition(structureType, x, y))
   }
 }
@@ -45,11 +69,18 @@ export class InfraStructureMission extends Mission {
   public Layers: Layer[]
   constructor(parameters?: InfraStructureMissionConstructor) {
     super(parameters ? parameters.memory : undefined)
+    // TODO: deseralize memory
     this.Layers = []
   }
 
-  public AddLayer(roomName: string) {
-    this.Layers.push(new Layer(roomName))
+  public AddLayer(roomName: string, memory?: InfraStructureLayerMemory) {
+    if (this.memory) {
+      if (!memory) {
+        memory = { roomName, positions: [] as InfraStructurePositionMemory[] }
+      }
+      this.memory.layers.push(memory)
+    }
+    this.Layers.push(new Layer(roomName, memory as InfraStructureLayerMemory))
   }
 
   public AddPosition(layerIndex: number, structureType: BuildableStructureConstant, x: number, y: number) {
