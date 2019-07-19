@@ -42,8 +42,16 @@ class Layer {
   public Positions: InfraStructurePosition[]
   constructor(roomName: string, memory: InfraStructureLayerMemory) {
     this.roomName = roomName
-    this.Positions = []
+
     this.memory = memory
+
+    const positions = [] as InfraStructurePosition[]
+    if (this.memory) {
+      this.memory.positions.forEach(position => {
+        positions.push(new InfraStructurePosition(position.structureType, position.x, position.y))
+      })
+    }
+    this.Positions = positions
   }
 
   public AddPosition(
@@ -69,8 +77,15 @@ export class InfraStructureMission extends Mission {
   public Layers: Layer[]
   constructor(parameters?: InfraStructureMissionConstructor) {
     super(parameters ? parameters.memory : undefined)
-    // TODO: deseralize memory
-    this.Layers = []
+    const layers = [] as Layer[]
+    if (parameters) {
+      if (parameters.memory) {
+        parameters.memory.layers.forEach(layer => {
+          layers.push(new Layer(layer.roomName, layer))
+        })
+      }
+    }
+    this.Layers = layers
   }
 
   public AddLayer(roomName: string, memory?: InfraStructureLayerMemory) {

@@ -92,6 +92,29 @@ describe("InfrastructureMission", () => {
     assert.equal(memory.layers[0].positions[1].y, 3)
   })
 
+  it("should deseralize from memory", () => {
+    const memory = {
+      layers: [
+        {
+          roomName: "N0E0",
+          positions: [{ structureType: STRUCTURE_ROAD, x: 1, y: 2 }, { structureType: STRUCTURE_ROAD, x: 1, y: 3 }]
+        }
+      ]
+    } as InfrastructureMissionMemory
+    Memory.rooms.N0E0 = { infrastructure: memory } as any
+
+    const mission = new InfraStructureMission({ memory })
+
+    assert.equal(mission.Layers[0].Positions.length, 2)
+    assert.equal(mission.Layers[0].Positions.filter(p => p.StructureType === STRUCTURE_ROAD).length, 2)
+
+    assert.equal(mission.Layers[0].Positions[0].pos.x, 1)
+    assert.equal(mission.Layers[0].Positions[0].pos.y, 2)
+
+    assert.equal(mission.Layers[0].Positions[1].pos.x, 1)
+    assert.equal(mission.Layers[0].Positions[1].pos.y, 3)
+  })
+
   // in case of missing structures
   it("should be able to re-validate plan" /*, () => {}*/)
 })
