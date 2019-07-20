@@ -114,7 +114,40 @@ describe("InfrastructureMission", () => {
     assert.equal(mission.Layers[0].Positions[1].pos.x, 1)
     assert.equal(mission.Layers[0].Positions[1].pos.y, 3)
   })
+  // the idea is it should be possible to check if a position is part of a mission
+  // does this responsibility belongs to the planner?
+  // either way it should be possible to query a mission for a position
+  // allowing you to verify if your id / construction site exists in the plan.
+  // should the query be on a specific layer, should it return all layers it is on?
+  // maybe we should have a genereal "infrastructure" dataset in global "memory" and the mission utilizes it
+  it("should be able to look for construction site in infrastructure", () => {
+    const memory = {
+      layers: [
+        {
+          roomName: "N0E0",
+          positions: [
+            { structureType: STRUCTURE_ROAD, x: 1, y: 2, id: "constructionSiteId" },
+            { structureType: STRUCTURE_ROAD, x: 1, y: 3 }
+          ]
+        }
+      ]
+    } as InfrastructureMissionMemory
+    Memory.rooms.N0E0 = { infrastructure: memory } as any
 
+    const mission = new InfraStructureMission({ memory })
+    const constructionSiteInPlan = mission.findInfrastructure("constructionSiteId")
+
+    const layers = Object.entries(constructionSiteInPlan)
+    assert.equal(layers.length, 1, "expected 1 layer")
+    for (const [index, pos] of layers) {
+      assert.equal(index, "0")
+      assert.equal(pos.roomName, "N0E0")
+      assert.equal(pos.pos.x, 1)
+      assert.equal(pos.pos.y, 2)
+    }
+
+    // var layersWithconstructionSiteAtPosition = mission.FindInfrastructure({ roomName: "N0E0", x: 1, y:2}) // would use this to override an existing plan
+  })
   // in case of missing structures
   it("should be able to re-validate plan" /*, () => {}*/)
 })

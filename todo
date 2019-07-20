@@ -29,6 +29,8 @@ Roadmap:
         https://github.com/screepers/RoomVisual
     Invader Defence:
         figure out how to defend against invaders, with and without towers
+    Spawning:
+        should be able to make a request that only gets forfilled after a specific tick / game.time
     Grafana:
         Gcl rcl estimate
         Creep tasks

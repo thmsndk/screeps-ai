@@ -32,6 +32,8 @@ It should be possible to attach "extensions" onto an infrastructure mission
 
 # Memory
 Infrastructure persists memory to the village (room)
+Might need to extract out Infrastructure to a global object we can query about infrastructure, e.g. a roomplan
+should ba an infrastructure dictionary with a room giving back the "plan"
 ```yuml
 // {type:class}
 // {direction:leftToRight}

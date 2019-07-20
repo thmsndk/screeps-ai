@@ -1,9 +1,11 @@
 import { Mission } from "./Mission"
+import { Dictionary } from "lodash"
 
 interface InfraStructurePositionMemory {
   structureType: BuildableStructureConstant
   x: number
   y: number
+  id?: string
 }
 
 interface InfraStructureLayerMemory {
@@ -21,17 +23,21 @@ interface InfraStructureMissionConstructor {
 }
 
 class InfraStructurePosition {
-  public StructureType: BuildableStructureConstant
-  private x: number
-  private y: number
-  constructor(structureType: BuildableStructureConstant, x: number, y: number) {
-    this.StructureType = structureType
-    this.x = x
-    this.y = y
+  private memory: InfraStructurePositionMemory
+  constructor(memory: InfraStructurePositionMemory) {
+    this.memory = memory
+  }
+
+  get id(): string | undefined {
+    return this.memory.id
+  }
+
+  get StructureType(): BuildableStructureConstant {
+    return this.memory.structureType
   }
 
   get pos(): IPosition {
-    return { x: this.x, y: this.y }
+    return { x: this.memory.x, y: this.memory.y }
   }
 }
 
@@ -48,7 +54,7 @@ class Layer {
     const positions = [] as InfraStructurePosition[]
     if (this.memory) {
       this.memory.positions.forEach(position => {
-        positions.push(new InfraStructurePosition(position.structureType, position.x, position.y))
+        positions.push(new InfraStructurePosition(position))
       })
     }
     this.Positions = positions
@@ -60,14 +66,15 @@ class Layer {
     y: number,
     memory?: InfraStructurePositionMemory
   ) {
+    if (!memory) {
+      memory = { structureType, x, y }
+    }
+
     if (this.memory) {
-      if (!memory) {
-        memory = { structureType, x, y }
-      }
       this.memory.positions.push(memory)
     }
 
-    this.Positions.push(new InfraStructurePosition(structureType, x, y))
+    this.Positions.push(new InfraStructurePosition(memory))
   }
 }
 
@@ -101,4 +108,21 @@ export class InfraStructureMission extends Mission {
   public AddPosition(layerIndex: number, structureType: BuildableStructureConstant, x: number, y: number) {
     this.Layers[layerIndex].AddPosition(structureType, x, y)
   }
+
+  public findInfrastructure(constructionSiteId: string): Dictionary<FindInfrastructureResult> {
+    const results = {} as Dictionary<FindInfrastructureResult>
+    this.Layers.forEach((layer, index) => {
+      const position = layer.Positions.find(p => p.id === constructionSiteId)
+      if (position) {
+        results[index] = { roomName: layer.roomName, pos: position.pos }
+      }
+    })
+
+    return results
+  }
+}
+
+interface FindInfrastructureResult {
+  roomName: string
+  pos: { x: number; y: number }
 }
