@@ -1,5 +1,6 @@
 import { Mission } from "./Mission"
 import { Dictionary } from "lodash"
+import { stringify } from "querystring"
 
 interface InfraStructurePositionMemory {
   structureType: BuildableStructureConstant
@@ -16,6 +17,10 @@ export interface InfrastructureMissionMemory extends IMissionMemory {
   layers: InfraStructureLayerMemory[]
   startTick?: number
   finishTick?: number
+  /**
+   * a list of creepIds assigned to this mission.
+   */
+  creeps: string[]
 }
 
 interface InfraStructureMissionConstructor {
@@ -82,17 +87,30 @@ class Layer {
 export class InfraStructureMission extends Mission {
   public memory?: InfrastructureMissionMemory // TODO: Private
   public Layers: Layer[]
+  public creeps!: Dictionary<Creep>
+
   constructor(parameters?: InfraStructureMissionConstructor) {
     super(parameters ? parameters.memory : undefined)
     const layers = [] as Layer[]
+    const creeps = {} as Dictionary<Creep>
     if (parameters) {
       if (parameters.memory) {
         parameters.memory.layers.forEach(layer => {
           layers.push(new Layer(layer.roomName, layer))
         })
+
+        if (parameters.memory.creeps) {
+          Object.values(parameters.memory.creeps).forEach(creepId => {
+            const creep = Game.getObjectById<Creep>(creepId)
+            if (creep) {
+              creeps[creepId] = creep
+            }
+          })
+        }
       }
     }
     this.Layers = layers
+    this.creeps = creeps
   }
 
   public AddLayer(roomName: string, memory?: InfraStructureLayerMemory) {

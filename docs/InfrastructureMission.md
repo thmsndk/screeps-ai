@@ -40,7 +40,7 @@ should ba an infrastructure dictionary with a room giving back the "plan"
 // {generate:true}
 
 //[note: You can stick notes on diagrams too!{bg:cornsilk}]
-[Infrastructure|layers|startTick?|finishTick?]
+[Infrastructure|layers|startTick?|finishTick?|creeps?]
 [Layer|roomName|positions|enabled|startTick?|finishTick?]
 [InfrastructurePosition|structureType|x|y|id?|startTick?|finishTick?]
 

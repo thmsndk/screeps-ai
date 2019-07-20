@@ -13,7 +13,12 @@ const Game = Substitute.for<Game>()
 describe("InfrastructureMission", () => {
   before(() => {
     // runs before all test in this block
-    Memory.spawns.Spawn1 = {
+
+    // @ts-ignore : allow adding Game to global
+    global.Game = Game
+
+    // @ts-ignore : allow adding Memory to global
+    global.Memory = Memory.spawns.Spawn1 = {
       requests: {
         test: [
           { mutation: CreepMutations.UPGRADER, target: "", priority: 10 },
@@ -93,15 +98,7 @@ describe("InfrastructureMission", () => {
   })
 
   it("should deseralize from memory", () => {
-    const memory = {
-      layers: [
-        {
-          roomName: "N0E0",
-          positions: [{ structureType: STRUCTURE_ROAD, x: 1, y: 2 }, { structureType: STRUCTURE_ROAD, x: 1, y: 3 }]
-        }
-      ]
-    } as InfrastructureMissionMemory
-    Memory.rooms.N0E0 = { infrastructure: memory } as any
+    const memory = defaultMemory()
 
     const mission = new InfraStructureMission({ memory })
 
@@ -121,18 +118,7 @@ describe("InfrastructureMission", () => {
   // should the query be on a specific layer, should it return all layers it is on?
   // maybe we should have a genereal "infrastructure" dataset in global "memory" and the mission utilizes it
   it("should be able to look for construction site in infrastructure", () => {
-    const memory = {
-      layers: [
-        {
-          roomName: "N0E0",
-          positions: [
-            { structureType: STRUCTURE_ROAD, x: 1, y: 2, id: "constructionSiteId" },
-            { structureType: STRUCTURE_ROAD, x: 1, y: 3 }
-          ]
-        }
-      ]
-    } as InfrastructureMissionMemory
-    Memory.rooms.N0E0 = { infrastructure: memory } as any
+    const memory = defaultMemory()
 
     const mission = new InfraStructureMission({ memory })
     const constructionSiteInPlan = mission.findInfrastructure("constructionSiteId")
@@ -148,6 +134,56 @@ describe("InfrastructureMission", () => {
 
     // var layersWithconstructionSiteAtPosition = mission.FindInfrastructure({ roomName: "N0E0", x: 1, y:2}) // would use this to override an existing plan
   })
+
   // in case of missing structures
   it("should be able to re-validate plan" /*, () => {}*/)
+
+  describe("Creeps", () => {
+    it("Assigned creeps should be loaded from memory", () => {
+      const memory = defaultMemory()
+      memory.creeps = ["creepId1", "creepId2"]
+
+      const creep1 = Substitute.for<Creep>()
+      // @ts-ignore : allow fluffy mock
+      creep1.name.returns("creep1")
+      const creep2 = Substitute.for<Creep>()
+      // @ts-ignore : allow fluffy mock
+      creep2.name.returns("creep2")
+      // Game.creeps.returns({ "creep1": creep1, "creep2": creep2})
+      Game.getObjectById("creepId1").returns(creep1)
+      Game.getObjectById("creepId2").returns(creep2)
+
+      const mission = new InfraStructureMission({ memory })
+
+      Game.received().getObjectById("creepId1")
+      Game.received().getObjectById("creepId2")
+
+      assert.equal(Object.keys(mission.creeps).length, 2)
+
+      assert.equal(mission.creeps.creepId1, creep1)
+      assert.equal(mission.creeps.creepId2, creep2)
+    })
+    it("Can be assigned")
+    it("Gets persisted to memory")
+    it("Gets a task assigned when idle")
+    it("Gets multiple tasks assigned")
+    it("Does not get a task it can't finish in TLL assigned")
+  })
 })
+
+const defaultMemory = () => {
+  const memory = {
+    layers: [
+      {
+        roomName: "N0E0",
+        positions: [
+          { structureType: STRUCTURE_ROAD, x: 1, y: 2, id: "constructionSiteId" },
+          { structureType: STRUCTURE_ROAD, x: 1, y: 3 }
+        ]
+      }
+    ]
+  } as InfrastructureMissionMemory
+  Memory.rooms.N0E0 = { infrastructure: memory } as any
+
+  return memory
+}
