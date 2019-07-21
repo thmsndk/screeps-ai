@@ -1,4 +1,6 @@
+import { register } from "../utilities/TaskFactory"
 import { Task } from "../Task"
+import { deref } from "task/utilities/utilities"
 
 export class DummyTask extends Task {
   public static taskName = "dummy"
@@ -18,3 +20,9 @@ export class DummyTask extends Task {
     throw new Error("Method not implemented.")
   }
 }
+
+const registerDummy = (memory: TaskMemory) => {
+  const target = deref(memory._target.ref)
+  return new DummyTask(target as any)
+}
+register(registerDummy)
