@@ -1,5 +1,6 @@
+import { register } from "../utilities/TaskFactory"
 import { Task } from "../Task"
-import { EnergyStructure, isEnergyStructure, isStoreStructure, StoreStructure } from "../utilities/utilities"
+import { deref, EnergyStructure, isEnergyStructure, isStoreStructure, StoreStructure } from "../utilities/utilities"
 
 export type transferTargetType =
   | EnergyStructure
@@ -65,3 +66,10 @@ export class TransferTask extends Task {
     return this.creep.transfer(this.target, this.data.resourceType, this.data.amount)
   }
 }
+
+const registerTransfer = (memory: TaskMemory) => {
+  const target = deref(memory._target.ref) as transferTargetType
+  return new TransferTask(target)
+}
+
+register(registerTransfer)

@@ -1,4 +1,6 @@
+import { register } from "../utilities/TaskFactory"
 import { Task } from "../Task"
+import { deref } from "task/utilities/utilities"
 
 export type harvestTargetType = Source | Mineral
 
@@ -33,3 +35,10 @@ export class HarvestTask extends Task {
     return this.creep.harvest(this.target)
   }
 }
+
+const registerHarvest = (memory: TaskMemory) => {
+  const target = deref(memory._target.ref) as harvestTargetType
+  return new HarvestTask(target)
+}
+
+register(registerHarvest)

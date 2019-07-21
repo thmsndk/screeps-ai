@@ -1,4 +1,6 @@
+import { register } from "../utilities/TaskFactory"
 import { Task } from "../Task"
+import { derefRoomPosition } from "task/utilities/utilities"
 
 export type goToTargetType = { pos: RoomPosition } | RoomPosition
 
@@ -52,3 +54,10 @@ export class GoToTask extends Task {
     return OK
   }
 }
+
+const registerGoTo = (memory: TaskMemory) => {
+  const target = derefRoomPosition(memory._target._pos) as goToTargetType
+  return new GoToTask(target)
+}
+
+register(registerGoTo)
