@@ -1,6 +1,9 @@
+import { getPositions } from "RoomScanner"
+import { stringify } from "querystring"
+import { deref } from "task/utilities/utilities"
+import { Tasks } from "../task/Tasks"
 import { Mission } from "./Mission"
 import { Dictionary } from "lodash"
-import { stringify } from "querystring"
 
 interface InfraStructurePositionMemory {
   structureType: BuildableStructureConstant
@@ -28,9 +31,13 @@ interface InfraStructureMissionConstructor {
 }
 
 class InfraStructurePosition {
+  public constructionSite?: ConstructionSite
   private memory: InfraStructurePositionMemory
   constructor(memory: InfraStructurePositionMemory) {
     this.memory = memory
+    if (memory.id) {
+      this.constructionSite = deref(memory.id) as ConstructionSite
+    }
   }
 
   get id(): string | undefined {
@@ -137,6 +144,19 @@ export class InfraStructureMission extends Mission {
     })
 
     return results
+  }
+
+  public distributeTasks() {
+    const idleCreeps = _.filter(this.creeps, creep => creep.isIdle)
+    idleCreeps.forEach(creep => {
+      this.Layers.forEach((layer, index) => {
+        // TODO: implement targetedBy and handle coop tasks, find closest creep, validate work parts, and other shenanigans
+        const position = layer.Positions.find(p => !!p.id)
+        if (position && position.constructionSite) {
+          creep.task = Tasks.build(position.constructionSite)
+        }
+      })
+    })
   }
 }
 

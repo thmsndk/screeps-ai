@@ -1,4 +1,6 @@
+import { stringify } from "querystring"
 import "../constants"
+import { Memory } from "./mock"
 
 import { assert } from "chai"
 
@@ -6,19 +8,17 @@ import { Arg, Substitute } from "@fluffy-spoon/substitute"
 
 import { CreepMutations, Hatchery } from "../../src/Hatchery"
 import { InfraStructureMission, InfrastructureMissionMemory } from "./../../src/missions/InfrastructureMission"
-import { Memory } from "./mock"
 
-const Game = Substitute.for<Game>()
+import "../../src/task/prototypes"
+import { TaskBuild } from "task/Tasks/TaskBuild"
 
 describe("InfrastructureMission", () => {
   before(() => {
     // runs before all test in this block
 
-    // @ts-ignore : allow adding Game to global
-    global.Game = Game
-
     // @ts-ignore : allow adding Memory to global
-    global.Memory = Memory.spawns.Spawn1 = {
+    global.Memory = Memory
+    Memory.spawns.Spawn1 = {
       requests: {
         test: [
           { mutation: CreepMutations.UPGRADER, target: "", priority: 10 },
@@ -27,20 +27,22 @@ describe("InfrastructureMission", () => {
         ]
       }
     }
-
-    const spawn1 = Substitute.for<StructureSpawn>()
-    spawn1.memory.returns(Memory.spawns.Spawn1)
-    Game.spawns.returns({
-      Spawn1: spawn1
-    })
   })
 
   beforeEach(() => {
     // runs before each test in this block
-    // // @ts-ignore : allow adding Game to global
-    // global.Game = Game
+    // @ts-ignore : allow adding Game to global
+    global.Game = Substitute.for<Game>()
     // @ts-ignore : allow adding Memory to global
     global.Memory = _.clone(Memory)
+
+    const spawn1 = Substitute.for<StructureSpawn>()
+    // @ts-ignore : it works
+    spawn1.memory.returns(Memory.spawns.Spawn1)
+    // @ts-ignore : it works
+    global.Game.spawns.returns({
+      Spawn1: spawn1
+    })
   })
 
   // Do we need a InfrastructureThings? (module responsible for all that is Infrastructure, Things is a viking term for assemblies where people would talk)
@@ -137,35 +139,56 @@ describe("InfrastructureMission", () => {
 
   // in case of missing structures
   it("should be able to re-validate plan" /*, () => {}*/)
+  it("creates construction site on position")
+  it("handles ERR_RCL_NOT_ENOUGH")
+  it("handles ERR_FULL")
 
   describe("Creeps", () => {
     it("Assigned creeps should be loaded from memory", () => {
       const memory = defaultMemory()
-      memory.creeps = ["creepId1", "creepId2"]
-
-      const creep1 = Substitute.for<Creep>()
-      // @ts-ignore : allow fluffy mock
-      creep1.name.returns("creep1")
-      const creep2 = Substitute.for<Creep>()
-      // @ts-ignore : allow fluffy mock
-      creep2.name.returns("creep2")
-      // Game.creeps.returns({ "creep1": creep1, "creep2": creep2})
-      Game.getObjectById("creepId1").returns(creep1)
-      Game.getObjectById("creepId2").returns(creep2)
 
       const mission = new InfraStructureMission({ memory })
 
-      Game.received().getObjectById("creepId1")
-      Game.received().getObjectById("creepId2")
+      // @ts-ignore : it works
+      global.Game.received().getObjectById("creepId1")
+      // @ts-ignore : it works
+      global.Game.received().getObjectById("creepId2")
 
       assert.equal(Object.keys(mission.creeps).length, 2)
 
-      assert.equal(mission.creeps.creepId1, creep1)
-      assert.equal(mission.creeps.creepId2, creep2)
+      assert.equal(mission.creeps.creepId1.name, "creep1")
+      assert.equal(mission.creeps.creepId2.name, "creep2")
     })
     it("Can be assigned")
     it("Gets persisted to memory")
-    it("Gets a task assigned when idle")
+
+    it("Gets a build task assigned when idle", () => {
+      const memory = defaultMemory()
+      const mission = new InfraStructureMission({ memory })
+
+      mission.distributeTasks()
+
+      // @ts-ignore : it works
+      const creeps = global.Game.creeps
+
+      const task = creeps.creep.task as TaskBuild // this triggers a deseralize of task
+      assert.isNotNull(task)
+
+      if (task) {
+        // assert.typeOf(task, "TaskBuild")
+        assert.equal(task.name, TaskBuild.taskName)
+        const target = task.target
+        assert.equal(target.id, "constructionSiteId")
+        assert.equal(target.structureType, STRUCTURE_ROAD)
+        assert.equal(target.pos.roomName, "N0E0")
+        assert.equal(target.pos.x, 1)
+        assert.equal(target.pos.y, 2)
+      }
+    })
+
+    // What about the speed of building a constructionsite
+    it("co-op construction if 1 creep can not build it alone")
+
     it("Gets multiple tasks assigned")
     it("Does not get a task it can't finish in TLL assigned")
   })
@@ -183,6 +206,36 @@ const defaultMemory = () => {
       }
     ]
   } as InfrastructureMissionMemory
+
+  const constructionSiteId = new ConstructionSite("constructionSiteId")
+  constructionSiteId.id = "constructionSiteId"
+  constructionSiteId.structureType = STRUCTURE_ROAD
+  constructionSiteId.pos = new RoomPosition(1, 2, "N0E0")
+  constructionSiteId.pos.roomName = "N0E0"
+  constructionSiteId.pos.x = 1
+  constructionSiteId.pos.y = 2
+
+  // @ts-ignore : it works
+  global.Game.constructionSite.returns({ constructionSiteId })
+  // @ts-ignore : it works
+  global.Game.getObjectById(constructionSiteId.id).returns(constructionSiteId)
+
+  memory.creeps = ["creepId1", "creepId2"]
+
+  const creep = new Creep("creepId1")
+  creep.name = "creep1"
+  creep.memory = {} as any
+
+  const creep2 = new Creep("creepId2")
+  creep2.name = "creep2"
+  creep2.memory = {} as any
+  // @ts-ignore : it works
+  global.Game.creeps.returns({ creep, creep2 })
+  // @ts-ignore : it works
+  global.Game.getObjectById("creepId1").returns(creep)
+  // @ts-ignore : it works
+  global.Game.getObjectById("creepId2").returns(creep2)
+
   Memory.rooms.N0E0 = { infrastructure: memory } as any
 
   return memory

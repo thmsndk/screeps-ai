@@ -14,25 +14,25 @@ const mockScreeps = () => {
   const g = global as any
 
   g.Game = Game
+
+  // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
   g.Creep = (function() {
+    // tslint:disable-next-line: no-empty
     function Creep() {}
 
     return Creep
   })()
 
+  // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
+  g.RoomObject = class RoomObject {}
+
+  // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
   // tslint:disable-next-line: max-classes-per-file
-  g.RoomObject = (function() {
-    function RoomObject() {}
+  g.RoomPosition = class RoomPosition {}
 
-    return RoomObject
-  })()
-
+  // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
   // tslint:disable-next-line: max-classes-per-file
-  g.RoomPosition = (function() {
-    function RoomObject() {}
-
-    return RoomObject
-  })()
+  g.ConstructionSite = class ConstructionSite extends RoomObject {}
 }
 
 mockScreeps()

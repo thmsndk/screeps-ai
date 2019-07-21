@@ -18,6 +18,9 @@ interface Creep {
 
   run(): number | void
 }
+interface RoomObject {
+  ref: string
+}
 
 interface RoomPosition {
   neighbors: RoomPosition[]

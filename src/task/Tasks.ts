@@ -1,5 +1,3 @@
-// import { attackTargetType, TaskAttack } from "./Tasks/task_attack"
-// import { buildTargetType, TaskBuild } from "./Tasks/task_build"
 // import { claimTargetType, TaskClaim } from "./Tasks/task_claim"
 // import { dismantleTargetType, TaskDismantle } from "./Tasks/task_dismantle"
 // import { fortifyTargetType, TaskFortify } from "./Tasks/task_fortify"
@@ -8,6 +6,8 @@
 import { goToTargetType, GoToTask } from "./Tasks/GotoTask"
 // import { goToRoomTargetType, TaskGoToRoom } from "./Tasks/task_goToRoom"
 import { harvestTargetType, HarvestTask } from "./Tasks/HarvestTask"
+// import { attackTargetType, TaskAttack } from "./Tasks/task_attack"
+import { buildTargetType, TaskBuild } from "./Tasks/TaskBuild"
 // import { healTargetType, TaskHeal } from "./Tasks/task_heal"
 // import { meleeAttackTargetType, TaskMeleeAttack } from "./Tasks/task_meleeAttack"
 // import { pickupTargetType, TaskPickup } from "./Tasks/task_pickup"
@@ -16,6 +16,7 @@ import { harvestTargetType, HarvestTask } from "./Tasks/HarvestTask"
 // import { reserveTargetType, TaskReserve } from "./Tasks/task_reserve"
 // import { signControllerTargetType, TaskSignController } from "./Tasks/task_signController"
 import { transferTargetType, TransferTask } from "./Tasks/TransferTask"
+
 // import { TaskUpgrade, upgradeTargetType } from "./Tasks/task_upgrade"
 // import { TaskWithdraw, withdrawTargetType } from "./Tasks/task_withdraw"
 // import { dropTargetType, TaskDrop } from "./Tasks/task_drop"
@@ -53,9 +54,9 @@ export class Tasks {
   //     return new TaskAttack(target, options)
   //   }
 
-  //   static build(target: buildTargetType, options = {} as TaskOptions): TaskBuild {
-  //     return new TaskBuild(target, options)
-  //   }
+  public static build(target: buildTargetType, options = {} as TaskOptions): TaskBuild {
+    return new TaskBuild(target, options)
+  }
 
   //   static claim(target: claimTargetType, options = {} as TaskOptions): TaskClaim {
   //     return new TaskClaim(target, options)
@@ -135,7 +136,7 @@ export class Tasks {
   public static transfer(
     target: transferTargetType,
     resourceType: ResourceConstant = RESOURCE_ENERGY,
-    amount: number | undefined = undefined,
+    amount?: number,
     options = {} as TaskOptions
   ): TransferTask {
     return new TransferTask(target, resourceType, amount, options)
