@@ -348,23 +348,23 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   // We need a "Building Mission" it should be responsible of prioritizing jobs, determine if we need more builders for all the jobs, bigger builders and what order they should be done in
 
   // get mission from cache or create new one
-  let mission = infraStructureMissions[room.name] // we probably can't do this. because memory will get stale/stuck because of GC of the object??
-  if (!mission) {
-    let initialize = false
-    let memory = room.memory.infrastructureMission
-    if (!memory || !memory.layers || !memory.creeps) {
-      memory = room.memory.infrastructureMission = { layers: [], creeps: [] }
-      initialize = true
-    }
-
-    mission = new InfraStructureMission({ memory })
-
-    if (initialize) {
-      mission.AddLayer(room.name)
-    }
-
-    infraStructureMissions[room.name] = mission
+  // let mission = infraStructureMissions[room.name] // we can't do this because then we store a reference to the creeps, references should be reevaluated each tick
+  // if (!mission) {
+  let initialize = false
+  let memory = room.memory.infrastructureMission
+  if (!memory || !memory.layers || !memory.creeps) {
+    memory = room.memory.infrastructureMission = { layers: [], creeps: [] }
+    initialize = true
   }
+
+  const mission = new InfraStructureMission({ memory })
+
+  if (initialize) {
+    mission.AddLayer(room.name)
+  }
+
+  infraStructureMissions[room.name] = mission
+  // }
 
   constructionSites.forEach(site => {
     const plan = mission.findInfrastructure(site.id)
