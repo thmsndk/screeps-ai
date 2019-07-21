@@ -18,7 +18,7 @@ import { buildTargetType, TaskBuild } from "./Tasks/TaskBuild"
 import { transferTargetType, TransferTask } from "./Tasks/TransferTask"
 
 // import { TaskUpgrade, upgradeTargetType } from "./Tasks/task_upgrade"
-// import { TaskWithdraw, withdrawTargetType } from "./Tasks/task_withdraw"
+import { TaskWithdraw, withdrawTargetType } from "./Tasks/TaskWithdraw"
 // import { dropTargetType, TaskDrop } from "./Tasks/task_drop"
 // import { TaskTransferAll, transferAllTargetType } from "./Tasks/task_transferAll"
 // import { TaskWithdrawAll, withdrawAllTargetType } from "./Tasks/task_withdrawAll"
@@ -152,12 +152,14 @@ export class Tasks {
   // 	return new TaskUpgrade(target, options);
   // }
 
-  // static withdraw(target: withdrawTargetType,
-  // 				resourceType: ResourceConstant = RESOURCE_ENERGY,
-  // 				amount: number | undefined     = undefined,
-  // 				options                        = {} as TaskOptions): TaskWithdraw {
-  // 	return new TaskWithdraw(target, resourceType, amount, options);
-  // }
+  public static withdraw(
+    target: withdrawTargetType,
+    resourceType: ResourceConstant = RESOURCE_ENERGY,
+    amount?: number,
+    options = {} as TaskOptions
+  ): TaskWithdraw {
+    return new TaskWithdraw(target, resourceType, amount, options)
+  }
 
   // static withdrawAll(target: withdrawAllTargetType, options = {} as TaskOptions): TaskWithdrawAll {
   // 	return new TaskWithdrawAll(target, options);

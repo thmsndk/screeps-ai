@@ -1,3 +1,4 @@
+import { TaskWithdraw } from "./../task/Tasks/TaskWithdraw"
 import { getPositions } from "RoomScanner"
 import { stringify } from "querystring"
 import { deref } from "task/utilities/utilities"
@@ -196,6 +197,46 @@ export class InfraStructureMission extends Mission {
 
   public run() {
     Object.values(this.creeps).forEach(creep => {
+      if (creep.carry.energy === 0) {
+        // const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+        // chain dropped resources in a close quarter
+        //
+
+        // if (resource) {
+        //   if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
+        //     creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
+        //   }
+        // } else {
+        const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+          filter: structure => {
+            switch (structure.structureType) {
+              case STRUCTURE_CONTAINER:
+                const container = structure as StructureContainer
+                return _.sum(container.store) >= creep.carryCapacity
+              case STRUCTURE_EXTENSION:
+                const extension = structure as StructureExtension
+                return extension.energy >= creep.carryCapacity
+              case STRUCTURE_SPAWN:
+                const spawn = structure as StructureSpawn
+                return spawn.energy >= creep.carryCapacity
+              case STRUCTURE_TOWER:
+                const tower = structure as StructureTower
+                return tower.energy >= creep.carryCapacity
+            }
+
+            return false
+          }
+        }) as StructureContainer | StructureExtension | StructureSpawn | StructureTower
+
+        const withdraw = Tasks.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy)
+
+        if (creep.task && creep.task.name !== TaskWithdraw.taskName) {
+          creep.task = Tasks.chain([withdraw, creep.task])
+        } else if (withdraw) {
+          creep.task = withdraw
+        }
+      }
+
       creep.run()
     })
   }

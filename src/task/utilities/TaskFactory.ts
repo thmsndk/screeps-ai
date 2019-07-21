@@ -132,9 +132,9 @@ export const deseralize = (memory: TaskMemory): ITask | null => {
   //   // case TaskUpgrade.taskName:
   //   // 	task = new TaskUpgrade(target as upgradeTargetType);
   //   // 	break;
-  //   // case TaskWithdraw.taskName:
-  //   // 	task = new TaskWithdraw(target as withdrawTargetType);
-  //   // 	break;
+  // case TaskWithdraw.taskName:
+  // 	task = new TaskWithdraw(target as withdrawTargetType);
+  // 	break;
   //   // case TaskWithdrawAll.taskName:
   //   // 	task = new TaskWithdrawAll(target as withdrawAllTargetType);
   //   // 	break;
