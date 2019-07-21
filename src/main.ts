@@ -302,9 +302,9 @@ function handleTowersAndQueueTowerHaulers(room: Room, jobs: Dictionary<Job[]>) {
         filter: (structure: Structure) => {
           // console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
           return (
-            (structure.hits < structure.hitsMax
-              && structure.structureType !== STRUCTURE_WALL
-              && structure.structureType !== STRUCTURE_RAMPART) ||
+            (structure.hits < structure.hitsMax &&
+              structure.structureType !== STRUCTURE_WALL &&
+              structure.structureType !== STRUCTURE_RAMPART) ||
             structure.hits / structure.hitsMax < 0.0004
           )
         }
@@ -337,6 +337,8 @@ function queueBuildingJobs(jobs: Dictionary<Job[]>) {
 
   // The problem with "queueing" building jobs, is that it's for detecting jobs I manually place.... they should be automated, then I don't have to queue them.
   // We need a "Building Mission" it should be responsible of prioritizing jobs, determine if we need more builders for all the jobs, bigger builders and what order they should be done in
+
+  // TODO: create mission, scan construction sites, add sites to mission, add creeps to mission
 
   const constructionJobs: PriorityQueue<BuilderJob> = new PriorityQueue({ comparator: comparePriority })
 

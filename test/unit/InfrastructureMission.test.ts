@@ -80,6 +80,32 @@ describe("InfrastructureMission", () => {
     assert.equal(mission.Layers[0].Positions[1].pos.y, 3)
   })
 
+  it("should be able to update position with constructionsite")
+  it("should be able to add position from constructionsite", () => {
+    const cSite1 = mockConstructionSite(STRUCTURE_ROAD, "cSite1", "N0E0", 5, 5)
+    const cSite2 = mockConstructionSite(STRUCTURE_ROAD, "cSite2", "N0E0", 5, 6)
+
+    // @ts-ignore : it works
+    global.Game.getObjectById(cSite1.id).returns(cSite1)
+    // @ts-ignore : it works
+    global.Game.getObjectById(cSite2.id).returns(cSite2)
+
+    const mission = new InfraStructureMission()
+    mission.AddLayer("N0E0")
+    mission.addConstructionSite(0, cSite1)
+    mission.Layers[0].addConstructionSite(cSite2)
+    assert.equal(mission.Layers[0].Positions.length, 2)
+    assert.equal(mission.Layers[0].Positions.filter(p => p.StructureType === STRUCTURE_ROAD).length, 2)
+
+    assert.equal(mission.Layers[0].Positions[0].id, cSite1.id)
+    assert.equal(mission.Layers[0].Positions[0].pos.x, 5)
+    assert.equal(mission.Layers[0].Positions[0].pos.y, 5)
+
+    assert.equal(mission.Layers[0].Positions[1].id, cSite2.id)
+    assert.equal(mission.Layers[0].Positions[1].pos.x, 5)
+    assert.equal(mission.Layers[0].Positions[1].pos.y, 6)
+  })
+
   it("should persist to memory", () => {
     const memory = { layers: [] as any[] } as InfrastructureMissionMemory
     Memory.rooms.N0E0 = { infrastructure: memory } as any
@@ -159,8 +185,26 @@ describe("InfrastructureMission", () => {
       assert.equal(mission.creeps.creepId1.name, "creep1")
       assert.equal(mission.creeps.creepId2.name, "creep2")
     })
-    it("Can be assigned")
-    it("Gets persisted to memory")
+    it("Can be assigned & persisted to memory", () => {
+      const memory = defaultMemory()
+
+      const mission = new InfraStructureMission({ memory })
+
+      const creepId = "creepId3"
+      const creep = new Creep(creepId)
+      creep.id = creepId
+      creep.name = "creep3"
+      creep.memory = {} as any
+
+      // @ts-ignore : it works
+      global.Game.getObjectById(creepId).returns(creep)
+
+      mission.addCreep(creep)
+
+      assert.equal(Object.keys(mission.creeps).length, 3)
+
+      assert.include(memory.creeps, creepId)
+    })
 
     it("Gets a build task assigned when idle", () => {
       const memory = defaultMemory()
@@ -193,6 +237,26 @@ describe("InfrastructureMission", () => {
     it("Does not get a task it can't finish in TLL assigned")
   })
 })
+
+// bleh, to hell with generics!, need to figure out how to make a generic mockBuildableStructure
+const mockConstructionSite = (
+  structureType: BuildableStructureConstant,
+  id: string,
+  roomName: string,
+  x: number,
+  y: number
+): ConstructionSite => {
+  // const mockConstructionSite = <T extends BuildableStructureConstant>(structureType:T, id:string, roomName: string, x:number, y: number): ConstructionSite<T> => {
+  const constructionSiteId = new ConstructionSite(id)
+  constructionSiteId.id = id
+  constructionSiteId.structureType = structureType
+  constructionSiteId.pos = new RoomPosition(x, y, roomName) // probably need a mockPosition aswell.
+  constructionSiteId.pos.roomName = roomName
+  constructionSiteId.pos.x = x
+  constructionSiteId.pos.y = y
+
+  return constructionSiteId
+}
 
 const defaultMemory = () => {
   const memory = {
