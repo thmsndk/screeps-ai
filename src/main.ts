@@ -350,7 +350,7 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   let mission = infraStructureMissions[room.name]
   if (!mission) {
     let memory = room.memory.infrastructureMission
-    if (!memory) {
+    if (!memory || !memory.layers || !memory.creeps) {
       memory = room.memory.infrastructureMission = { layers: [], creeps: [] }
     }
 
@@ -362,7 +362,8 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
 
   constructionSites.forEach(site => {
     const plan = mission.findInfrastructure(site.id)
-    if (!plan) {
+
+    if (!plan || Object.keys(plan).length <= 0) {
       mission.addConstructionSite(0, site)
     }
   })
