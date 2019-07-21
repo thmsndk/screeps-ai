@@ -18,6 +18,7 @@ import { BuilderJob } from "./jobs/BuilderJob"
 import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { RoomScanner } from "./RoomScanner"
+import { InfraStructureMission } from "missions/InfrastructureMission"
 // import "./_lib/client-abuse/injectBirthday.js"
 
 global.Profiler = init()
@@ -42,6 +43,10 @@ global.Profiler = init()
 // })
 
 const roomScanner = new RoomScanner()
+
+const infraStructureMissions: Dictionary<InfraStructureMission> = {}
+
+const hatcheries: Dictionary<Hatchery> = {}
 
 // https://github.com/bencbartlett/creep-tasks
 
@@ -86,7 +91,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
       // TODO: only scan the room for static data once
       roomScanner.scan(spawn.room)
 
-      hatchery = new Hatchery(spawn)
+      hatchery = hatcheries[spawn.room.name]
+      if (!hatchery) {
+        hatcheries[spawn.room.name] = hatchery = new Hatchery(spawn)
+      }
 
       hatchery.run()
 
@@ -142,7 +150,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  queueBuildingJobs(jobs)
+  queueBuildingJobs(Game.spawns.Spawn1.room, jobs)
 
   for (const target in jobs) {
     if (jobs.hasOwnProperty(target)) {
@@ -318,8 +326,8 @@ function handleTowersAndQueueTowerHaulers(room: Room, jobs: Dictionary<Job[]>) {
 
 const comparePriority = (a: BuilderJob, b: BuilderJob) => b.memory.priority - a.memory.priority
 
-function queueBuildingJobs(jobs: Dictionary<Job[]>) {
-  const constructionSites = Game.spawns.Spawn1.room.find(FIND_MY_CONSTRUCTION_SITES)
+function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
+  const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES)
   // group construction sites by type?, the type could be utilized as id, might be deleted then by earlier logic that deletes jobs if target is not found
   // road work, what priority is that? Low?
   // extension, what priority is that? Medium
@@ -338,49 +346,69 @@ function queueBuildingJobs(jobs: Dictionary<Job[]>) {
   // The problem with "queueing" building jobs, is that it's for detecting jobs I manually place.... they should be automated, then I don't have to queue them.
   // We need a "Building Mission" it should be responsible of prioritizing jobs, determine if we need more builders for all the jobs, bigger builders and what order they should be done in
 
-  // TODO: create mission, scan construction sites, add sites to mission, add creeps to mission
+  // get mission from cache or create new one
+  let mission = infraStructureMissions[room.name]
+  if (!mission) {
+    let memory = room.memory.infrastructureMission
+    if (!memory) {
+      memory = room.memory.infrastructureMission = { layers: [], creeps: [] }
+    }
 
-  const constructionJobs: PriorityQueue<BuilderJob> = new PriorityQueue({ comparator: comparePriority })
+    mission = new InfraStructureMission({ memory })
+    infraStructureMissions[room.name] = mission
+
+    mission.AddLayer(room.name)
+  }
 
   constructionSites.forEach(site => {
-    if (!jobs[site.id]) {
-      const job = new BuilderJob(site)
-      jobs[site.id] = [job]
+    const plan = mission.findInfrastructure(site.id)
+    if (!plan) {
+      mission.addConstructionSite(0, site)
     }
-
-    constructionJobs.queue(jobs[site.id][0] as BuilderJob)
   })
 
-  if (constructionJobs.length > 0) {
-    const nextConstructionJob = constructionJobs.dequeue()
-    // TODO: sort constructionJobs by priority, take the first, we need a PriorityQueue
-    const maxCreeps = 5
-    const assignedCreeps = Object.keys(nextConstructionJob.Creeps).length
+  const hatchery = _.first(Object.values(hatcheries))
+  let neededWorkers = 2 // currently a naive approach making us have 2 workers
+  // should probably adjust amount of workers based on how much energy we want to use, how many construction sites, and more
+  neededWorkers -= Object.keys(mission.creeps).length
 
-    const energyPercentage = nextConstructionJob.constructionSite.room
-      ? nextConstructionJob.constructionSite.room.energyAvailable /
-        nextConstructionJob.constructionSite.room.energyCapacityAvailable
-      : null
-    if (assignedCreeps < maxCreeps && energyPercentage && energyPercentage > 0.25) {
-      if (assignedCreeps === 0) {
-        nextConstructionJob.memory.priority = JobPriority.High
+  // assign creeps to mission
+  const idle = _.filter(
+    Game.creeps,
+    creep => !creep.spawning && creep.memory.unemployed && creep.isIdle && creep.memory.role === Role.Worker
+  )
+  if (idle) {
+    idle.slice(0, neededWorkers).forEach(creep => {
+      neededWorkers -= 1
+      mission.addCreep(creep)
+      creep.memory.unemployed = false
+    })
+  }
+
+  // requestHatch, should be moved to a function somewhere
+  if (hatchery) {
+    const target = "infrastructure"
+    const mutation = CreepMutations.WORKER
+    const requests = hatchery.getRequests(target, mutation)
+    neededWorkers -= requests
+    if (neededWorkers > 0) {
+      for (let index = 0; index < neededWorkers; index++) {
+        // request new creeps
+        // console.log(`${this.target} requested ${mutation}`, neededWorkers, requests)
+        hatchery.queue({
+          mutation,
+          target,
+          priority: JobPriority.Medium
+        })
       }
-
-      nextConstructionJob.memory.priority = JobPriority.Medium
-
-      if (assignedCreeps / maxCreeps >= 0.25 && nextConstructionJob.memory.priority >= JobPriority.Medium) {
-        nextConstructionJob.memory.priority = JobPriority.Low
-      }
-
-      // find creep that can solve task currently all our creeps can solve all tasks, this needs to be specialized
-      // TODO: acquire free builders with energy close to build site, sort unemployed by priority
-      // TODO: should find closest builder to assign
-      let neededWorkers = maxCreeps - assignedCreeps
-      neededWorkers = nextConstructionJob.assign(neededWorkers, nextConstructionJob.memory, Role.builder)
-
-      nextConstructionJob.requestHatch(neededWorkers, CreepMutations.WORKER, nextConstructionJob.memory.priority)
     }
   }
+
+  // distribute tasks
+  mission.distributeTasks()
+
+  // run creeps
+  mission.run()
 }
 
 function calculateAverageEnergy(room: Room) {

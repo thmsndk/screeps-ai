@@ -122,9 +122,11 @@ export class InfraStructureMission extends Mission {
     const creeps = {} as Dictionary<Creep>
     if (parameters) {
       if (parameters.memory) {
-        parameters.memory.layers.forEach(layer => {
-          layers.push(new Layer(layer.roomName, layer))
-        })
+        if (parameters.memory.layers) {
+          parameters.memory.layers.forEach(layer => {
+            layers.push(new Layer(layer.roomName, layer))
+          })
+        }
 
         if (parameters.memory.creeps) {
           Object.values(parameters.memory.creeps).forEach(creepId => {
@@ -181,6 +183,7 @@ export class InfraStructureMission extends Mission {
   public distributeTasks() {
     const idleCreeps = _.filter(this.creeps, creep => creep.isIdle)
     idleCreeps.forEach(creep => {
+      // We should probably have a PriortyQueue of construction sites
       this.Layers.forEach((layer, index) => {
         // TODO: implement targetedBy and handle coop tasks, find closest creep, validate work parts, and other shenanigans
         const position = layer.Positions.find(p => !!p.id)
@@ -188,6 +191,12 @@ export class InfraStructureMission extends Mission {
           creep.task = Tasks.build(position.constructionSite)
         }
       })
+    })
+  }
+
+  public run() {
+    Object.values(this.creeps).forEach(creep => {
+      creep.run()
     })
   }
 }

@@ -106,6 +106,10 @@ describe("InfrastructureMission", () => {
     assert.equal(mission.Layers[0].Positions[1].pos.y, 6)
   })
 
+  // Can you actually place multiple constructionsites on the same time?
+  // should we allow for a position to contain multiple sites?
+  it("should throw an error if a constructionsite already exists on that layer and position")
+
   it("should persist to memory", () => {
     const memory = { layers: [] as any[] } as InfrastructureMissionMemory
     Memory.rooms.N0E0 = { infrastructure: memory } as any
