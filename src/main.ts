@@ -91,10 +91,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
       // TODO: only scan the room for static data once
       roomScanner.scan(spawn.room)
 
-      hatchery = hatcheries[spawn.room.name]
-      if (!hatchery) {
-        hatcheries[spawn.room.name] = hatchery = new Hatchery(spawn)
-      }
+      // TODO: We can't do this because the memory object seems to get removed?
+      // hatchery = hatcheries[spawn.room.name]
+      // if (!hatchery) {
+      hatcheries[spawn.room.name] = hatchery = new Hatchery(spawn)
+      // }
 
       hatchery.run()
 
@@ -347,17 +348,22 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   // We need a "Building Mission" it should be responsible of prioritizing jobs, determine if we need more builders for all the jobs, bigger builders and what order they should be done in
 
   // get mission from cache or create new one
-  let mission = infraStructureMissions[room.name]
+  let mission = infraStructureMissions[room.name] // we probably can't do this. because memory will get stale/stuck because of GC of the object??
   if (!mission) {
+    let initialize = false
     let memory = room.memory.infrastructureMission
     if (!memory || !memory.layers || !memory.creeps) {
       memory = room.memory.infrastructureMission = { layers: [], creeps: [] }
+      initialize = true
     }
 
     mission = new InfraStructureMission({ memory })
-    infraStructureMissions[room.name] = mission
 
-    mission.AddLayer(room.name)
+    if (initialize) {
+      mission.AddLayer(room.name)
+    }
+
+    infraStructureMissions[room.name] = mission
   }
 
   constructionSites.forEach(site => {
@@ -376,8 +382,9 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   // assign creeps to mission
   const idle = _.filter(
     Game.creeps,
-    creep => !creep.spawning && creep.memory.unemployed && creep.isIdle && creep.memory.role === Role.Worker
+    creep => !creep.spawning && creep.memory.unemployed && creep.isIdle && creep.memory.role === Role.builder
   )
+
   if (idle) {
     idle.slice(0, neededWorkers).forEach(creep => {
       neededWorkers -= 1
@@ -391,7 +398,9 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
     const target = "infrastructure"
     const mutation = CreepMutations.WORKER
     const requests = hatchery.getRequests(target, mutation)
+
     neededWorkers -= requests
+
     if (neededWorkers > 0) {
       for (let index = 0; index < neededWorkers; index++) {
         // request new creeps

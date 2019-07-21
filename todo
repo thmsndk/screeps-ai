@@ -36,6 +36,9 @@ Roadmap:
         figure out how to defend against invaders, with and without towers
     Spawning:
         should be able to make a request that only gets forfilled after a specific tick / game.time
+        ☐ issue with adding hatchery to global hatchery list
+            seems like memory gets stale or garbage collected or something when we cache hatchery instance in global
+            the result is getRequests returns 0 because memory does not exist?
     Grafana:
         Gcl rcl estimate
         Creep tasks
