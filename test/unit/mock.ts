@@ -16,14 +16,10 @@ const mockScreeps = () => {
   g.Game = Game
 
   // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
-  g.Creep = (function() {
-    // tslint:disable-next-line: no-empty
-    function Creep() {}
-
-    return Creep
-  })()
+  g.Creep = class Creep {}
 
   // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
+  // tslint:disable-next-line: max-classes-per-file
   g.RoomObject = class RoomObject {}
 
   // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
