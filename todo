@@ -27,6 +27,11 @@ Roadmap:
         We should automate room planning
         Placing of extensions, roads
         https://github.com/screepers/RoomVisual
+        Stationary builders:
+         Done right you might have a 3W,15C,18M builder for example sitting near a site,
+         spending 15 e/t  but with a buffer of 750 energy (50 build ticks)
+         and somebody restocking him
+
     Invader Defence:
         figure out how to defend against invaders, with and without towers
     Spawning:

@@ -16,3 +16,9 @@
 //   }
 //   MemHack.register()
 //   export default MemHack
+
+/*
+You can run this code
+cpu = Game.cpu.getUsed();JSON.parse(RawMemory.get());Game.cpu.getUsed()-cpu
+in console and you will see how many CPU you spend on memory parsing.
+*/
