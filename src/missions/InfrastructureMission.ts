@@ -187,7 +187,8 @@ export class InfraStructureMission extends Mission {
       // We should probably have a PriortyQueue of construction sites
       this.Layers.forEach((layer, index) => {
         // TODO: implement targetedBy and handle coop tasks, find closest creep, validate work parts, and other shenanigans
-        const position = layer.Positions.find(p => !!p.id)
+        // TODO: when construction site is done, we need to mark it as such with a reference to the structure instead
+        const position = layer.Positions.find(p => !!p.id && !!Game.getObjectById(p.id))
         if (position && position.constructionSite) {
           creep.task = Tasks.build(position.constructionSite)
         }
