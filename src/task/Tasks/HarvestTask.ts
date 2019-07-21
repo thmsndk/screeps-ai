@@ -8,7 +8,7 @@ function isSource(obj: Source | Mineral): obj is Source {
 
 export class HarvestTask extends Task {
   public static taskName = "harvest"
-  public target: any
+  public target!: harvestTargetType
 
   constructor(target: harvestTargetType, options = {} as TaskOptions) {
     super(HarvestTask.taskName, target as any, options)
