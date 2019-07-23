@@ -99,29 +99,30 @@ class HaulingCreep {
       // first iteration we just pull from container and move to spawn & extensions, makes the initial spawn kinda broken though, cause I won't have containers as fast
       // we also need to make sure it does not pickup resources from a container, and then puts them back in, getting stuck, we could persist target in memory
       // const droppedResource
-      const resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
-      if (resource) {
-        if (resource && creep.pickup(resource[0]) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(resource[0], { visualizePathStyle: PathStyle.Hauling })
-        }
-      } else {
-        const targets = source.pos.findInRange(FIND_STRUCTURES, 2, {
-          filter: structure => {
-            switch (structure.structureType) {
-              case STRUCTURE_CONTAINER:
-                const container = structure as StructureContainer
-                const amount = _.sum(container.store)
-                return amount > container.storeCapacity / 2
-            }
 
-            return false
+      const targets = source.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: structure => {
+          switch (structure.structureType) {
+            case STRUCTURE_CONTAINER:
+              const container = structure as StructureContainer
+              const amount = _.sum(container.store)
+              return amount > container.storeCapacity / 2
           }
-        })
 
-        // job.memory.target = target ? target.id : undefined
+          return false
+        }
+      })
 
-        if (targets && creep.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(targets[0], { range: 3, visualizePathStyle: PathStyle.Hauling })
+      // job.memory.target = target ? target.id : undefined
+
+      if (targets && creep.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(targets[0], { range: 1, visualizePathStyle: PathStyle.Hauling })
+      } else {
+        const resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
+        if (resource) {
+          if (resource && creep.pickup(resource[0]) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(resource[0], { visualizePathStyle: PathStyle.Hauling })
+          }
         }
       }
     } else {
@@ -154,7 +155,7 @@ class HaulingCreep {
       })
 
       if (target && creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        const result = creep.moveTo(target, { range: 3, visualizePathStyle: PathStyle.Deposit })
+        const result = creep.moveTo(target, { range: 1, visualizePathStyle: PathStyle.Deposit })
         switch (result) {
           case OK:
             break
