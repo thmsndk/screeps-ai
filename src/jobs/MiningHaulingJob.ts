@@ -77,7 +77,7 @@ class HaulingCreep {
 
     switch (creep.memory.mode) {
       case Mode.collecting:
-        if (creep.carry.energy === creep.carryCapacity) {
+        if (_.sum(creep.carry) === creep.carryCapacity) {
           creep.memory.mode = Mode.delivering
         }
         break
