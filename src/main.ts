@@ -320,6 +320,17 @@ function handleTowersAndQueueTowerHaulers(room: Room, jobs: Dictionary<Job[]>) {
       })
       if (closestDamagedStructure) {
         tower.repair(closestDamagedStructure)
+      } else {
+        const closestCreep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
+          // walls does not appear to be in "FIND_MY_STRUCTURES"
+          filter: (creep: Creep) => {
+            // console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
+            return creep.hits < creep.hitsMax
+          }
+        })
+        if (closestCreep) {
+          tower.heal(closestCreep)
+        }
       }
     }
   })
