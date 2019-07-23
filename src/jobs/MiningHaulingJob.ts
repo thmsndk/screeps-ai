@@ -105,7 +105,7 @@ class HaulingCreep {
           creep.moveTo(resource[0], { visualizePathStyle: PathStyle.Hauling })
         }
       } else {
-        const target = source.pos.findInRange(FIND_STRUCTURES, 2, {
+        const targets = source.pos.findInRange(FIND_STRUCTURES, 2, {
           filter: structure => {
             switch (structure.structureType) {
               case STRUCTURE_CONTAINER:
@@ -120,8 +120,8 @@ class HaulingCreep {
 
         // job.memory.target = target ? target.id : undefined
 
-        if (target && creep.withdraw(target[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target[0], { visualizePathStyle: PathStyle.Hauling })
+        if (targets && creep.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(targets[0], { range: 3, visualizePathStyle: PathStyle.Hauling })
         }
       }
     } else {
@@ -154,7 +154,7 @@ class HaulingCreep {
       })
 
       if (target && creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        const result = creep.moveTo(target, { visualizePathStyle: PathStyle.Deposit })
+        const result = creep.moveTo(target, { range: 3, visualizePathStyle: PathStyle.Deposit })
         switch (result) {
           case OK:
             break
