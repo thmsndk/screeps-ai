@@ -165,7 +165,7 @@ export class Hatchery {
         break
     }
 
-    let spendingCap = this.Spawn.room.energyAvailable / 1.5
+    let spendingCap = this.Spawn.room.energyCapacityAvailable / 1.5
     const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
     if (
       harvesters.length <=
@@ -173,7 +173,7 @@ export class Hatchery {
         ? this.Spawn.room.memory.miningPositions / 3
         : 0)
     ) {
-      spendingCap = Math.max(spendingCap, 300)
+      spendingCap = Math.max(this.Spawn.room.energyAvailable, 300)
     }
 
     const body = this.mutate(request.mutation, spendingCap)
