@@ -205,7 +205,7 @@ export class Hatchery {
     // https://docs.screeps.com/api/#Creep
   }
 
-  private mutate(mutation: CreepMutations, spendingCap?: number): MutatedBody {
+  public mutate(mutation: CreepMutations, spendingCap?: number): MutatedBody {
     if (!spendingCap) {
       spendingCap = this.Spawn.room.energyCapacityAvailable
     }
@@ -219,10 +219,14 @@ export class Hatchery {
     const extension = bodyExtensions[mutation]
     const extensionCost = bodyCost(extension)
 
+    const baseParts = body.length
+    const extensionParts = extension.length
+    const maxExtensions = Math.floor((50 - baseParts) / extensionParts)
+
     // (Max - bodyCost) / extensionCost = possible extensions
     const possibleExtensions = Math.floor((spendingCap - cost) / extensionCost)
 
-    for (let index = 0; index < possibleExtensions; index++) {
+    for (let index = 0; index < Math.min(possibleExtensions, maxExtensions); index++) {
       body = body.concat(extension)
     }
 

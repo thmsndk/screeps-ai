@@ -81,5 +81,9 @@ describe("hatchery", () => {
   //   });
   // }*/
   // )
-  it("should not attempt to generate creeps with more than 50 body parts")
+  it("should not attempt to generate creeps with more than 50 body parts", () => {
+    const hatchery = new Hatchery("Spawn1")
+    const body = hatchery.mutate(CreepMutations.WORKER, 5000) // made mutate public instead of mocking room visuals and all sorts of shenanigans
+    assert.isBelow(body.parts.length, 51)
+  })
 })
