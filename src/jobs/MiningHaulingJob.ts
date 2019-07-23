@@ -135,7 +135,12 @@ class HaulingCreep {
             case STRUCTURE_SPAWN:
               const spawn = structure as StructureSpawn
               return spawn.energy < spawn.energyCapacity
-
+            case STRUCTURE_STORAGE:
+              const tower = structure as StructureStorage
+              return (
+                tower.store[RESOURCE_ENERGY] < tower.storeCapacity &&
+                creep.room.energyAvailable === creep.room.energyCapacityAvailable
+              )
             // case STRUCTURE_TOWER:
             //     const tower = structure as StructureTower
             //     return tower.energy < tower.energyCapacity
