@@ -229,12 +229,14 @@ export class InfraStructureMission extends Mission {
           }
         }) as StructureContainer | StructureExtension | StructureSpawn | StructureTower
 
-        const withdraw = Tasks.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy)
+        if (target) {
+          const withdraw = Tasks.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy)
 
-        if (creep.task && creep.task.name !== TaskWithdraw.taskName) {
-          creep.task = Tasks.chain([withdraw, creep.task])
-        } else if (withdraw) {
-          creep.task = withdraw
+          if (creep.task && creep.task.name !== TaskWithdraw.taskName) {
+            creep.task = Tasks.chain([withdraw, creep.task])
+          } else if (withdraw) {
+            creep.task = withdraw
+          }
         }
       }
 
