@@ -223,11 +223,14 @@ export class InfraStructureMission extends Mission {
               case STRUCTURE_TOWER:
                 const tower = structure as StructureTower
                 return tower.energy >= creep.carryCapacity
+              case STRUCTURE_STORAGE:
+                const storage = structure as StructureStorage
+                return storage.store[RESOURCE_ENERGY] < storage.storeCapacity
             }
 
             return false
           }
-        }) as StructureContainer | StructureExtension | StructureSpawn | StructureTower
+        }) as StructureContainer | StructureExtension | StructureSpawn | StructureTower | StructureStorage
 
         if (target) {
           const withdraw = Tasks.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy)
