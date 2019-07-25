@@ -19,6 +19,7 @@ import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { RoomScanner } from "./RoomScanner"
 import { InfraStructureMission } from "missions/InfrastructureMission"
+import { visualizeCreepRole } from "_lib/roleicons"
 // import "./_lib/client-abuse/injectBirthday.js"
 
 global.Profiler = init()
@@ -245,6 +246,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // How do I make sure collect stats resets room stats when I die?
 
   collect_stats()
+
+  visualizeCreepRole()
 
   if (Game.spawns.Spawn1) {
     const spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
