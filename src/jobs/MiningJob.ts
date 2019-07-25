@@ -111,7 +111,7 @@ class RoleHarvester {
       if (hostilesInRange.length > 0) {
         const fleePath = PathFinder.search(
           creep.pos,
-          hostilesInRange.map(hostile => ({ pos: hostile.pos, range: 3 })),
+          hostilesInRange.map(hostile => ({ pos: hostile.pos, range: 4 })),
           { flee: true }
         )
 

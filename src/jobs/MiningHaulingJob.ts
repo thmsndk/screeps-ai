@@ -5,6 +5,7 @@ import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
+import { DEFCONLEVEL } from "DEFCON"
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners
@@ -74,6 +75,22 @@ enum Mode {
 class HaulingCreep {
   public run(job: MiningHaulingJob, creep: Creep, source: Source) {
     // TODO: what if creep will expire before reaching source and another one is closer, should it go there?
+
+    if (creep.room.memory.DEFCON && creep.room.memory.DEFCON.level > DEFCONLEVEL.NONE) {
+      // stay 3 fields away from from enemy
+      const hostilesInRange = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 4)
+      if (hostilesInRange.length > 0) {
+        const fleePath = PathFinder.search(
+          creep.pos,
+          hostilesInRange.map(hostile => ({ pos: hostile.pos, range: 4 })),
+          { flee: true }
+        )
+
+        creep.moveByPath(fleePath.path)
+
+        return
+      }
+    }
 
     switch (creep.memory.mode) {
       case Mode.collecting:
