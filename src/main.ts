@@ -419,7 +419,7 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
         hatchery.queue({
           mutation,
           target,
-          priority: JobPriority.Medium
+          priority: JobPriority.Medium + 10
         })
       }
     }
