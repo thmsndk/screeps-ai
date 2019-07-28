@@ -20,15 +20,15 @@ Responsible for missions in village and outposts
 Should we call them missions?
 
 #### Village missions
-  - Energy
+  - [Energy](./EnergyMission.md)
   - Mineral
-  - Infrastructure
+  - [Infrastructure](./InfrastructureMission.md)
     - RCL 1..8
   - Defense (DEFCON?)
     - invaders
     - players
 
-#### Outpost missions
+#### Outpost missions/raids
   - Remote Energy
   - Remote Mineral
   - Remote Infrastructure
