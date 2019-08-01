@@ -125,10 +125,7 @@ class HaulingCreep {
                 return amount > container.storeCapacity / 4
               case STRUCTURE_STORAGE:
                 const storage = structure as StructureStorage
-                return (
-                  storage.store[RESOURCE_ENERGY] < storage.storeCapacity &&
-                  creep.room.energyAvailable === creep.room.energyCapacityAvailable
-                )
+                return storage.store[RESOURCE_ENERGY] <= storage.storeCapacity
             }
 
             return false
