@@ -156,9 +156,9 @@ class UpgradeControllerCreep {
               // case STRUCTURE_SPAWN:
               //   const spawn = structure as StructureSpawn
               //   return spawn.energy >= creep.carryCapacity
-              case STRUCTURE_TOWER: // not sure it should get from there
-                const tower = structure as StructureTower
-                return tower.energy >= creep.carryCapacity
+              // case STRUCTURE_TOWER: // not sure it should get from there
+              //   const tower = structure as StructureTower
+              //   return tower.energy >= creep.carryCapacity
             }
 
             return false
