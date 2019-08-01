@@ -122,7 +122,13 @@ class HaulingCreep {
               case STRUCTURE_CONTAINER:
                 const container = structure as StructureContainer
                 const amount = _.sum(container.store)
-                return amount > container.storeCapacity / 2
+                return amount > container.storeCapacity / 4
+              case STRUCTURE_STORAGE:
+                const storage = structure as StructureStorage
+                return (
+                  storage.store[RESOURCE_ENERGY] < storage.storeCapacity &&
+                  creep.room.energyAvailable === creep.room.energyCapacityAvailable
+                )
             }
 
             return false
