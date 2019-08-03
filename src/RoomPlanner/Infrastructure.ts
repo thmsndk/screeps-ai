@@ -44,6 +44,26 @@ export class Infrastructure {
   public addConstructionSite(layerIndex: number, constructionSite: ConstructionSite<BuildableStructureConstant>) {
     this.Layers[layerIndex].addConstructionSite(constructionSite)
   }
+  // TODO: merge findInfrastructure with some sort of overload
+  public findBuildableInfrastructure(
+    structureType: BuildableStructureConstant
+  ): Dictionary<FindInfrastructureResult[]> {
+    const results = {} as Dictionary<FindInfrastructureResult[]>
+    this.Layers.forEach((layer, index) => {
+      const positions = layer.Positions.filter(p => p.StructureType === structureType)
+      if (positions && positions.length > 0) {
+        if (!results[index]) {
+          results[index] = []
+        }
+
+        positions.forEach(position => {
+          results[index].push({ roomName: layer.roomName, pos: position.pos })
+        })
+      }
+    })
+
+    return results
+  }
 
   public findInfrastructure(constructionSiteId: string): Dictionary<FindInfrastructureResult> {
     const results = {} as Dictionary<FindInfrastructureResult>

@@ -3,8 +3,12 @@ import "../../src/task/prototypes"
 import { Memory } from "./mock"
 
 import { Substitute } from "@fluffy-spoon/substitute"
+import { assert } from "chai"
 
 import { CreepMutations } from "../../src/Hatchery"
+import { RoomPlanner } from "RoomPlanner"
+import { Infrastructure } from "RoomPlanner/Infrastructure"
+import { InfrastructureMemory } from "RoomPlanner/InfrastructureMemory"
 
 describe("RoomPlanner", () => {
   before(() => {
@@ -41,20 +45,27 @@ describe("RoomPlanner", () => {
 
   it("no extensions should be planned on RCL 0" /*, () => {}*/)
   it("no extensions should be planned on RCL 1" /*, () => {}*/)
-  it(
-    "5 extensions should be planned on RCL 2" /*() => {
-    const planner = new RoomPlanner()
-    const rcl2Plan = planner.plan("TEST", 2)
-    assert.equal(rcl2Plan.length, 1)
-    // const layer0 = rcl2Plan[0].getStructureType // already made this in InfrastructureMission. time to extract out InfraStructure from the actual Mission
-  }*/
-  )
-  it("10 extensions should be planned on RCL 3" /*, () => {}*/)
-  it("20 extensions should be planned on RCL 4" /*, () => {}*/)
-  it("30 extensions should be planned on RCL 5" /*, () => {}*/)
-  it("40 extensions should be planned on RCL 6" /*, () => {}*/)
-  it("50 extensions should be planned on RCL 7" /*, () => {}*/)
-  it("60 extensions should be planned on RCL 8" /*, () => {}*/)
+  it("5 extensions should be planned on RCL 2", () => {
+    assertExtensionCountByRCL(5, 2)
+  })
+  it("10 extensions should be planned on RCL 3", () => {
+    assertExtensionCountByRCL(10, 3)
+  })
+  it("20 extensions should be planned on RCL 4", () => {
+    assertExtensionCountByRCL(20, 4)
+  })
+  it("30 extensions should be planned on RCL 5", () => {
+    assertExtensionCountByRCL(30, 5)
+  })
+  it("40 extensions should be planned on RCL 6", () => {
+    assertExtensionCountByRCL(40, 6)
+  })
+  it("50 extensions should be planned on RCL 7", () => {
+    assertExtensionCountByRCL(50, 7)
+  })
+  it("60 extensions should be planned on RCL 8", () => {
+    assertExtensionCountByRCL(60, 8)
+  })
 
   it("should plan extensions around spawn in a checkerboard pattern" /*, () => {}*/)
   // CONTROLLER_STRUCTURES => if (rcl < 8) return positions.slice(0, CONTROLLER_STRUCTURES[structureType][rcl]);
@@ -71,3 +82,33 @@ describe("RoomPlanner", () => {
   // requires us to mock RoomVisual
   it("should visualize plan" /*, () => {}*/)
 })
+
+const defaultInfrastructureMemory = (blankLayers?: boolean) => {
+  const memory = {
+    layers: [
+      {
+        roomName: "N0E0",
+        positions: [
+          { structureType: STRUCTURE_ROAD, x: 1, y: 2, id: "constructionSiteId" },
+          { structureType: STRUCTURE_ROAD, x: 1, y: 3 }
+        ]
+      }
+    ]
+  } as InfrastructureMemory
+  if (blankLayers) {
+    memory.layers = []
+  }
+  return memory
+}
+const assertExtensionCountByRCL = (expectedExtensions: number, rcl: number) => {
+  const planner = new RoomPlanner(new Infrastructure({ memory: defaultInfrastructureMemory(true) }))
+  const infrastructure = planner.plan("TEST", rcl) // TODO: should we really pass in rcl level? should it not generate an entire plan ?
+  assert.equal(infrastructure.Layers.length, rcl + 1)
+  const plannedExtensions = infrastructure.findBuildableInfrastructure(STRUCTURE_EXTENSION)
+  assert.isNotEmpty(plannedExtensions, "expected layers to be found")
+  // assert.equal(Object.keys(plannedExtensions).length, 1, "expected to find 1 layer of planned extensions")
+  // TODO: loop all layers and get planned extensions
+  const extensions = plannedExtensions[rcl] // TODO: not sure if we want a layer per RCL? could allow us to destroy/replan previours layers on a higher layer
+  assert.isNotEmpty(extensions, "expected planned extensions to be found")
+  assert.equal(extensions.length, expectedExtensions)
+}
