@@ -12,6 +12,7 @@
     "push-sim": "rollup -c --environment DEST:sim",
     "push-s+": "rollup -c --environment DEST:s+",
     "test": "npm run test-unit && npm run test-integration",
+    "debug-test-unit": "rollup -c rollup.test-unit-config.js",
     "test-unit": "rollup -c rollup.test-unit-config.js && mocha dist/test-unit.bundle.js -R mocha-pretty-spec-reporter",
     "wbut": "rollup -c rollup.test-unit-config.js --watch",
     "wmut": "mocha --watch dist/test-unit.bundle.js -R mocha-pretty-spec-reporter",
