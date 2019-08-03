@@ -1,16 +1,10 @@
-import { stringify } from "querystring"
 import "../constants"
 import { Memory } from "./mock"
-
-import { assert } from "chai"
-
-import { Arg, Substitute } from "@fluffy-spoon/substitute"
-
-import { CreepMutations, Hatchery } from "../../src/Hatchery"
-import { InfraStructureMission, InfrastructureMissionMemory } from "./../../src/missions/InfrastructureMission"
-
 import "../../src/task/prototypes"
-import { TaskBuild } from "task/Tasks/TaskBuild"
+
+import { Substitute } from "@fluffy-spoon/substitute"
+
+import { CreepMutations } from "../../src/Hatchery"
 
 describe("EnergyMission", () => {
   before(() => {

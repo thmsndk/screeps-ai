@@ -5,6 +5,7 @@ declare namespace NodeJS {
     DEFCON: import("../DEFCON").DEFCON
     Profiler: Profiler // import("./_lib/Profiler/Profiler/typings").Profiler
     injectBirthday: () => void
+    // Infrastructure: import("../RoomPlanner/Infrastructure").Infrastructure // TODO: figure out this later
   }
 }
 

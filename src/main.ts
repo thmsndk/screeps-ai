@@ -1,16 +1,19 @@
 import "./task/prototypes"
-import { Task } from "./task/Task"
+
 import { summarize_room } from "_lib/resources"
+import { visualizeCreepRole } from "_lib/roleicons"
 import { add_stats_callback, collect_stats } from "_lib/screepsplus"
 import { HaulingJob } from "jobs/HaulingJob"
 import { Job, JobPriority, JobType } from "jobs/Job"
 import { PathStyle } from "jobs/MovementPathStyles"
 import { Dictionary } from "lodash"
+import { InfraStructureMission } from "missions/InfrastructureMission"
 import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
 import { Role } from "role/roles"
 import PriorityQueue from "ts-priority-queue"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { deseralizeJobCreeps } from "utils/MemoryUtil"
+
 import { init } from "./_lib/Profiler"
 import DEFCON, { DEFCONLEVEL } from "./DEFCON"
 import { CreepMutations, Hatchery } from "./Hatchery"
@@ -18,8 +21,9 @@ import { BuilderJob } from "./jobs/BuilderJob"
 import { EnergyMission } from "./jobs/EnergyMission"
 import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { RoomScanner } from "./RoomScanner"
-import { InfraStructureMission } from "missions/InfrastructureMission"
-import { visualizeCreepRole } from "_lib/roleicons"
+import { Task } from "./task/Task"
+import { Infrastructure } from "RoomPlanner/Infrastructure"
+
 // import "./_lib/client-abuse/injectBirthday.js"
 
 global.Profiler = init()
@@ -371,20 +375,21 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
     initialize = true
   }
 
-  const mission = new InfraStructureMission({ memory })
+  const infrastructure = new Infrastructure({ memory })
+  const mission = new InfraStructureMission({ memory, infrastructure })
 
   if (initialize) {
-    mission.AddLayer(room.name)
+    infrastructure.AddLayer(room.name)
   }
 
   infraStructureMissions[room.name] = mission
   // }
 
   constructionSites.forEach(site => {
-    const plan = mission.findInfrastructure(site.id)
+    const plan = infrastructure.findInfrastructure(site.id)
 
     if (!plan || Object.keys(plan).length <= 0) {
-      mission.addConstructionSite(0, site)
+      infrastructure.addConstructionSite(0, site)
     }
   })
 
