@@ -123,7 +123,7 @@ class HaulingCreep {
             case STRUCTURE_CONTAINER:
               const container = structure as StructureContainer
               const amount = _.sum(container.store)
-              return amount > container.storeCapacity / 4
+              return amount > 0 // container.storeCapacity / 4
           }
 
           return false
