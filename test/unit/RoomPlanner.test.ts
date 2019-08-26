@@ -81,6 +81,8 @@ describe("RoomPlanner", () => {
 
   // requires us to mock RoomVisual
   it("should visualize plan" /*, () => {}*/)
+
+  it("should handle multiroom plans for roads and such." /*, () => {}*/)
 })
 
 const defaultInfrastructureMemory = (blankLayers?: boolean) => {
@@ -107,8 +109,14 @@ const assertExtensionCountByRCL = (expectedExtensions: number, rcl: number) => {
   const plannedExtensions = infrastructure.findBuildableInfrastructure(STRUCTURE_EXTENSION)
   assert.isNotEmpty(plannedExtensions, "expected layers to be found")
   // assert.equal(Object.keys(plannedExtensions).length, 1, "expected to find 1 layer of planned extensions")
-  // TODO: loop all layers and get planned extensions
-  const extensions = plannedExtensions[rcl] // TODO: not sure if we want a layer per RCL? could allow us to destroy/replan previours layers on a higher layer
-  assert.isNotEmpty(extensions, "expected planned extensions to be found")
-  assert.equal(extensions.length, expectedExtensions)
+  let plannedExtensionCount = 0
+  for (const plannedRcl in plannedExtensions) {
+    if (plannedExtensions.hasOwnProperty(plannedRcl)) {
+      const extensions = plannedExtensions[plannedRcl]
+      assert.isNotEmpty(extensions, "expected planned extensions to be found")
+      plannedExtensionCount += extensions.length
+    }
+  }
+
+  assert.equal(plannedExtensionCount, expectedExtensions)
 }
