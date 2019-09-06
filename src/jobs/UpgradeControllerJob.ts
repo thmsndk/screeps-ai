@@ -43,7 +43,7 @@ export class UpgradeControllerJob extends Job {
         ? this.controller.room.memory.averageEnergy.average
         : 0
       : 0
-    const maxCreeps = Math.min(Math.floor(averageEnergy / (averageEnergyUsage || averageEnergy)), 12)
+    const maxCreeps = Math.min(Math.floor(averageEnergy / (averageEnergyUsage || averageEnergy)), 10)
 
     this.visualizeProgress(assignedCreeps, maxCreeps)
 
