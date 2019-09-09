@@ -1,3 +1,4 @@
+import { RoomPlanner } from "RoomPlanner"
 import "./_lib/RoomVisual/RoomVisual"
 import "./task/prototypes"
 
@@ -382,6 +383,12 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   }
 
   const infrastructure = new Infrastructure({ memory })
+
+  if (room.controller) {
+    const roomPlanner = new RoomPlanner(infrastructure)
+    roomPlanner.plan(room.name, room.controller.level)
+  }
+
   infrastructure.visualize()
 
   const mission = new InfraStructureMission({ memory, infrastructure })

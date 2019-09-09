@@ -7,8 +7,11 @@ export class RoomPlanner {
   }
 
   public plan(roomName: string, rcl: number): Infrastructure {
+    console.log("Planning RCL" + rcl)
     for (let index = 0; index <= rcl; index++) {
-      this.infrastructure.AddLayer(roomName)
+      if (!this.infrastructure.Layers[index]) {
+        this.infrastructure.AddLayer(roomName)
+      }
     }
 
     // wall = RCL 2
@@ -24,6 +27,7 @@ export class RoomPlanner {
     // TODO: get spawn
     // TODO: get room terrain
 
+    // TODO: we might need roomName aswell to add to correct layer
     // Really naive implementation to satisfy  basic unit tests, need to write more tests that validates positions against rcl and such
     this.infrastructure.AddPosition(2, STRUCTURE_EXTENSION, 0, 1)
     this.infrastructure.AddPosition(2, STRUCTURE_EXTENSION, 0, 2)
