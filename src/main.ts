@@ -386,7 +386,7 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
 
   if (room.controller) {
     const roomPlanner = new RoomPlanner(infrastructure)
-    roomPlanner.plan(room.name, room.controller.level)
+    roomPlanner.plan(room.name, 8 /*room.controller.level + 1*/)
   }
 
   infrastructure.visualize()
