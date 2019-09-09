@@ -30,6 +30,11 @@ export class InfrastructureLayer {
         memory.id = constructionSite.id
       }
     }
+
+    if (this.Positions.some(p => p.pos.x === x && p.pos.y === y)) {
+      return
+    }
+
     if (this.memory) {
       this.memory.positions.push(memory)
     }
