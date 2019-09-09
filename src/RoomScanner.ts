@@ -1,6 +1,6 @@
 import { profile } from "_lib/Profiler"
 
-class Position implements IPosition {
+export class Position implements IPosition {
   public x: number
   public y: number
   constructor(x: number, y: number) {

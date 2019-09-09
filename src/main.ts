@@ -382,14 +382,15 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
     initialize = true
   }
 
-  const infrastructure = new Infrastructure({ memory })
-
   if (room.controller) {
-    const roomPlanner = new RoomPlanner(infrastructure)
+    const tmpInfrastructure = new Infrastructure({ memory: { layers: [] } })
+    const roomPlanner = new RoomPlanner(tmpInfrastructure)
     roomPlanner.plan(room.name, 8 /*room.controller.level + 1*/)
+    tmpInfrastructure.visualize()
   }
 
-  infrastructure.visualize()
+  const infrastructure = new Infrastructure({ memory })
+  // infrastructure.visualize()
 
   const mission = new InfraStructureMission({ memory, infrastructure })
 
