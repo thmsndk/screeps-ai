@@ -1,3 +1,4 @@
+import "./_lib/RoomVisual/RoomVisual"
 import "./task/prototypes"
 
 import { summarize_room } from "_lib/resources"
@@ -381,6 +382,8 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   }
 
   const infrastructure = new Infrastructure({ memory })
+  infrastructure.visualize()
+
   const mission = new InfraStructureMission({ memory, infrastructure })
 
   if (initialize) {

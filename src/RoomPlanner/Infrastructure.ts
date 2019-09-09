@@ -76,6 +76,18 @@ export class Infrastructure {
 
     return results
   }
+
+  public visualize() {
+    // should probably limit to room?
+    this.Layers.forEach(layer => {
+      const room = Game.rooms[layer.roomName]
+      if (room) {
+        layer.Positions.forEach(position => {
+          room.visual.structure(position.pos.x, position.pos.y, position.StructureType, { opacity: 0.25 })
+        })
+      }
+    })
+  }
 }
 
 interface FindInfrastructureResult {

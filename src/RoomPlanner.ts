@@ -5,6 +5,7 @@ export class RoomPlanner {
     // Should probably be an interface and not an exact implementation
     this.infrastructure = infrastructure
   }
+
   public plan(roomName: string, rcl: number): Infrastructure {
     for (let index = 0; index <= rcl; index++) {
       this.infrastructure.AddLayer(roomName)
@@ -20,6 +21,8 @@ export class RoomPlanner {
     // LAB = RCL 6
     // Terminal = RCL 6
 
+    // TODO: get spawn
+    // TODO: get room terrain
 
     // Really naive implementation to satisfy  basic unit tests, need to write more tests that validates positions against rcl and such
     this.infrastructure.AddPosition(2, STRUCTURE_EXTENSION, 0, 1)

@@ -35,6 +35,7 @@ export class InfrastructureLayer {
     }
     this.Positions.push(new InfraStructurePosition(memory, constructionSite))
   }
+
   public addConstructionSite(constructionSite: ConstructionSite<BuildableStructureConstant>) {
     this.AddPosition(
       constructionSite.structureType,

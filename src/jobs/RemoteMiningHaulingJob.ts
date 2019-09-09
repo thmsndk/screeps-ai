@@ -148,7 +148,6 @@ class HaulingCreep {
         if (!creep.task) {
           creep.task = Tasks.goToRoom(creep.memory.home)
         }
-        console.log("running remote hauling creep?")
         creep.run()
         return
       }
