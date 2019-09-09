@@ -8,6 +8,7 @@ interface CreepMemory {
   harvest: boolean
   building: boolean
   working: boolean
+  home: string
 }
 
 interface RoomMemory {

@@ -4,7 +4,7 @@
 // import { getBoostedTargetType, TaskGetBoosted } from "./Tasks/task_getBoosted"
 // import { getRenewedTargetType, TaskGetRenewed } from "./Tasks/task_getRenewed"
 import { goToTargetType, GoToTask } from "./Tasks/GotoTask"
-// import { goToRoomTargetType, TaskGoToRoom } from "./Tasks/task_goToRoom"
+import { goToRoomTargetType, TaskGoToRoom } from "./Tasks/TaskGoToRoom"
 import { harvestTargetType, HarvestTask } from "./Tasks/HarvestTask"
 // import { attackTargetType, TaskAttack } from "./Tasks/task_attack"
 import { buildTargetType, TaskBuild } from "./Tasks/TaskBuild"
@@ -96,9 +96,9 @@ export class Tasks {
     return new GoToTask(target, options)
   }
 
-  //   static goToRoom(target: goToRoomTargetType, options = {} as TaskOptions): TaskGoToRoom {
-  //     return new TaskGoToRoom(target, options)
-  //   }
+  public static goToRoom(target: goToRoomTargetType, options = {} as TaskOptions): TaskGoToRoom {
+    return new TaskGoToRoom(target, options)
+  }
 
   public static harvest(target: harvestTargetType, options = {} as TaskOptions): HarvestTask {
     return new HarvestTask(target, options)

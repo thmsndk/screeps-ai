@@ -1,7 +1,7 @@
 import { profile } from "_lib/Profiler"
 import { CreepMutations, Hatchery } from "Hatchery"
 import { JobPriority } from "jobs/Job"
-import { MiningHaulingJob } from "jobs/MiningHaulingJob"
+import { RemoteMiningHaulingJob } from "jobs/RemoteMiningHaulingJob"
 import { MiningJob } from "jobs/MiningJob"
 import { Dictionary } from "lodash"
 import { getPositions, RoomScanner } from "RoomScanner"
@@ -158,7 +158,7 @@ export class RemoteEnergyMission extends Mission {
         }
 
         // deseralize jobs
-        const jobs: Array<MiningJob | MiningHaulingJob> = this.deseralizeMiningAndHaulingJobs()
+        const jobs: Array<MiningJob | RemoteMiningHaulingJob> = this.deseralizeMiningAndHaulingJobs()
 
         this.sortMiningJobsByPriorityAndRun(jobs)
       }
@@ -166,14 +166,14 @@ export class RemoteEnergyMission extends Mission {
   }
 
   private deseralizeMiningAndHaulingJobs() {
-    const jobs: Array<MiningJob | MiningHaulingJob> = []
+    const jobs: Array<MiningJob | RemoteMiningHaulingJob> = []
     if (!this.memory) {
       return jobs
     }
     for (const sourceId in this.memory.jobs) {
       if (this.memory.jobs.hasOwnProperty(sourceId)) {
         const source = Game.getObjectById<Source>(sourceId)
-        // TODO: getObjectById only works if it is visible, miningjob and mininghaulingjob needs to work without visibility, e.g. the exact object
+        // TODO: getObjectById only works if it is visible, miningjob and RemoteMiningHaulingJob needs to work without visibility, e.g. the exact object
         // console.log("REM source " + sourceId, source)
         if (source && this.roomMemory.sources) {
           const sourceMemory = this.roomMemory.sources[sourceId]
@@ -183,9 +183,8 @@ export class RemoteEnergyMission extends Mission {
               const haulerMemory = miningMemory.jobs[0]
               const haulers = deseralizeJobCreeps(haulerMemory)
               const miners = deseralizeJobCreeps(miningMemory)
-              const haulingJob = new MiningHaulingJob(source, sourceMemory, haulerMemory, haulers)
+              const haulingJob = new RemoteMiningHaulingJob(source, sourceMemory, haulerMemory, haulers)
               const miningJob = new MiningJob(source, sourceMemory, haulingJob, miningMemory, miners)
-              console.log("REM deseralize mining and hauling job")
               jobs.push(miningJob)
               jobs.push(haulingJob)
             }
@@ -196,7 +195,7 @@ export class RemoteEnergyMission extends Mission {
     return jobs
   }
 
-  private sortMiningJobsByPriorityAndRun(jobs: Array<MiningJob | MiningHaulingJob>) {
+  private sortMiningJobsByPriorityAndRun(jobs: Array<MiningJob | RemoteMiningHaulingJob>) {
     jobs.sort((a, b) => {
       const aPriority = a.memory.missionPriority ? a.memory.missionPriority : -1
       const bPriority = b.memory.missionPriority ? b.memory.missionPriority : -1
@@ -205,12 +204,12 @@ export class RemoteEnergyMission extends Mission {
     })
 
     jobs.forEach(job => {
-      console.log("running " + job.target)
       job.run()
     })
   }
 
   private getMissionCreeps(flagId: string) {
+    console.log("flag" + flagId)
     return _.filter(Game.creeps, creep => creep.memory.target === flagId)
   }
 
@@ -237,7 +236,7 @@ function addMiningAndHaulingjob(
   const miningPositionsWeight = 1
   const missionPriroty =
     sourceMemory.distanceToSpawn * distanceWeight + sourceMemory.miningPositions.length * miningPositionsWeight
-  const haulingJob = new MiningHaulingJob(source, sourceMemory)
+  const haulingJob = new RemoteMiningHaulingJob(source, sourceMemory)
   const miningJob = new MiningJob(source, sourceMemory, haulingJob, undefined, harvesters)
   miningJob.memory.missionPriority = missionPriroty
   haulingJob.memory.missionPriority = missionPriroty

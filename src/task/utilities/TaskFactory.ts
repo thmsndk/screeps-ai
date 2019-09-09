@@ -35,7 +35,7 @@ class TaskFactory {
   }
 
   public create(memory: TaskMemory): ITask | null {
-    const callback = this.callbacks[memory.name]
+    const callback = this.callbacks[memory.name.toLowerCase()]
 
     if (callback) {
       return callback(memory)

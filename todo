@@ -95,3 +95,5 @@ Roadmap:
             After a room wipe the initial harvester is created "fast" e.g. 300 energy.
             but everything following that goes to as many parts as possible, and that takes forever.
             We need to determine how long we are in recoverymode.
+        ☐ We appear to be spawning too many units?
+            Spawned 3 harvesters, when there was only room for 2 harvesters

@@ -10,6 +10,17 @@ export class RoomPlanner {
       this.infrastructure.AddLayer(roomName)
     }
 
+    // wall = RCL 2
+    // extension = RCL 2
+    // Rampart = RCL 2
+    // Tower = RCL 3
+    // Storage = RCL 4
+    // Link = RCL 5
+    // Extractor = RCL 6
+    // LAB = RCL 6
+    // Terminal = RCL 6
+
+
     // Really naive implementation to satisfy  basic unit tests, need to write more tests that validates positions against rcl and such
     this.infrastructure.AddPosition(2, STRUCTURE_EXTENSION, 0, 1)
     this.infrastructure.AddPosition(2, STRUCTURE_EXTENSION, 0, 2)

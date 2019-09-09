@@ -183,7 +183,13 @@ export class Hatchery {
       const targetRoomName = target ? target.pos.roomName : "" // this.Spawn.room.name
       const creepName = `${targetRoomName} ${request.mutation} ${Game.time}`
       const result = this.Spawn.spawnCreep(body.parts, creepName, {
-        memory: { role, cost: body.cost, unemployed: !request.employed, target: request.target }
+        memory: {
+          role,
+          cost: body.cost,
+          unemployed: !request.employed,
+          target: request.target,
+          home: this.Spawn.pos.roomName
+        }
       } as SpawnOptions)
 
       if (result === OK) {

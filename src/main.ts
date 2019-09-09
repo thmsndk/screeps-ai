@@ -85,6 +85,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  // Drain creep https://screeps.arcath.net/creep-designer/?share=7#0#1#0#6#0#0#0
+  // medic https://screeps.arcath.net/creep-designer/?share=2#0#0#0#0#2#0#0
+
   // Processes / Directives
   // RCL = 1
   // A colony is defined by having one or more spawners? or RCL?
@@ -155,6 +158,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
     }
   }
+
+  queueFlagMissions()
 
   queueBuildingJobs(Game.spawns.Spawn1.room, jobs)
 
@@ -503,13 +508,14 @@ function queueFlagMissions() {
       const remoteFlag = flags.find(flag => flag.name.startsWith("remote"))
 
       const remoteEnergyMissionMemory = Memory.rooms[roomName].remoteEnergyMission
-
-      if (
-        !remoteEnergyMissionMemory ||
-        (remoteFlag && remoteEnergyMissionMemory && remoteEnergyMissionMemory.flagId !== remoteFlag.name)
-      ) {
-        const remoteEnergyMission = new RemoteEnergyMission({ roomName, flags })
-      }
+      // console.log(JSON.stringify(remoteEnergyMissionMemory))
+      // if (
+      //   !remoteEnergyMissionMemory ||
+      //   (remoteFlag && remoteEnergyMissionMemory && remoteEnergyMissionMemory.flagId !== remoteFlag.name)
+      // ) {
+      const remoteEnergyMission = new RemoteEnergyMission({ roomName, flags })
+      remoteEnergyMission.run()
+      // }
     }
   }
 }
