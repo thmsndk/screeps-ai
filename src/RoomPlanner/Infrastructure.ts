@@ -79,11 +79,17 @@ export class Infrastructure {
 
   public visualize() {
     // should probably limit to room?
-    this.Layers.forEach(layer => {
+    let extensionCount = 0
+    this.Layers.forEach((layer, index) => {
       const room = Game.rooms[layer.roomName]
       if (room) {
         layer.Positions.forEach(position => {
+          if (position.StructureType === STRUCTURE_EXTENSION) {
+            extensionCount++
+          }
           room.visual.structure(position.pos.x, position.pos.y, position.StructureType, { opacity: 0.25 })
+          // TODO: color by RCL level
+          room.visual.text(extensionCount.toString(), position.pos.x, position.pos.y + 0.25, { opacity: 0.25 })
         })
       }
     })
