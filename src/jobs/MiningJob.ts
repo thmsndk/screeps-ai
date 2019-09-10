@@ -168,7 +168,18 @@ class RoleHarvester {
       }
 
       if (target) {
-        creep.task = Tasks.transfer(target as StructureContainer | StructureExtension | StructureSpawn)
+        let shouldTransfer = true
+        if (target.structureType === STRUCTURE_CONTAINER) {
+          const container = target as StructureContainer
+          if (container.hits / container.hitsMax <= 0.6) {
+            creep.repair(container)
+            shouldTransfer = false
+          }
+        }
+
+        if (shouldTransfer) {
+          creep.task = Tasks.transfer(target as StructureContainer | StructureExtension | StructureSpawn)
+        }
       } else {
         // TODO drop task
         creep.drop(RESOURCE_ENERGY)
