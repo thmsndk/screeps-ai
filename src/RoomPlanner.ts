@@ -47,32 +47,32 @@ export class RoomPlanner {
       this.AlternatePositions(positions, 2, roomTerrain, spawn.pos, offset, 5)
 
       if (rcl >= 3) {
-        offset += 2
+        offset += 1
         this.AlternatePositions(positions, 3, roomTerrain, spawn.pos, offset, 5)
       }
 
       if (rcl >= 4) {
-        offset += 2
+        offset += 1
         this.AlternatePositions(positions, 4, roomTerrain, spawn.pos, offset, 10)
       }
 
       if (rcl >= 5) {
-        offset += 2
+        offset += 1
         this.AlternatePositions(positions, 5, roomTerrain, spawn.pos, offset, 10)
       }
 
       if (rcl >= 6) {
-        offset += 2
+        offset += 1
         this.AlternatePositions(positions, 6, roomTerrain, spawn.pos, offset, 10)
       }
 
       if (rcl >= 7) {
-        offset += 2
+        offset += 1
         this.AlternatePositions(positions, 7, roomTerrain, spawn.pos, offset, 10)
       }
 
       if (rcl >= 8) {
-        offset += 2
+        offset += 1
         this.AlternatePositions(positions, 8, roomTerrain, spawn.pos, offset, 10)
       }
     }
