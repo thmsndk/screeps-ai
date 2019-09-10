@@ -14,7 +14,7 @@ export class RoomPlanner {
         this.infrastructure.AddLayer(roomName)
       }
     }
-
+    // TODO: do we need to define what we are planning for? e.g. Main room, Remote Room
     // wall = RCL 2
     // extension = RCL 2
     // Rampart = RCL 2
@@ -45,10 +45,14 @@ export class RoomPlanner {
 
       let offset = 2
       this.AlternatePositions(positions, 2, roomTerrain, spawn.pos, offset, 5)
-
+      // TODO: containers, when do we build them? When 1 extension is build? because that allows for big enough harvesters for static?
+      // this reveals a problem though, we need to activate the container part of the plan. should it be on a new layer?
+      // should we be able to flag a position with meta data that will evaluate when pulling a job? could flag it with "minAvailableEnergy"
       if (rcl >= 3) {
         offset += 1
         this.AlternatePositions(positions, 3, roomTerrain, spawn.pos, offset, 5)
+
+        // TODO: plan a tower
       }
 
       if (rcl >= 4) {
