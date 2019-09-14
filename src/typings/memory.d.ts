@@ -19,7 +19,9 @@ interface RoomMemory {
   // missions: IMissionMemory[]
   remoteEnergyMission?: IRemoteEnergyMissionMemory
   averageEnergy?: { points: number; average: number; spawn: number }
-  infrastructureMission?: import("../missions/InfrastructureMission").InfrastructureMissionMemory
+  infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory
+  infrastructureMission?: import("../missions/InfrastructureMissionMemory").InfrastructureMissionMemory
+  runPlanner?: boolean
 }
 
 interface FlagMemory {

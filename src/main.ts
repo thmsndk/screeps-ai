@@ -1,3 +1,4 @@
+import { InfrastructureMissionMemory } from "./missions/InfrastructureMissionMemory"
 import { RoomPlanner } from "RoomPlanner"
 import "./_lib/RoomVisual/RoomVisual"
 import "./task/prototypes"
@@ -375,28 +376,35 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   // get mission from cache or create new one
   // let mission = infraStructureMissions[room.name] // we can't do this because then we store a reference to the creeps, references should be reevaluated each tick
   // if (!mission) {
-  let initialize = false
-  let memory = room.memory.infrastructureMission
-  if (!memory || !memory.layers || !memory.creeps) {
-    memory = room.memory.infrastructureMission = { layers: [], creeps: [] }
-    initialize = true
+  let memory = room.memory.infrastructure // should infrastructure not exist on the global scope?
+  if (!memory || !memory.layers) {
+    memory = room.memory.infrastructure = { layers: [] }
+    room.memory.runPlanner = true
   }
 
-  if (room.controller) {
-    const tmpInfrastructure = new Infrastructure({ memory: { layers: [] } })
-    const roomPlanner = new RoomPlanner(tmpInfrastructure)
-    roomPlanner.plan(room.name, 8 /*room.controller.level + 1*/)
-    tmpInfrastructure.visualize()
-  }
+  // if (room.controller) {
+  //   const tmpInfrastructure = new Infrastructure({ memory: { layers: [] } })
+  //   const roomPlanner = new RoomPlanner(tmpInfrastructure)
+  //   roomPlanner.plan(room.name, 8 /*room.controller.level + 1*/)
+  //   tmpInfrastructure.visualize()
+  // }
 
   const infrastructure = new Infrastructure({ memory })
-  // infrastructure.visualize()
 
-  const mission = new InfraStructureMission({ memory, infrastructure })
-
-  if (initialize) {
-    infrastructure.AddLayer(room.name)
+  if (room.memory.runPlanner) {
+    const roomPlanner = new RoomPlanner(infrastructure)
+    roomPlanner.plan(room.name, 8 /*room.controller.level + 1*/)
+    room.memory.runPlanner = false
   }
+
+  infrastructure.visualize()
+
+  let infrastructureMissionMemory = room.memory.infrastructureMission
+  if (!infrastructureMissionMemory || !infrastructureMissionMemory.creeps) {
+    infrastructureMissionMemory = room.memory.infrastructureMission = { creeps: [] }
+  }
+
+  const mission = new InfraStructureMission({ memory: infrastructureMissionMemory, infrastructure })
 
   infraStructureMissions[room.name] = mission
   // }
@@ -516,9 +524,9 @@ function queueFlagMissions() {
         Memory.rooms[roomName] = {}
       }
 
-      const remoteFlag = flags.find(flag => flag.name.startsWith("remote"))
+      // const remoteFlag = flags.find(flag => flag.name.startsWith("remote"))
 
-      const remoteEnergyMissionMemory = Memory.rooms[roomName].remoteEnergyMission
+      // const remoteEnergyMissionMemory = Memory.rooms[roomName].remoteEnergyMission
       // console.log(JSON.stringify(remoteEnergyMissionMemory))
       // if (
       //   !remoteEnergyMissionMemory ||
