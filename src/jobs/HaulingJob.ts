@@ -166,7 +166,29 @@ class HaulingCreep {
 
       // TODO: what if it is not energy we are transfering?, should hauling job specify kind of resource?
       if (structure && creep.transfer(structure, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(structure, { visualizePathStyle: PathStyle.Deposit })
+        const result = creep.moveTo(structure, { range: 1, visualizePathStyle: PathStyle.Deposit })
+        switch (result) {
+          case OK:
+            break
+          case ERR_NO_PATH:
+            const closestBlockingCreep = creep.pos.findInRange(FIND_MY_CREEPS, 1)
+            if (closestBlockingCreep.length > 0) {
+              creep.moveTo(closestBlockingCreep[0].pos)
+              closestBlockingCreep[0].moveTo(creep.pos)
+            }
+
+            break
+
+          case ERR_INVALID_TARGET:
+            console.log("invalid target")
+            break
+          case ERR_NOT_FOUND:
+            console.log("not found")
+            break
+          default:
+            console.log("??", result)
+            break
+        }
       }
     }
   }
