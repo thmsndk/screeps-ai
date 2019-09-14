@@ -142,7 +142,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
                 hatchery.queue({
                   mutation: CreepMutations.DEFENDER,
                   target: room.name,
-                  priority: JobPriority.High + 5
+                  priority: JobPriority.Medium + 5
                 })
               }
 
