@@ -138,11 +138,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
             case DEFCONLEVEL.POSSIBLE_ATTACK:
               const defenderRequests = hatchery.getRequests(room.name, CreepMutations.DEFENDER)
               const currentDefenders = _.filter(Game.creeps, creep => creep.memory.role === Role.DEFENDER)
-              if (defenderRequests === 0 && currentDefenders.length === 0) {
+              if (defenderRequests === 0 && currentDefenders.length < 3) {
                 hatchery.queue({
                   mutation: CreepMutations.DEFENDER,
                   target: room.name,
-                  priority: JobPriority.Medium + 5
+                  priority: JobPriority.High + 5
                 })
               }
 
