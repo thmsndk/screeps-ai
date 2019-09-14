@@ -74,7 +74,7 @@ export class InfraStructureMission extends Mission {
         if (plannedStructure) {
           position.structure = plannedStructure
           // TODO: we now need to "break" and find a new position, this solution means that it waits an additional tick to find the position
-          console.log("structure was finished building")
+          console.log("structure was finished building" + JSON.stringify(position.pos))
           break
         }
 

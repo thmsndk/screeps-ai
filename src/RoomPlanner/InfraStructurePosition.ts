@@ -9,16 +9,16 @@ export class InfraStructurePosition {
     if (constructionSite) {
       this._constructionSite = constructionSite
     }
+
     if (memory.id && !this._constructionSite) {
       const object = deref(memory.id) // TODO: to be fair this means we will parse the plan all the time and deref the entire plan, should probably wait to deref untill trying to access data, e.g. make it lazy
-      const constructionSiteObject = object as ConstructionSite
-      if (constructionSiteObject) {
-        this._constructionSite = constructionSite
-      } else {
+
+      if (object instanceof ConstructionSite) {
+        const constructionSiteObject = object as ConstructionSite
+        this._constructionSite = constructionSiteObject
+      } else if (object instanceof Structure) {
         const structure = object as Structure<StructureConstant>
-        if (structure) {
-          this._structure = structure
-        }
+        this._structure = structure
       }
     }
   }
@@ -42,6 +42,7 @@ export class InfraStructurePosition {
 
   set structure(structure: Structure<StructureConstant>) {
     this.memory.id = structure.id
+    this._structure = structure
   }
 
   get pos(): IPosition {
