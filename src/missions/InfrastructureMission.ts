@@ -108,6 +108,11 @@ export class InfraStructureMission extends Mission {
             creep.task = Tasks.build(position.constructionSite)
           }
         })
+
+        // bail out so only one cSite is constructed at a time.
+        if (position.constructionSite) {
+          break
+        }
       }
 
       // should probably also check the "next" position allowing creeps to move to next position when finished
