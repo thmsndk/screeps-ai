@@ -390,11 +390,12 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   // }
 
   const infrastructure = new Infrastructure({ memory })
-
+  let planRanThisTick = false
   if (room.memory.runPlanner) {
     const roomPlanner = new RoomPlanner(infrastructure)
     roomPlanner.plan(room.name, 8 /*room.controller.level + 1*/)
     room.memory.runPlanner = false
+    planRanThisTick = true
   }
 
   infrastructure.visualize()
@@ -408,14 +409,6 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
 
   infraStructureMissions[room.name] = mission
   // }
-
-  constructionSites.forEach(site => {
-    const plan = infrastructure.findInfrastructure(site.id)
-
-    if (!plan || Object.keys(plan).length <= 0) {
-      infrastructure.addConstructionSite(0, site)
-    }
-  })
 
   const hatchery = _.first(Object.values(hatcheries))
   let neededWorkers = Math.min(constructionSites.length, 2) // currently a naive approach making us have 2 workers
@@ -459,6 +452,22 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
 
   // distribute tasks
   mission.distributeTasks()
+
+  // Add manual cSites
+  if (!planRanThisTick) {
+    constructionSites.forEach(site => {
+      // plan was just run, the cSite does not exist in this tick
+      const plan = infrastructure.findInfrastructure(site.id)
+      // TODO: there seem to be an issue finding existing cSites in the plan
+      console.log("cSite " + site.id)
+      console.log(JSON.stringify(plan))
+      if (!plan || Object.keys(plan).length <= 0) {
+        console.log("adding to layer 0")
+
+        infrastructure.addConstructionSite(0, site)
+      }
+    })
+  }
 
   // run creeps
   mission.run()
