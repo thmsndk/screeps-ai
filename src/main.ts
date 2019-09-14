@@ -411,7 +411,7 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
   // }
 
   const hatchery = _.first(Object.values(hatcheries))
-  let neededWorkers = Math.min(constructionSites.length, 2) // currently a naive approach making us have 2 workers
+  let neededWorkers = constructionSites.length > 0 ? 2 : 0 // currently a naive approach making us have 2 workers
   // should probably adjust amount of workers based on how much energy we want to use, how many construction sites, and more
   neededWorkers -= Object.keys(mission.creeps).length
 
