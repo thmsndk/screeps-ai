@@ -1,3 +1,5 @@
+import { derefRoomPosition } from "task/utilities/utilities"
+import { deref } from "task/utilities/utilities"
 import { TaskWithdraw } from "./../task/Tasks/TaskWithdraw"
 import { getPositions } from "RoomScanner"
 import { Tasks } from "../task/Tasks"
@@ -51,17 +53,65 @@ export class InfraStructureMission extends Mission {
 
   public distributeTasks() {
     const idleCreeps = _.filter(this.creeps, creep => creep.isIdle)
-    idleCreeps.forEach(creep => {
-      // We should probably have a PriortyQueue of construction sites
-      this.infrastructure.Layers.forEach((layer, index) => {
-        // TODO: implement targetedBy and handle coop tasks, find closest creep, validate work parts, and other shenanigans
-        // TODO: when construction site is done, we need to mark it as such with a reference to the structure instead
-        const position = layer.Positions.find(p => !!p.id && !!Game.getObjectById(p.id))
-        if (position && position.constructionSite) {
-          creep.task = Tasks.build(position.constructionSite)
+
+    // We should probably have a PriortyQueue of construction sites
+    // todo needs to be a for loop
+    for (const [index, layer] of this.infrastructure.Layers.entries()) {
+      // validate if layer is valid
+      const room = deref(layer.roomName) as Room | null
+      if (room && room.controller && room.controller.level < index) {
+        break
+      }
+
+      // Get first unfinshed position and make sure it has a constructionsite
+      // should probably be sorted by priority
+      const position = layer.Positions.find(p => !!p.id && !!Game.getObjectById(p.id) && !p.finished)
+
+      if (room && position) {
+        // by checking room we are kinda preventing constructions sites from rooms without vision to be built
+        // scan if construction exists on position
+
+        const roomPosition = derefRoomPosition({ ...position.pos, roomName: layer.roomName })
+
+        const structures = room.lookForAt(LOOK_STRUCTURES, roomPosition)
+        const plannedStructure = structures.find(s => s.structureType === position.StructureType)
+
+        if (plannedStructure) {
+          position.structure = plannedStructure
+          // TODO: we now need to "break" and find a new position, this solution means that it waits an additional tick to find the position
+          break
         }
-      })
-    })
+
+        if (!position.constructionSite) {
+          const constructionSites = room.lookForAt(LOOK_CONSTRUCTION_SITES, roomPosition)
+          const constructionSite = constructionSites.find(c => c.structureType === position.StructureType)
+          if (!constructionSite) {
+            position.constructionSite = constructionSite
+          } else {
+            room.createConstructionSite(roomPosition, position.StructureType)
+            // assign creeps to move to target
+            idleCreeps.forEach(creep => {
+              if (position && position.constructionSite) {
+                creep.task = Tasks.goTo(roomPosition, { moveOptions: { range: 3 } })
+              }
+            })
+          }
+        } else {
+          // assign creeps to constructionSite
+          idleCreeps.forEach(creep => {
+            // TODO: implement targetedBy and handle coop tasks, find closest creep, validate work parts, and other shenanigans
+            // TODO: when construction site is done, we need to mark it as such with a reference to the structure instead
+            if (position.constructionSite) {
+              creep.task = Tasks.build(position.constructionSite)
+            }
+          })
+        }
+      }
+
+      // should probably also check the "next" position allowing creeps to move to next position when finished
+
+      // TODO: validate if finished construction site still exists
+    }
   }
 
   public run() {
