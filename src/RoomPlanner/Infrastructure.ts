@@ -87,9 +87,13 @@ export class Infrastructure {
           if (position.StructureType === STRUCTURE_EXTENSION) {
             extensionCount++
           }
-          room.visual.structure(position.pos.x, position.pos.y, position.StructureType, { opacity: 0.25 })
-          // TODO: color by RCL level
-          room.visual.text(extensionCount.toString(), position.pos.x, position.pos.y + 0.25, { opacity: 0.25 })
+          // console.log("=== Extension " + extensionCount)
+          // console.log(JSON.stringify(position))
+          if (!position.finished) {
+            room.visual.structure(position.pos.x, position.pos.y, position.StructureType, { opacity: 0.25 })
+            // TODO: color by RCL level
+            room.visual.text(extensionCount.toString(), position.pos.x, position.pos.y + 0.25, { opacity: 0.25 })
+          }
         })
       }
     })
