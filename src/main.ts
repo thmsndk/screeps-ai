@@ -459,8 +459,6 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
       // plan was just run, the cSite does not exist in this tick
       const plan = infrastructure.findInfrastructure(site.id)
       // TODO: there seem to be an issue finding existing cSites in the plan
-      console.log("cSite " + site.id)
-      console.log(JSON.stringify(plan))
       if (!plan || Object.keys(plan).length <= 0) {
         console.log("adding to layer 0")
 
