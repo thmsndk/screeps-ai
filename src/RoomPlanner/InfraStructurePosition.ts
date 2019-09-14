@@ -2,17 +2,23 @@ import { deref } from "task/utilities/utilities"
 import { InfraStructurePositionMemory } from "./InfraStructurePositionMemory"
 export class InfraStructurePosition {
   private _constructionSite?: ConstructionSite
+  private _structure?: Structure<StructureConstant>
   private memory: InfraStructurePositionMemory
   constructor(memory: InfraStructurePositionMemory, constructionSite?: ConstructionSite) {
     this.memory = memory
     if (constructionSite) {
       this._constructionSite = constructionSite
     }
-    if (memory.id && !this.constructionSite) {
-      const object = deref(memory.id)
+    if (memory.id && !this._constructionSite) {
+      const object = deref(memory.id) // TODO: to be fair this means we will parse the plan all the time and deref the entire plan, should probably wait to deref untill trying to access data, e.g. make it lazy
       const constructionSiteObject = object as ConstructionSite
       if (constructionSiteObject) {
-        this.constructionSite = constructionSite
+        this._constructionSite = constructionSite
+      } else {
+        const structure = object as Structure<StructureConstant>
+        if (structure) {
+          this._structure = structure
+        }
       }
     }
   }
@@ -43,6 +49,6 @@ export class InfraStructurePosition {
   }
 
   get finished(): boolean {
-    return this.memory.id && !this.constructionSite ? true : false
+    return this.memory.id && this._structure ? true : false
   }
 }
