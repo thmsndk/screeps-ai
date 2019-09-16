@@ -52,7 +52,10 @@ export class RoomPlanner {
         offset += 1
         this.AlternatePositions(positions, 3, roomTerrain, spawn.pos, offset, 5)
 
-        // TODO: plan a tower
+        const position = positions.pop()
+        if (position) {
+          this.infrastructure.AddPosition(3, STRUCTURE_TOWER, position.x, position.y)
+        }
       }
 
       if (rcl >= 4) {
