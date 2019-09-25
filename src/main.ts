@@ -1,5 +1,5 @@
-import { TransferTask } from './task/Tasks/TransferTask';
-import { TaskWithdraw } from './task/Tasks/TaskWithdraw';
+import { TransferTask } from "./task/Tasks/TransferTask"
+import { TaskWithdraw } from "./task/Tasks/TaskWithdraw"
 import { RoomPlanner } from "RoomPlanner"
 import "./_lib/RoomVisual/RoomVisual"
 import "./task/prototypes"
@@ -512,6 +512,7 @@ function calculateCumulativeMovingAverage(average: number, points: number, mesur
 
 function queueFlagMissions() {
   const lootFlags: Dictionary<Flag> = {}
+  const claimFlags: Dictionary<Flag> = {}
   const remoteFlags: Dictionary<Flag[]> = {}
   for (const flagName in Game.flags) {
     if (Game.flags.hasOwnProperty(flagName)) {
@@ -526,6 +527,12 @@ function queueFlagMissions() {
       if (flag.name.startsWith("loot")) {
         if (!remoteFlags[flag.pos.roomName]) {
           lootFlags[flag.pos.roomName] = flag
+        }
+      }
+
+      if (flag.name.startsWith("claim")) {
+        if (!remoteFlags[flag.pos.roomName]) {
+          claimFlags[flag.pos.roomName] = flag
         }
       }
     }
@@ -595,15 +602,13 @@ function queueFlagMissions() {
                       return spawn.energy !== 0
                     case STRUCTURE_STORAGE:
                       const storage = structure as StructureStorage
-                      return (
-                        storage.store[RESOURCE_ENERGY]  !== 0
-                      )
+                      return storage.store[RESOURCE_ENERGY] !== 0
                     case STRUCTURE_TOWER:
-                        const tower = structure as StructureTower
-                        return tower.energy  !== 0
+                      const tower = structure as StructureTower
+                      return tower.energy !== 0
                     case STRUCTURE_CONTAINER:
-                        const container = structure as StructureContainer
-                        return container.store[RESOURCE_ENERGY]  !== 0
+                      const container = structure as StructureContainer
+                      return container.store[RESOURCE_ENERGY] !== 0
                   }
 
                   return false
@@ -611,18 +616,16 @@ function queueFlagMissions() {
               })
 
               // assign harvest task to target if it does not already have a harvest task
-              if(creep.task == null || creep.task.name !== TaskWithdraw.taskName) {
+              if (creep.task == null || creep.task.name !== TaskWithdraw.taskName) {
                 creep.task = Tasks.withdraw(target)
               }
             }
           }
-        }
-        else {
-          if(creep.pos.roomName !== creep.memory.home){
+        } else {
+          if (creep.pos.roomName !== creep.memory.home) {
             // goto home room
             creep.task = Tasks.goToRoom(creep.memory.home)
-          }
-          else {
+          } else {
             // Transfer task
             const target: any = creep.pos.findClosestByRange(FIND_STRUCTURES, {
               filter: structure => {
@@ -652,14 +655,55 @@ function queueFlagMissions() {
               }
             })
 
-            if(creep.task == null || creep.task.name !== TransferTask.taskName) {
+            if (creep.task == null || creep.task.name !== TransferTask.taskName) {
               creep.task = Tasks.transfer(target)
             }
           }
         }
 
         creep.run()
+      })
+    }
+  }
 
+  // claim "mission"
+  for (const roomName in claimFlags) {
+    if (claimFlags.hasOwnProperty(roomName)) {
+      const flag = claimFlags[roomName]
+
+      const hatchery = new Hatchery(Game.spawns.Spawn1) // TODO: Hatchery should be a singleton?
+      let requiredClaimers = 1
+      const requestedLooters = hatchery.getRequests(flag.name, CreepMutations.CLAIMER)
+      const missionCreeps = _.filter(Game.creeps, creep => creep.memory.target === flag.name)
+      requiredClaimers -= requestedLooters + missionCreeps.length
+
+      for (let index = requestedLooters; index < requiredClaimers; index++) {
+        hatchery.queue({
+          target: flag.name,
+          mutation: CreepMutations.CLAIMER,
+          priority: JobPriority.Medium,
+          employed: true
+        })
+      }
+
+      missionCreeps.forEach(creep => {
+        if (!flag.room) {
+          // no vision
+          creep.task = Tasks.goTo(flag, { moveOptions: { range: 3 } })
+        } else {
+          if (flag.room !== creep.room) {
+            creep.task = Tasks.goTo(flag, { moveOptions: { range: 3 } })
+          } else {
+            const target: any = creep.room.controller
+
+            // assign harvest task to target if it does not already have a harvest task
+            if (creep.task == null || creep.task.name !== TaskWithdraw.taskName) {
+              creep.task = Tasks.claim(target)
+            }
+          }
+        }
+
+        creep.run()
       })
     }
   }

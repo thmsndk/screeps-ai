@@ -1,4 +1,4 @@
-// import { claimTargetType, TaskClaim } from "./Tasks/task_claim"
+import { claimTargetType, TaskClaim } from "./Tasks/TaskClaim"
 // import { dismantleTargetType, TaskDismantle } from "./Tasks/task_dismantle"
 // import { fortifyTargetType, TaskFortify } from "./Tasks/task_fortify"
 // import { getBoostedTargetType, TaskGetBoosted } from "./Tasks/task_getBoosted"
@@ -58,9 +58,9 @@ export class Tasks {
     return new TaskBuild(target, options)
   }
 
-  //   static claim(target: claimTargetType, options = {} as TaskOptions): TaskClaim {
-  //     return new TaskClaim(target, options)
-  //   }
+  public static claim(target: claimTargetType, options = {} as TaskOptions): TaskClaim {
+    return new TaskClaim(target, options)
+  }
 
   //   static dismantle(target: dismantleTargetType, options = {} as TaskOptions): TaskDismantle {
   //     return new TaskDismantle(target, options)
