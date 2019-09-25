@@ -64,11 +64,12 @@ export class MiningHaulingJob extends Job {
     }
 
     super.run(creep => {
-      if (this.source.room !== creep.room) {
+      if (this.source.room.name !== creep.room.name) {
         if (creep.task === null || creep.task.name !== GoToTask.taskName) {
           creep.task = Tasks.goTo(this.source, { moveOptions: { range: 3 } })
-          creep.run()
         }
+
+        creep.run()
 
         return
       }
