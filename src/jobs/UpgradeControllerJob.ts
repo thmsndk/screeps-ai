@@ -6,6 +6,8 @@ import { getPositions } from "RoomScanner"
 import { CreepMutations } from "./../Hatchery"
 import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
+import { Tasks } from "task"
+import { GoToTask } from "task/Tasks/GotoTask"
 
 @profile
 export class UpgradeControllerJob extends Job {
@@ -43,7 +45,10 @@ export class UpgradeControllerJob extends Job {
         ? this.controller.room.memory.averageEnergy.average
         : 0
       : 0
-    const maxCreeps = Math.min(Math.floor(averageEnergy / (averageEnergyUsage || averageEnergy)), 10)
+    const maxCreeps = Math.min(
+      Math.floor(averageEnergy / (averageEnergyUsage || averageEnergy)),
+      this.controller.level === 8 ? 1 : 10
+    )
 
     this.visualizeProgress(assignedCreeps, maxCreeps)
 
@@ -113,6 +118,15 @@ export class UpgradeControllerJob extends Job {
 @profile
 class UpgradeControllerCreep {
   public run(controller: StructureController, creep: Creep) {
+    if (controller.room !== creep.room) {
+      if (creep.task === null || creep.task.name !== GoToTask.taskName) {
+        creep.task = Tasks.goTo(controller, { moveOptions: { range: 3 } })
+        creep.run()
+      }
+
+      return
+    }
+
     // TODO: General upgrade logic should perhaps exist in a base class?
     if (creep.memory.upgrading && creep.carry.energy === 0) {
       creep.memory.upgrading = false

@@ -8,6 +8,7 @@ import { Job, JobPriority, JobType } from "./Job"
 import { MiningHaulingJob } from "./MiningHaulingJob"
 import { PathStyle } from "./MovementPathStyles"
 import { Tasks } from "../task" // Path to Tasks.ts
+import { GoToTask } from "task/Tasks/GotoTask"
 
 /* TODO: Spawn Construction job for a container, alternative, let the first miner do it?
 how do we prevent having to repeatedly check for container?,
@@ -85,6 +86,15 @@ export class MiningJob extends Job {
     super.run(creep => {
       //roleHarvester.run(this, creep, this.source)
       // new taskbased "Role"
+      if (this.source.room !== creep.room) {
+        if (creep.task === null || creep.task.name !== GoToTask.taskName) {
+          creep.task = Tasks.goTo(this.source, { moveOptions: { range: 3 } })
+          creep.run()
+        }
+
+        return
+      }
+
       if (creep.isIdle) {
         RoleHarvester.newTask(this, creep, this.source)
       }

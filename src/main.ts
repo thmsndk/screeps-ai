@@ -101,8 +101,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const spawnName in Game.spawns) {
     if (Game.spawns.hasOwnProperty(spawnName)) {
       const spawn = Game.spawns[spawnName]
-      // TODO: only scan the room for static data once
-      roomScanner.scan(spawn.room)
 
       // TODO: We can't do this because the memory object seems to get removed?
       // hatchery = hatcheries[spawn.room.name]
@@ -113,9 +111,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
       hatchery.run()
 
       // How do we determine what hatchery the mission should utilize? Thats a problem for RCL 7+
-      // TODO: energymission should only be run once per room
-      const energyMission = new EnergyMission(spawn.room)
-      energyMission.run()
     }
   }
   // ramparts? walls? basebuilding directive?
@@ -128,6 +123,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
       const room = Game.rooms[roomName]
 
       if (room) {
+        if (room.controller && room.controller.my) {
+          // TODO: only scan the room for static data once
+          roomScanner.scan(room)
+
+          // TODO: energymission should only be run once per room
+          const energyMission = new EnergyMission(room)
+          energyMission.run()
+        }
+
         calculateAverageEnergy(room)
 
         queueUpgraderJob(room, jobs)
