@@ -1,4 +1,5 @@
-import { InfrastructureMissionMemory } from "./missions/InfrastructureMissionMemory"
+import { TransferTask } from './task/Tasks/TransferTask';
+import { TaskWithdraw } from './task/Tasks/TaskWithdraw';
 import { RoomPlanner } from "RoomPlanner"
 import "./_lib/RoomVisual/RoomVisual"
 import "./task/prototypes"
@@ -26,6 +27,7 @@ import { UpgradeControllerJob } from "./jobs/UpgradeControllerJob"
 import { RoomScanner } from "./RoomScanner"
 import { Task } from "./task/Task"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
+import { Tasks } from "task"
 
 // import "./_lib/client-abuse/injectBirthday.js"
 
@@ -509,6 +511,7 @@ function calculateCumulativeMovingAverage(average: number, points: number, mesur
 }
 
 function queueFlagMissions() {
+  const lootFlags: Dictionary<Flag> = {}
   const remoteFlags: Dictionary<Flag[]> = {}
   for (const flagName in Game.flags) {
     if (Game.flags.hasOwnProperty(flagName)) {
@@ -518,6 +521,12 @@ function queueFlagMissions() {
           remoteFlags[flag.pos.roomName] = []
         }
         remoteFlags[flag.pos.roomName].push(flag)
+      }
+
+      if (flag.name.startsWith("loot")) {
+        if (!remoteFlags[flag.pos.roomName]) {
+          lootFlags[flag.pos.roomName] = flag
+        }
       }
     }
   }
@@ -542,6 +551,116 @@ function queueFlagMissions() {
       const remoteEnergyMission = new RemoteEnergyMission({ roomName, flags })
       remoteEnergyMission.run()
       // }
+    }
+  }
+
+  // loot "mission"
+  for (const roomName in lootFlags) {
+    if (lootFlags.hasOwnProperty(roomName)) {
+      const flag = lootFlags[roomName]
+
+      const hatchery = new Hatchery(Game.spawns.Spawn1) // TODO: Hatchery should be a singleton?
+      let requiredLooters = 2
+      const requestedLooters = hatchery.getRequests(flag.name, CreepMutations.HAULER)
+      const missionCreeps = _.filter(Game.creeps, creep => creep.memory.target === flag.name)
+      requiredLooters -= requestedLooters + missionCreeps.length
+
+      for (let index = requestedLooters; index < requiredLooters; index++) {
+        hatchery.queue({
+          target: flag.name,
+          mutation: CreepMutations.HAULER,
+          priority: JobPriority.Medium,
+          employed: true
+        })
+      }
+
+      missionCreeps.forEach(creep => {
+        if (creep.carry[RESOURCE_ENERGY] !== creep.carryCapacity) {
+          if (!flag.room) {
+            // no vision
+            creep.task = Tasks.goTo(flag, { moveOptions: { range: 3 } })
+          } else {
+            if (flag.room !== creep.room) {
+              creep.task = Tasks.goTo(flag, { moveOptions: { range: 3 } })
+            } else {
+              const target: any = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: structure => {
+                  // console.log("MHJ", structure.structureType)
+                  switch (structure.structureType) {
+                    case STRUCTURE_EXTENSION:
+                      const extension = structure as StructureExtension
+                      return extension.energy !== 0
+                    case STRUCTURE_SPAWN:
+                      const spawn = structure as StructureSpawn
+                      return spawn.energy !== 0
+                    case STRUCTURE_STORAGE:
+                      const storage = structure as StructureStorage
+                      return (
+                        storage.store[RESOURCE_ENERGY]  !== 0
+                      )
+                    case STRUCTURE_TOWER:
+                        const tower = structure as StructureTower
+                        return tower.energy  !== 0
+                    case STRUCTURE_CONTAINER:
+                        const container = structure as StructureContainer
+                        return container.store[RESOURCE_ENERGY]  !== 0
+                  }
+
+                  return false
+                }
+              })
+
+              // assign harvest task to target if it does not already have a harvest task
+              if(creep.task == null || creep.task.name !== TaskWithdraw.taskName) {
+                creep.task = Tasks.withdraw(target)
+              }
+            }
+          }
+        }
+        else {
+          if(creep.pos.roomName !== creep.memory.home){
+            // goto home room
+            creep.task = Tasks.goToRoom(creep.memory.home)
+          }
+          else {
+            // Transfer task
+            const target: any = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+              filter: structure => {
+                // console.log("MHJ", structure.structureType)
+                switch (structure.structureType) {
+                  case STRUCTURE_EXTENSION:
+                    const extension = structure as StructureExtension
+                    return extension.energy < extension.energyCapacity
+                  case STRUCTURE_SPAWN:
+                    const spawn = structure as StructureSpawn
+                    return spawn.energy < spawn.energyCapacity
+                  case STRUCTURE_STORAGE:
+                    const storage = structure as StructureStorage
+                    return (
+                      storage.store[RESOURCE_ENERGY] < storage.storeCapacity &&
+                      creep.room.energyAvailable === creep.room.energyCapacityAvailable
+                    )
+                  // case STRUCTURE_TOWER:
+                  //     const tower = structure as StructureTower
+                  //     return tower.energy < tower.energyCapacity
+                  // case STRUCTURE_CONTAINER:
+                  //     const container = structure as StructureContainer
+                  //     return structure.id !== job.memory.target && container.store[RESOURCE_ENERGY] < container.storeCapacity
+                }
+
+                return false
+              }
+            })
+
+            if(creep.task == null || creep.task.name !== TransferTask.taskName) {
+              creep.task = Tasks.transfer(target)
+            }
+          }
+        }
+
+        creep.run()
+
+      })
     }
   }
 }
