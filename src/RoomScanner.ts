@@ -26,7 +26,6 @@ export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, off
   if (!offset) {
     offset = 1
   }
-
   const borderLength = target.x + offset - (target.x - offset) + 1
 
   // topLine

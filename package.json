@@ -12,6 +12,7 @@
     "push-pserver": "rollup -c --environment DEST:pserver",
     "push-sim": "rollup -c --environment DEST:sim",
     "push-s+": "rollup -c --environment DEST:s+",
+    "push-s+2": "rollup -c --environment DEST:s+2",
     "test": "npm run test-unit && npm run test-integration",
     "debug-test-unit": "rollup -c rollup.test-unit-config.js",
     "test-unit": "rollup -c rollup.test-unit-config.js && mocha dist/test-unit.bundle.js -R mocha-pretty-spec-reporter",

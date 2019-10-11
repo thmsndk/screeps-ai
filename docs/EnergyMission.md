@@ -13,6 +13,9 @@ An energy mission has creeps assigned that can utilize the following methods
 * [withdraw](https://docs.screeps.com/api/#Creep.withdraw)
 > Requires `MOVE`, `WORK` and `CARRY` body parts.
 
+An energy mission should have a "goal"? e.g. what is the goal of an energy mission in a "remote room"? filling a container in the room to upgrade the controller?, filling a container to let a hauler, haul it back to the home room? or somewhere else?
+
+
 > We have multiple tiers of energy missions, not sure what triggers each tier. amount of extensions or available energy could be one marker
 
 

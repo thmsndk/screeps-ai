@@ -102,6 +102,19 @@ describe("InfrastructureMission", () => {
     })
 
     it("Gets a build task assigned when idle", () => {
+      const room = Substitute.for<Room>()
+      const controller = Substitute.for<StructureController>()
+
+      // @ts-ignore : it works
+      room.controller.returns(controller)
+      // @ts-ignore : it works
+      room.controller.level.returns(8)
+
+      // @ts-ignore : it works
+      room.lookForAt(Arg.any(), Arg.any()).returns([])
+
+      // @ts-ignore : it works
+      global.Game.rooms.returns({ N0E0: room })
       const memory = defaultMemory()
       const mission = new InfraStructureMission({ memory, infrastructure: getInfrastructure() })
 

@@ -22,8 +22,10 @@ Should we call them missions?
 #### Village missions
   - [Energy](./EnergyMission.md)
   - Mineral
+  - Upgrade Controller
   - [Infrastructure](./InfrastructureMission.md)
     - RCL 1..8
+  - Scouting
   - Defense (DEFCON?)
     - invaders
     - players

@@ -2,7 +2,7 @@ import "../constants"
 import "../../src/task/prototypes"
 import { Memory } from "./mock"
 
-import { Substitute } from "@fluffy-spoon/substitute"
+import { Arg, Substitute } from "@fluffy-spoon/substitute"
 import { assert } from "chai"
 
 import { CreepMutations } from "../../src/Hatchery"
@@ -103,6 +103,32 @@ const defaultInfrastructureMemory = (blankLayers?: boolean) => {
   return memory
 }
 const assertExtensionCountByRCL = (expectedExtensions: number, rcl: number) => {
+  const room = Substitute.for<Room>()
+  const controller = Substitute.for<StructureController>()
+
+  // @ts-ignore : it works
+  room.controller.returns(controller)
+
+  // @ts-ignore : it works
+  room.lookForAt(Arg.any(), Arg.any()).returns([])
+
+  // @ts-ignore : it works
+  global.Game.rooms.returns({ N0E0: room })
+
+  // @ts-ignore : it works
+  room.controller.level.returns(rcl)
+
+  // @ts-ignore : it works
+  Game.spawns.Spawn1.room.returns(room)
+
+  // TODO: need a roomposition mock
+  const spawnPosition = new RoomPosition(1, 2, "N0E0")
+  spawnPosition.roomName = "N0E0"
+  spawnPosition.x = 1
+  spawnPosition.y = 2
+  // @ts-ignore : it works
+  Game.spawns.Spawn1.pos.returns(spawnPosition)
+
   const planner = new RoomPlanner(new Infrastructure({ memory: defaultInfrastructureMemory(true) }))
   const infrastructure = planner.plan("TEST", rcl) // TODO: should we really pass in rcl level? should it not generate an entire plan ?
   assert.equal(infrastructure.Layers.length, rcl + 1)

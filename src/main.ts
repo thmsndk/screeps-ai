@@ -75,24 +75,29 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
-    const creep = Memory.creeps[name]
-    // somehow the intially spawned creeps never got employed
-    // if (creep) {
-    //   creep.unemployed = true // HACK: this hack makes it work, but this should not be here.
-    // }
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name]
       // console.log("Clearing non-existing creep memory:", name)
-    } else {
-      if (!creep.role) {
-        creep.role = Role.Larvae
-      }
     }
   }
 
-  // Drain creep https://screeps.arcath.net/creep-designer/?share=7#0#1#0#6#0#0#0
-  // medic https://screeps.arcath.net/creep-designer/?share=2#0#0#0#0#2#0#0
+  // bootstrap process - runs every X ticks to validate health of a "village" / core room
+  // Run "Counsil"
+  //    settle first village (e.g. 1 room, safemode rcl = 1 or safemode and no spawn (auto)) - run planner
+  //    generate village missions
+  //      scout missions to find outposts, intell is gathered and the intell counsil member is informed?
+  //    generate outpost missions
+  //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
+  //    allocate creeps to missions or request creep suitible for mission
+  // Run "Freya"
+  // Run Village missions
+  // Run Outpost missions
+  // Run Raids (attack / loot & other)
 
+  // The "counsil" should be controllable by flags, green = on, red = off
+  // e.g. mark something as an outpost, convert it to village
+
+  ///-----------------------------------------
   // Processes / Directives
   // RCL = 1
   // A colony is defined by having one or more spawners? or RCL?

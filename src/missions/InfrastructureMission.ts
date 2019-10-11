@@ -50,10 +50,11 @@ export class InfraStructureMission extends Mission {
     const idleCreeps = _.filter(this.creeps, creep => creep.isIdle)
 
     // We should probably have a PriortyQueue of construction sites
-    // todo needs to be a for loop
-    for (const [index, layer] of this.infrastructure.Layers.entries()) {
+    for (let index = 0; index < this.infrastructure.Layers.length; index++) {
+      const layer = this.infrastructure.Layers[index]
       // validate if layer is valid
       const room = Game.rooms[layer.roomName]
+
       if (room && room.controller && room.controller.level < index) {
         break
       }

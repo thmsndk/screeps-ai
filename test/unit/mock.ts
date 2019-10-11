@@ -20,6 +20,13 @@ const mockScreeps = () => {
 
   // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
   // tslint:disable-next-line: max-classes-per-file
+  g.Room = class Room {}
+
+  // tslint:disable-next-line: max-classes-per-file
+  g.Room.Terrain = Substitute.for<RoomTerrain>()
+
+  // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
+  // tslint:disable-next-line: max-classes-per-file
   g.RoomObject = class RoomObject {}
 
   // tslint:disable-next-line: max-classes-per-file, only-arrow-functions
