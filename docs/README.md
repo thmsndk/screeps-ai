@@ -15,6 +15,8 @@ Responsible for missions in village and outposts
 - Should allocate creeps to missions
   - finds an idle creep that can solve the task
   - if no creep is found, should request a creep from Freya
+> The "counsil" should be controllable by flags, green = on, red = off
+> e.g. mark something as an outpost, convert it to village
 
 ### Missions
 Should we call them missions?
@@ -68,6 +70,18 @@ Responsible for spawning creeps
 
 ```
 
+  - bootstrap process - runs every X ticks to validate health of a "village" / core room
+  - Run "Counsil"
+    - settle first village (e.g. 1 room, safemode rcl = 1 or safemode and no spawn (auto)) - run planner
+    - generate village missions
+      - scout missions to find outposts, intell is gathered and the intell counsil member is informed?
+    - generate outpost missions
+    - Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
+    - allocate creeps to missions or request creep suitible for mission
+  - Run "Freya"
+  - Run Village missions
+  - Run Outpost missions
+  - Run Raids (attack / loot & other)
 
 
 https://www.historyonthenet.com/vikings-and-norse-mythology
@@ -79,6 +93,7 @@ https://www.historyonthenet.com/vikings-and-norse-mythology
 > The gods and goddesses venerated by the Vikings are Odin, Thor, Loki, Baldur, Frigg, Freya, Freyr and  Njoror. There are many other gods and goddesses in the Norse pantheon but these received the primary  attention in the sagas and eddas.
 
 > Odin, the allfather, the one-eyed seeker of wisdom, god of magic, war and runes, hung himself on > Yggdrasil for nine days and nights to find wisdom, brought the runes to mankind
+>  Odins ravens are spies. Huginn and Muninn
 > Thor, with his magic hammer Mjolnir, protects mankind and his realm of Midgard, god of warriors
 > Loki, a dangerous half-god, half-giant trickster always wreaking havoc among the gods
 > Baldur, son of Odin and Frigg, a beautiful and gracious god, beloved of all, killed by Loki’s trickery

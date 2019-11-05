@@ -19,20 +19,23 @@ describe("hatchery", () => {
         ]
       }
     }
-
-    const spawn1 = Substitute.for<StructureSpawn>()
-    spawn1.memory.returns(Memory.spawns.Spawn1)
-    Game.spawns.returns({
-      Spawn1: spawn1
-    })
   })
 
   beforeEach(() => {
     // runs before each test in this block
-    // // @ts-ignore : allow adding Game to global
-    // global.Game = Game
+    // @ts-ignore : allow adding Game to global
+    global.Game = Substitute.for<Game>()
+
     // @ts-ignore : allow adding Memory to global
     global.Memory = _.clone(Memory)
+
+    const spawn1 = Substitute.for<StructureSpawn>()
+    // @ts-ignore : it works
+    spawn1.memory.returns(Memory.spawns.Spawn1)
+    // @ts-ignore : it works
+    global.Game.spawns.returns({
+      Spawn1: spawn1
+    })
   })
 
   it("should import spawn requests from memory", () => {

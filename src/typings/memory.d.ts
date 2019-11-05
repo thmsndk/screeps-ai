@@ -1,13 +1,14 @@
 interface CreepMemory {
+  rune?: string
   mode?: number
-  cost: number
-  role: string
-  target: string
-  unemployed: boolean
-  upgrading: boolean
-  harvest: boolean
-  building: boolean
-  working: boolean
+  cost?: number
+  role?: string
+  target?: string
+  unemployed?: boolean
+  upgrading?: boolean
+  harvest?: boolean
+  building?: boolean
+  working?: boolean
   home: string
 }
 
@@ -22,6 +23,7 @@ interface RoomMemory {
   infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory
   infrastructureMission?: import("../missions/InfrastructureMissionMemory").InfrastructureMissionMemory
   runPlanner?: boolean
+  village?: boolean
 }
 
 interface FlagMemory {
@@ -36,6 +38,7 @@ interface Memory {
   stats: IStats
   jobs: import("lodash").Dictionary<IMemoryJob[]>
   foo: any
+  infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory
 }
 
 interface ISourceMemory {
@@ -43,9 +46,7 @@ interface ISourceMemory {
   distanceToSpawn: number
 }
 
-interface IEnergyMission extends IMissionMemory {
-  jobs: import("lodash").Dictionary<IMemoryJob>
-}
+interface IEnergyMission extends IMissionMemory {}
 
 interface IRemoteEnergyMissionMemory extends IEnergyMission {
   flagId: string
@@ -61,4 +62,6 @@ interface IMemoryJob {
   jobs?: IMemoryJob[]
 }
 
-interface IMissionMemory {}
+interface IMissionMemory {
+  creeps: { [index: string]: string[] }
+}

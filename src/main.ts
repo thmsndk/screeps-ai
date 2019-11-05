@@ -1,8 +1,10 @@
+import "./_lib/RoomVisual/RoomVisual"
+import "./task/prototypes"
+import { Freya } from "./Freya"
+import { Elders } from "./Elders"
 import { TransferTask } from "./task/Tasks/TransferTask"
 import { TaskWithdraw } from "./task/Tasks/TaskWithdraw"
 import { RoomPlanner } from "RoomPlanner"
-import "./_lib/RoomVisual/RoomVisual"
-import "./task/prototypes"
 
 import { summarize_room } from "_lib/resources"
 import { visualizeCreepRole } from "_lib/roleicons"
@@ -12,7 +14,7 @@ import { Job, JobPriority, JobType } from "jobs/Job"
 import { PathStyle } from "jobs/MovementPathStyles"
 import { Dictionary } from "lodash"
 import { InfraStructureMission } from "missions/InfrastructureMission"
-import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
+// import { RemoteEnergyMission } from "missions/RemoteEnergyMission"
 import { Role } from "role/roles"
 import PriorityQueue from "ts-priority-queue"
 import { ErrorMapper } from "utils/ErrorMapper"
@@ -28,6 +30,7 @@ import { RoomScanner } from "./RoomScanner"
 import { Task } from "./task/Task"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
 import { Tasks } from "task"
+import { InfrastructureMemory } from "RoomPlanner/InfrastructureMemory"
 
 // import "./_lib/client-abuse/injectBirthday.js"
 
@@ -51,13 +54,21 @@ global.Profiler = init()
 //     // })
 //   }
 // })
-
+if (!Memory.infrastructure) {
+  Memory.infrastructure = { layers: [] }
+}
+const infrastructure = new Infrastructure({ memory: Memory.infrastructure }) // Should memory be in the village room?
+const roomPlanner = new RoomPlanner(infrastructure) // How do we plan accross rooms?
 const roomScanner = new RoomScanner()
+const freya = new Freya()
+
+const counsil = new Elders(roomPlanner, roomScanner, freya)
 
 const infraStructureMissions: Dictionary<InfraStructureMission> = {}
 
 const hatcheries: Dictionary<Hatchery> = {}
 
+console.log("finished initializing globals")
 // https://github.com/bencbartlett/creep-tasks
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -81,15 +92,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  // bootstrap process - runs every X ticks to validate health of a "village" / core room
   // Run "Counsil"
-  //    settle first village (e.g. 1 room, safemode rcl = 1 or safemode and no spawn (auto)) - run planner
-  //    generate village missions
-  //      scout missions to find outposts, intell is gathered and the intell counsil member is informed?
-  //    generate outpost missions
-  //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
-  //    allocate creeps to missions or request creep suitible for mission
+  counsil.run()
   // Run "Freya"
+  freya.run()
   // Run Village missions
   // Run Outpost missions
   // Run Raids (attack / loot & other)
@@ -97,93 +103,95 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // The "counsil" should be controllable by flags, green = on, red = off
   // e.g. mark something as an outpost, convert it to village
 
+  // --- Lines below here should be reimplemented and extracted out
+
   ///-----------------------------------------
   // Processes / Directives
   // RCL = 1
   // A colony is defined by having one or more spawners? or RCL?
   // Colony should have general purpose harvesters
-  let hatchery: Hatchery | undefined
-  for (const spawnName in Game.spawns) {
-    if (Game.spawns.hasOwnProperty(spawnName)) {
-      const spawn = Game.spawns[spawnName]
+  // let hatchery: Hatchery | undefined
+  // for (const spawnName in Game.spawns) {
+  //   if (Game.spawns.hasOwnProperty(spawnName)) {
+  //     const spawn = Game.spawns[spawnName]
 
-      // TODO: We can't do this because the memory object seems to get removed?
-      // hatchery = hatcheries[spawn.room.name]
-      // if (!hatchery) {
-      hatcheries[spawn.room.name] = hatchery = new Hatchery(spawn)
-      // }
+  //     // TODO: We can't do this because the memory object seems to get removed?
+  //     // hatchery = hatcheries[spawn.room.name]
+  //     // if (!hatchery) {
+  //     hatcheries[spawn.room.name] = hatchery = new Hatchery(spawn)
+  //     // }
 
-      hatchery.run()
+  //     hatchery.run()
 
-      // How do we determine what hatchery the mission should utilize? Thats a problem for RCL 7+
-      // if (room.controller && room.controller.my) {
-      // TODO: only scan the room for static data once
-      roomScanner.scan(spawn.room)
+  //     // How do we determine what hatchery the mission should utilize? Thats a problem for RCL 7+
+  //     // if (room.controller && room.controller.my) {
+  //     // TODO: only scan the room for static data once
+  //     roomScanner.scan(spawn.room)
 
-      // TODO: energymission should only be run once per room
-      const energyMission = new EnergyMission(spawn.room)
-      energyMission.run()
-      // }
-    }
-  }
-  // ramparts? walls? basebuilding directive?
+  //     // TODO: energymission should only be run once per room
+  //     const energyMission = new EnergyMission(spawn.room)
+  //     energyMission.run()
+  //     // }
+  //   }
+  // }
+  // // ramparts? walls? basebuilding directive?
 
-  const jobs: Dictionary<Job[]> = deseralizeJobs()
+  // const jobs: Dictionary<Job[]> = deseralizeJobs()
 
-  // Visible rooms
-  for (const roomName in Game.rooms) {
-    if (Game.rooms.hasOwnProperty(roomName)) {
-      const room = Game.rooms[roomName]
+  // // Visible rooms
+  // for (const roomName in Game.rooms) {
+  //   if (Game.rooms.hasOwnProperty(roomName)) {
+  //     const room = Game.rooms[roomName]
 
-      if (room) {
-        calculateAverageEnergy(room)
+  //     if (room) {
+  //       calculateAverageEnergy(room)
 
-        queueUpgraderJob(room, jobs)
+  //       queueUpgraderJob(room, jobs)
 
-        // const exitWalls = new RoomScanner().exitWalls(room)
-        const scanResult = DEFCON.scan(room)
+  //       // const exitWalls = new RoomScanner().exitWalls(room)
+  //       const scanResult = DEFCON.scan(room)
 
-        if (room.memory.DEFCON && hatchery) {
-          switch (room.memory.DEFCON.level) {
-            case DEFCONLEVEL.POSSIBLE_ATTACK:
-              const defenderRequests = hatchery.getRequests(room.name, CreepMutations.DEFENDER)
-              const currentDefenders = _.filter(Game.creeps, creep => creep.memory.role === Role.DEFENDER)
-              if (defenderRequests === 0 && currentDefenders.length < 3) {
-                hatchery.queue({
-                  mutation: CreepMutations.DEFENDER,
-                  target: room.name,
-                  priority: JobPriority.Medium + 5
-                })
-              }
+  //       if (room.memory.DEFCON && hatchery) {
+  //         switch (room.memory.DEFCON.level) {
+  //           case DEFCONLEVEL.POSSIBLE_ATTACK:
+  //             const defenderRequests = hatchery.getRequests(room.name, CreepMutations.DEFENDER)
+  //             const currentDefenders = _.filter(Game.creeps, creep => creep.memory.role === Role.DEFENDER)
+  //             if (defenderRequests === 0 && currentDefenders.length < 3) {
+  //               hatchery.queue({
+  //                 mutation: CreepMutations.DEFENDER,
+  //                 target: room.name,
+  //                 priority: JobPriority.Medium + 5
+  //               })
+  //             }
 
-              currentDefenders.forEach(defender => {
-                const target = scanResult.attack.pop()
-                if (target && defender.rangedAttack(target) === ERR_NOT_IN_RANGE) {
-                  defender.moveTo(target, { visualizePathStyle: PathStyle.Attack })
-                }
-              })
+  //             currentDefenders.forEach(defender => {
+  //               const target = scanResult.attack.pop()
+  //               if (target && defender.rangedAttack(target) === ERR_NOT_IN_RANGE) {
+  //                 defender.moveTo(target, { visualizePathStyle: PathStyle.Attack })
+  //               }
+  //             })
 
-              break
-          }
-        }
+  //             break
+  //         }
+  //       }
 
-        handleTowersAndQueueTowerHaulers(room, jobs)
-      }
-    }
-  }
+  //       handleTowersAndQueueTowerHaulers(room, jobs)
+  //     }
+  //   }
+  // }
 
-  queueFlagMissions()
+  // queueFlagMissions()
 
-  queueBuildingJobs(Game.spawns.Spawn1.room, jobs)
+  // queueBuildingJobs(Game.spawns.Spawn1.room, jobs)
 
-  for (const target in jobs) {
-    if (jobs.hasOwnProperty(target)) {
-      const targetJobs = jobs[target]
-      targetJobs.forEach(job => {
-        job.run()
-      })
-    }
-  }
+  // for (const target in jobs) {
+  //   if (jobs.hasOwnProperty(target)) {
+  //     const targetJobs = jobs[target]
+  //     targetJobs.forEach(job => {
+  //       job.run()
+  //     })
+  //   }
+  // }
 
   // Major issues
   // Energy requests
@@ -412,7 +420,7 @@ function queueBuildingJobs(room: Room, jobs: Dictionary<Job[]>) {
 
   let infrastructureMissionMemory = room.memory.infrastructureMission
   if (!infrastructureMissionMemory || !infrastructureMissionMemory.creeps) {
-    infrastructureMissionMemory = room.memory.infrastructureMission = { creeps: [] }
+    infrastructureMissionMemory = room.memory.infrastructureMission = { creeps: { builders: [] } }
   }
 
   const mission = new InfraStructureMission({ memory: infrastructureMissionMemory, infrastructure })
@@ -563,8 +571,8 @@ function queueFlagMissions() {
       //   !remoteEnergyMissionMemory ||
       //   (remoteFlag && remoteEnergyMissionMemory && remoteEnergyMissionMemory.flagId !== remoteFlag.name)
       // ) {
-      const remoteEnergyMission = new RemoteEnergyMission({ roomName, flags })
-      remoteEnergyMission.run()
+      // const remoteEnergyMission = new RemoteEnergyMission({ roomName, flags })
+      // remoteEnergyMission.run()
       // }
     }
   }

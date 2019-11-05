@@ -26,10 +26,10 @@ export class InfraStructureMission extends Mission {
     const creeps = {} as Dictionary<Creep>
     if (parameters.memory) {
       if (parameters.memory.creeps) {
-        Object.values(parameters.memory.creeps).forEach(creepId => {
-          const creep = Game.getObjectById<Creep>(creepId)
+        Object.keys(parameters.memory.creeps.builders).forEach(creepName => {
+          const creep = Game.creeps[creepName]
           if (creep) {
-            creeps[creepId] = creep
+            creeps[creepName] = creep
           }
         })
       }
@@ -40,10 +40,10 @@ export class InfraStructureMission extends Mission {
 
   public addCreep(creep: Creep) {
     if (this.memory) {
-      this.memory.creeps.push(creep.id)
+      this.memory.creeps.builders.push(creep.name)
     }
 
-    this.creeps[creep.id] = creep
+    this.creeps[creep.name] = creep
   }
 
   public distributeTasks() {

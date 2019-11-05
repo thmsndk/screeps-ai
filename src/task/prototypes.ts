@@ -1,5 +1,7 @@
 import { deseralize } from "./utilities/TaskFactory"
 
+// Creep prototypes ===============================================================================================
+
 Object.defineProperty(Creep.prototype, "task", {
   get() {
     if (!this._task) {

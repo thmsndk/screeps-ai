@@ -1,6 +1,2 @@
-export interface InfrastructureMissionMemory extends IMissionMemory {
-  /**
-   * a list of creepIds assigned to this mission.
-   */
-  creeps: string[]
-}
+// tslint:disable-next-line: no-empty-interface
+export interface InfrastructureMissionMemory extends IMissionMemory {}

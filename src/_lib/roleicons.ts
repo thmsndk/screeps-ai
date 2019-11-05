@@ -21,7 +21,7 @@ export function visualizeCreepRole() {
     pos: { x, y },
     memory: { role }
   } of Object.values(Game.creeps)) {
-    const icon = roles[role] || ""
+    const icon = role ? roles[role] : ""
     if (icon) {
       room.visual.text(icon, x, y + 0.1, { font: 0.4 })
     }
