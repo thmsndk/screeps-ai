@@ -40,7 +40,7 @@ export class EnergyMission {
   }
 
   /**
-   * getRequirements
+   * GetRequirements
    */
   public getRequirements(): RuneRequirement[] {
     const requirements = []
@@ -52,13 +52,13 @@ export class EnergyMission {
       rune: "miners",
       count: this.sourceCount - (this.memory.creeps.miners.length || 0),
       // 300 energy
-      runePowers: { work: 2, carry: 1, move: 1 }
+      runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 }
     }
     /**
- * you could define something like this though, which is the same idea but a little cleaner:
-  export type RunePower = Array<[BodyPartConstant, number]>
-  let runes: RunePower = [[WORK, 2], [CARRY, 1], [MOVE, 1]]
- */
+     * You could define something like this though, which is the same idea but a little cleaner:
+      export type RunePower = Array<[BodyPartConstant, number]>
+      let runes: RunePower = [[WORK, 2], [CARRY, 1], [MOVE, 1]]
+    */
     if (miners.count > 0) {
       requirements.push(miners)
     }
@@ -67,22 +67,22 @@ export class EnergyMission {
       rune: "haulers",
       count: this.sourceCount - (this.memory.creeps.haulers.length || 0),
       // 300 energy
-      runePowers: { work: 2, carry: 1, move: 1 }
+      runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 }
     }
 
     if (haulers.count > 0) {
       requirements.push(haulers)
     }
 
-    // do we want a dedicated hauler per source?
-    //I guess it all depends on some sort of math?
-    // also, how do we change the spawn priority of them? and is it important?
+    // Do we want a dedicated hauler per source?
+    // I guess it all depends on some sort of math?
+    // Also, how do we change the spawn priority of them? and is it important?
 
     return requirements
   }
 
   /**
-   * run
+   * Run
    */
   public run() {
     if (!this.room) {
@@ -92,6 +92,12 @@ export class EnergyMission {
 
     console.log("[Warning] energy mission not implemented")
     return
+
+    // Assign miners tasks
+    // Assign haulers tasks
+
+    // Run miners
+    // Run haulers
 
     // // TODO determine if it should be the cheapest harvesters?
     // // const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
@@ -111,50 +117,50 @@ export class EnergyMission {
 
     // // generate mining jobs
     // // prioritize mining jobs
-    // const jobs: Array<MiningJob | MiningHaulingJob> = []
-    // const sources = this.room.memory.sources || {}
-    // for (const sourceId in sources) {
+    // Const jobs: Array<MiningJob | MiningHaulingJob> = []
+    // Const sources = this.room.memory.sources || {}
+    // For (const sourceId in sources) {
     //   // sort sources by range from spawn, give  closer spawns higher priority
-    //   if (sources.hasOwnProperty(sourceId)) {
-    //     const source = Game.getObjectById<Source>(sourceId)
+    //   If (sources.hasOwnProperty(sourceId)) {
+    //     Const source = Game.getObjectById<Source>(sourceId)
 
-    //     if (source) {
-    //       const sourceMemory = sources[sourceId]
+    //     If (source) {
+    //       Const sourceMemory = sources[sourceId]
 
     //       // TODO: if there is no container, or miners do not drop resources, there is no point in haulers for this
     //       // Should haulingjob be a subroutine/job for miningjob aswell, so mining job knows it has a hauler? Creeps should could be split into Haulers and Miners?
-    //       if (!this.memory.jobs[sourceId]) {
+    //       If (!this.memory.jobs[sourceId]) {
     //         // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
 
-    //         const distanceWeight = 0.3
-    //         const miningPositionsWeight = 1
-    //         const missionPriroty =
-    //           sourceMemory.distanceToSpawn * distanceWeight +
-    //           sourceMemory.miningPositions.length * miningPositionsWeight
+    //         Const distanceWeight = 0.3
+    //         Const miningPositionsWeight = 1
+    //         Const missionPriroty =
+    //           SourceMemory.distanceToSpawn * distanceWeight +
+    //           SourceMemory.miningPositions.length * miningPositionsWeight
 
-    //         const haulingJob = new MiningHaulingJob(source, sourceMemory)
-    //         const miningJob = new MiningJob(source, sourceMemory, haulingJob)
+    //         Const haulingJob = new MiningHaulingJob(source, sourceMemory)
+    //         Const miningJob = new MiningJob(source, sourceMemory, haulingJob)
 
-    //         miningJob.memory.missionPriority = missionPriroty
-    //         haulingJob.memory.missionPriority = missionPriroty
+    //         MiningJob.memory.missionPriority = missionPriroty
+    //         HaulingJob.memory.missionPriority = missionPriroty
 
-    //         this.memory.jobs[sourceId] = miningJob.memory
-    //         jobs.push(miningJob)
-    //         jobs.push(haulingJob)
+    //         This.memory.jobs[sourceId] = miningJob.memory
+    //         Jobs.push(miningJob)
+    //         Jobs.push(haulingJob)
     //       } else {
-    //         const miningMemory = this.memory.jobs[sourceId]
+    //         Const miningMemory = this.memory.jobs[sourceId]
     //         // console.log("miningMemeory", JSON.stringify(miningMemory))
-    //         if (miningMemory) {
-    //           if (miningMemory.jobs) {
-    //             const haulerMemory = miningMemory.jobs[0]
-    //             const haulers = deseralizeJobCreeps(haulerMemory)
-    //             const miners = deseralizeJobCreeps(miningMemory)
+    //         If (miningMemory) {
+    //           If (miningMemory.jobs) {
+    //             Const haulerMemory = miningMemory.jobs[0]
+    //             Const haulers = deseralizeJobCreeps(haulerMemory)
+    //             Const miners = deseralizeJobCreeps(miningMemory)
 
-    //             const haulingJob = new MiningHaulingJob(source, sourceMemory, haulerMemory, haulers)
-    //             const miningJob = new MiningJob(source, sourceMemory, haulingJob, miningMemory, miners)
+    //             Const haulingJob = new MiningHaulingJob(source, sourceMemory, haulerMemory, haulers)
+    //             Const miningJob = new MiningJob(source, sourceMemory, haulingJob, miningMemory, miners)
 
-    //             jobs.push(miningJob)
-    //             jobs.push(haulingJob)
+    //             Jobs.push(miningJob)
+    //             Jobs.push(haulingJob)
     //           }
     //         }
     //       }
@@ -164,29 +170,29 @@ export class EnergyMission {
 
     // // run mining jobs
     // // sort by priority
-    // jobs.sort((a, b) => {
-    //   const aPriority = a.memory.missionPriority ? a.memory.missionPriority : -1
-    //   const bPriority = b.memory.missionPriority ? b.memory.missionPriority : -1
+    // Jobs.sort((a, b) => {
+    //   Const aPriority = a.memory.missionPriority ? a.memory.missionPriority : -1
+    //   Const bPriority = b.memory.missionPriority ? b.memory.missionPriority : -1
     //   //
-    //   return aPriority - bPriority
+    //   Return aPriority - bPriority
     // })
 
-    // jobs.forEach(job => {
-    //   job.run()
+    // Jobs.forEach(job => {
+    //   Job.run()
     // })
   }
 
-  // this mission should live in room memory
+  // This mission should live in room memory
 
   // EnergyMission is a mission for a specific room
-  // e.g. could be our initial first room
-  // it should prioritize all resource nodes in the room based on distance to nearest drop off location
-  // in this prioritization it should consider how many miningspots there are present
-  // should we store a potential yield based on assigned creeps? on each resource node?
+  // E.g. could be our initial first room
+  // It should prioritize all resource nodes in the room based on distance to nearest drop off location
+  // In this prioritization it should consider how many miningspots there are present
+  // Should we store a potential yield based on assigned creeps? on each resource node?
 
-  // it should only be responsible for specific rooms where we want to harvest
+  // It should only be responsible for specific rooms where we want to harvest
 
-  // it should be responsible for
-  // collection of resource nodes
-  // collection of jobs per resource node?
+  // It should be responsible for
+  // Collection of resource nodes
+  // Collection of jobs per resource node?
 }

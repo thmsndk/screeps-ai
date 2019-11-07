@@ -1,5 +1,5 @@
-// v1.4
-// special thanks to ags131, Robalian, and QGazQ for the assists
+// V1.4
+// Special thanks to ags131, Robalian, and QGazQ for the assists
 // Author: SemperRabbit
 // 20190705
 
@@ -7,7 +7,7 @@ global.injectBirthday = function() {
   //*
   if (!global.BirthdayInjected) {
     global.BirthdayInjected = true
-    var output = `<SPAN>Trying to inject Birthday code!</SPAN>
+    const output = `<SPAN>Trying to inject Birthday code!</SPAN>
 <SCRIPT>
 if(!window.injectScriptTag) {
 	window.injectScriptTag =  function injectScriptTag(name, url){
@@ -76,7 +76,7 @@ if (!document.getElementById("ScreepAdapter") || !window.ScreepAdapter){
 </SCRIPT>`
     console.log(output.replace(/(\r\n|\n|\r)\t+|(\r\n|\n|\r) +|(\r\n|\n|\r)/gm, ""))
   }
-  //*/
+  //* /
 }
 
 global.forceInjectBirthday = () => {
