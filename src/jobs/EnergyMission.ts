@@ -71,7 +71,7 @@ export class EnergyMission {
       rune: "haulers",
       count: this.sourceCount - (this.memory.creeps.haulers.length || 0),
       // 300 energy
-      runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 }
+      runePowers: { [CARRY]: 3, [MOVE]: 3 }
     }
 
     if (haulers.count > 0) {
