@@ -1,12 +1,12 @@
 import PriorityQueue from "ts-priority-queue"
 
-// function bodyCost(body: BodyPartConstant[]) {
-//   return body.reduce((cost, part) => {
-//     return cost + BODYPART_COST[part]
+// Function bodyCost(body: BodyPartConstant[]) {
+//   Return body.reduce((cost, part) => {
+//     Return cost + BODYPART_COST[part]
 //   }, 0)
 // }
 
-// export enum CreepMutations {
+// Export enum CreepMutations {
 //   CLAIMER = "claimer",
 //   DEFENDER = "defender",
 //   HARVESTER = "harvester",
@@ -27,7 +27,7 @@ export interface RuneRequirement {
 export type RunePowers = { [key in BodyPartConstant]?: number }
 
 // TODO: calculate runes
-// calculate runepower
+// Calculate runepower
 export function calculateRunePowers(body: BodyPartConstant[]): RunePowers {
   return body.reduce(
     (runepowers, part) => {
@@ -54,30 +54,33 @@ export function compareRunePowers(creepPowers: RunePowers, wishes: RunePowers, m
 }
 
 function calculateBodyCost(body: BodyPartConstant[]): number {
-  return body.reduce((cost, part) => {
-    return cost + BODYPART_COST[part]
-  }, 0)
+  return body.reduce((cost, part) => cost + BODYPART_COST[part], 0)
 }
 
-const comparePriority = (a: Priority, b: Priority) => b.priority - a.priority
+const comparePriority = (a: Priority, b: Priority): number => b.priority - a.priority
 
 export class Freya {
   private requests: PriorityQueue<MemoryPrayer>
-  constructor() {
+  public constructor() {
     this.requests = new PriorityQueue<MemoryPrayer>({
       comparator: comparePriority
-      // initialValues: []
+      // InitialValues: []
     })
   }
-  public run() {
+
+  public get prayers(): number {
+    return this.requests.length
+  }
+
+  public run(): void {
     // TODO: something smart in regards to selecting spawn
     for (const spawnName in Game.spawns) {
       if (Game.spawns.hasOwnProperty(spawnName)) {
         const spawn = Game.spawns[spawnName]
 
         const spawning = !!spawn.spawning
-        console.log(`spawn queue length: ${this.requests.length}`)
-        if (!spawning && this.requests.length > 0 /*&& population < maxPopulation*/) {
+        // // console.log(`spawn queue length: ${this.requests.length}`)
+        if (!spawning && this.requests.length > 0 /* && population < maxPopulation*/) {
           const next = this.requests.dequeue()
           if (next && !this.spawn(spawn, next)) {
             this.requests.queue(next)
@@ -111,20 +114,20 @@ export class Freya {
     }
     return names
   }
-  private spawn(spawn: StructureSpawn, prayer: MemoryPrayer) {
+  private spawn(spawn: StructureSpawn, prayer: MemoryPrayer): boolean {
     const body = this.generateBody(prayer.runePowers)
 
     const bodyCost = calculateBodyCost(body)
 
-    console.log("Spawning")
-    console.log(JSON.stringify(prayer))
-    console.log(body)
-    console.log(bodyCost)
+    // // console.log("Spawning")
+    // // console.log(JSON.stringify(prayer))
+    // // console.log(body)
+    // // console.log(bodyCost)
     if (spawn.room.energyAvailable >= bodyCost) {
       const creepName = prayer.name
       const result = spawn.spawnCreep(body, creepName, {
         memory: {
-          home: spawn.pos.roomName, // what is home? we might be spawning a creep for a mission in another room.
+          home: spawn.pos.roomName, // What is home? we might be spawning a creep for a mission in another room.
           rune: prayer.rune
         }
       } as SpawnOptions)
@@ -150,21 +153,21 @@ export class Freya {
     // https://docs.screeps.com/api/#Creep
   }
   private generateBody(runePowers: RunePowers): BodyPartConstant[] {
-    console.log("generating body")
+    // // console.log("generating body")
     const body = [] as BodyPartConstant[]
 
     for (const part in runePowers) {
       if (runePowers.hasOwnProperty(part)) {
         const bodyPart = part.toLowerCase() as BodyPartConstant
         const powers = runePowers[bodyPart] || 0
-        console.log(bodyPart)
-        console.log(powers)
+        // // console.log(bodyPart)
+        // // console.log(powers)
         for (let index = 0; index < powers; index++) {
           body.push(bodyPart)
         }
       }
     }
-    console.log(body)
+    // // console.log(body)
     return body
   }
 }

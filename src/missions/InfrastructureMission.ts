@@ -11,7 +11,7 @@ interface InfraStructureMissionConstructor {
   infrastructure: Infrastructure
 }
 
-// tslint:disable-next-line: max-classes-per-file
+// Tslint:disable-next-line: max-classes-per-file
 export class InfraStructureMission extends Mission {
   public memory?: InfrastructureMissionMemory // TODO: Private
 
@@ -19,7 +19,7 @@ export class InfraStructureMission extends Mission {
 
   private infrastructure: Infrastructure
 
-  constructor(parameters: InfraStructureMissionConstructor) {
+  public constructor(parameters: InfraStructureMissionConstructor) {
     super(parameters ? parameters.memory : undefined)
     this.infrastructure = parameters.infrastructure
 
@@ -38,7 +38,7 @@ export class InfraStructureMission extends Mission {
     this.creeps = creeps
   }
 
-  public addCreep(creep: Creep) {
+  public addCreep(creep: Creep): void {
     if (this.memory) {
       this.memory.creeps.builders.push(creep.name)
     }
@@ -46,13 +46,13 @@ export class InfraStructureMission extends Mission {
     this.creeps[creep.name] = creep
   }
 
-  public distributeTasks() {
+  public distributeTasks(): void {
     const idleCreeps = _.filter(this.creeps, creep => creep.isIdle)
 
     // We should probably have a PriortyQueue of construction sites
     for (let index = 0; index < this.infrastructure.Layers.length; index++) {
       const layer = this.infrastructure.Layers[index]
-      // validate if layer is valid
+      // Validate if layer is valid
       const room = Game.rooms[layer.roomName]
 
       if (room && room.controller && room.controller.level < index) {
@@ -60,12 +60,12 @@ export class InfraStructureMission extends Mission {
       }
 
       // Get first unfinshed position and make sure it has a constructionsite
-      // should probably be sorted by priority
+      // Should probably be sorted by priority
       const position = layer.Positions.find(p => !p.finished)
 
       if (room && position) {
-        // by checking room we are kinda preventing constructions sites from rooms without vision to be built
-        // scan if construction exists on position
+        // By checking room we are kinda preventing constructions sites from rooms without vision to be built
+        // Scan if construction exists on position
 
         const roomPosition = derefRoomPosition({ ...position.pos, roomName: layer.roomName })
 
@@ -90,7 +90,7 @@ export class InfraStructureMission extends Mission {
               console.log("plan cSite:" + newConstructionSiteResult)
             }
 
-            // assign creeps to move to target
+            // Assign creeps to move to target
             idleCreeps.forEach(creep => {
               if (position && position.constructionSite) {
                 creep.task = Tasks.goTo(roomPosition, { moveOptions: { range: 3 } })
@@ -101,7 +101,7 @@ export class InfraStructureMission extends Mission {
           }
         }
 
-        // assign creeps to constructionSite
+        // Assign creeps to constructionSite
         idleCreeps.forEach(creep => {
           // TODO: implement targetedBy and handle coop tasks, find closest creep, validate work parts, and other shenanigans
           // TODO: when construction site is done, we need to mark it as such with a reference to the structure instead
@@ -110,28 +110,28 @@ export class InfraStructureMission extends Mission {
           }
         })
 
-        // bail out so only one cSite is constructed at a time.
+        // Bail out so only one cSite is constructed at a time.
         if (position.constructionSite) {
           break
         }
       }
 
-      // should probably also check the "next" position allowing creeps to move to next position when finished
+      // Should probably also check the "next" position allowing creeps to move to next position when finished
 
       // TODO: validate if finished construction site still exists
     }
   }
 
-  public run() {
+  public run(): void {
     Object.values(this.creeps).forEach(creep => {
       if (creep.carry.energy === 0) {
-        // const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
-        // chain dropped resources in a close quarter
+        // Const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+        // Chain dropped resources in a close quarter
         //
 
-        // if (resource) {
-        //   if (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
-        //     creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
+        // If (resource) {
+        //   If (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
+        //     Creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
         //   }
         // } else {
         const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {

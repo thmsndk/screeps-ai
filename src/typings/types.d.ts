@@ -1,15 +1,16 @@
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
+    freya: import("../Freya").Freya
     log: any
     DEFCON: import("../DEFCON").DEFCON
-    Profiler: Profiler // import("./_lib/Profiler/Profiler/typings").Profiler
+    Profiler: Profiler // Import("./_lib/Profiler/Profiler/typings").Profiler
     injectBirthday: () => void
     // Infrastructure: import("../RoomPlanner/Infrastructure").Infrastructure // TODO: figure out this later
   }
 }
 
-// declare global {
+// Declare global {
 
 // } // TODO: in use / unused mining position?
 
@@ -22,7 +23,7 @@ interface IPosition {
    * Y position in the room.
    */
   y: number
-  /** room name */
+  /** Room name */
   roomName?: string
 }
 
@@ -30,7 +31,7 @@ interface IPosition {
 interface CPUExtended extends CPU {
   used: number
 }
-// tslint:disable-next-line: interface-name
+// Tslint:disable-next-line: interface-name
 interface IStats {
   tick?: number
   cpu?: CPUExtended

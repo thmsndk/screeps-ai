@@ -16,8 +16,8 @@ export class Elders {
   }
 
   public run() {
-    // bootstrap process - runs every X ticks to validate health of a "village" / core room
-    //    settle first village (e.g. 1 room, safemode rcl = 1 or safemode and no spawn (auto)) - run planner
+    // Bootstrap process - runs every X ticks to validate health of a "village" / core room
+    //    Settle first village (e.g. 1 room, safemode rcl = 1 or safemode and no spawn (auto)) - run planner
     if (this.checkSettle) {
       const hasOneOrLessSpawns = Object.keys(Game.spawns).length <= 1
       const roomWithInitialController = Object.values(Game.rooms).find(
@@ -29,7 +29,7 @@ export class Elders {
       )
 
       if (hasOneOrLessSpawns && roomWithInitialController) {
-        // settle village
+        // Settle village
         // TODO:  spread planning out over ticks?, should this be a planning request instead?
         roomWithInitialController.memory.village = true // TODO: for supporting private server "auto" spawn in the plan
         this.roomPlanner.plan(roomWithInitialController.name, 8)
@@ -38,8 +38,8 @@ export class Elders {
       this.checkSettle = false
     }
 
-    //    generate village missions
-    //      scout missions to find outposts, intell is gathered and the intell counsil member is informed?
+    //    Generate village missions
+    //      Scout missions to find outposts, intell is gathered and the intell counsil member is informed?
     for (const roomName in Game.rooms) {
       if (Game.rooms.hasOwnProperty(roomName)) {
         const room = Game.rooms[roomName]
@@ -51,19 +51,19 @@ export class Elders {
           const energyMission = new EnergyMission(room)
 
           // TODO: assign creeps to mission
-          // search for creep with correct runes / power levels
-          // request a creep from freya with specific runes / power levels
-          // should freya be in global scope? should freya contain logic to find creeps?
-          // the energy mission should be responsible for determining the stage it is at, and what power levels it requires?
+          // Search for creep with correct runes / power levels
+          // Request a creep from freya with specific runes / power levels
+          // Should freya be in global scope? should freya contain logic to find creeps?
+          // The energy mission should be responsible for determining the stage it is at, and what power levels it requires?
           const missionRequirements = energyMission.getRequirements()
-
-          // loop creeps, verify requirements,
+          // // console.log(JSON.stringify(missionRequirements))
+          // Loop creeps, verify requirements,
           if (missionRequirements.length > 0) {
             for (const creepName in Game.creeps) {
               if (Game.creeps.hasOwnProperty(creepName)) {
                 const creep = Game.creeps[creepName]
 
-                if (creep.spawning || !creep.isIdle) {
+                if (creep.spawning || !creep.isIdle || energyMission.hasCreep(creep)) {
                   continue
                 }
 
@@ -81,7 +81,7 @@ export class Elders {
                 continue
               }
 
-              // should a prayer expire?, should it return a ticket, so you can cancel a prayer?
+              // Should a prayer expire?, should it return a ticket, so you can cancel a prayer?
               const names = this.freya.pray(requirement)
               for (const rune in names) {
                 if (names.hasOwnProperty(rune)) {
@@ -93,11 +93,9 @@ export class Elders {
                 }
               }
             }
-            // pray
-            // how do we prevent repeated praying? we can add a prayer to the mission
           }
 
-          // does missions need a finish condition?
+          // Does missions need a finish condition?
 
           energyMission.run() // TODO: mission should be put into a mission list.
           // TODO: scout mission
@@ -105,9 +103,9 @@ export class Elders {
       }
     }
 
-    //    generate outpost missions
+    //    Generate outpost missions
     //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
-    //    allocate creeps to missions or request creep suitible for mission
+    //    Allocate creeps to missions or request creep suitible for mission
   }
 
   private isWorthy(creep: Creep, missionRequirements: RuneRequirement[]): string | undefined {
@@ -118,7 +116,7 @@ export class Elders {
         continue
       }
 
-      // if (creep.hasRunePowers(requirement.runePowers)) {
+      // If (creep.hasRunePowers(requirement.runePowers)) {
       if (compareRunePowers(creepRunePowers, requirement.runePowers)) {
         requirement.count--
         return requirement.rune

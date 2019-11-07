@@ -1,9 +1,6 @@
+import { RuneRequirement } from "Freya"
+import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
-import { deseralizeJobCreeps } from "utils/MemoryUtil"
-import { Job, JobPriority } from "./Job"
-import { MiningHaulingJob } from "./MiningHaulingJob"
-import { MiningJob } from "./MiningJob"
-import { RunePowers, RuneRequirement } from "Freya"
 
 /**
  * Responsible for mining in villages, should it also handle outposts?
@@ -14,7 +11,7 @@ export class EnergyMission {
   private memory: IEnergyMission
   private sourceCount: number
 
-  constructor(room: Room) {
+  public constructor(room: Room) {
     this.room = room
     if (!this.room.memory.energymission) {
       this.room.memory.energymission = {
@@ -30,13 +27,20 @@ export class EnergyMission {
     this.sourceCount = this.room.memory.sources ? Object.keys(this.room.memory.sources).length : 0
   }
 
-  public addCreep(creep: Creep | string, rune: string) {
+  public addCreep(creep: Creep | string, rune: string): void {
     const name = typeof creep === "string" ? creep : creep.name
     this.addCreepByName(name, rune)
   }
 
-  public addCreepByName(creepName: string, rune: string) {
+  public addCreepByName(creepName: string, rune: string): void {
     this.memory.creeps[rune].push(creepName)
+  }
+
+  public hasCreep(creep: Creep): boolean {
+    const isMiner = this.memory.creeps.miners.indexOf(creep.name) >= 0
+    const isHauler = this.memory.creeps.haulers.indexOf(creep.name) >= 0
+    console.log(`${isMiner} ${isHauler}`)
+    return isMiner || isHauler
   }
 
   /**
@@ -84,105 +88,71 @@ export class EnergyMission {
   /**
    * Run
    */
-  public run() {
+  public run(): void {
     if (!this.room) {
       console.log("[Warning] room is not visible, skipping energy mission")
       return
     }
+    const derefCreeps = (result: Creep[], creepName: string): Creep[] => {
+      const creep = Game.creeps[creepName] /* TODO: switch to deref */
+      // // console.log("Found creep")
+      // // console.log(JSON.stringify(creep))
+      if (creep) {
+        result.push(creep)
+      }
+      return result
+    }
 
-    console.log("[Warning] energy mission not implemented")
-    return
+    // Does this depend on stage / tier? e.g. if we have no haulers, we should be delivering energy
+    const miners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
+    const idleMiners = miners.filter(creep => creep.isIdle)
+    const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
+    const idleHaulers = haulers.filter(creep => creep.isIdle)
 
+    // Cleanup old creeps where prayer is gone
+    if (global.freya.prayers === 0) {
+      console.log(`Freya prayers are gone, setting miners ${miners.length} and haulers ${haulers.length} `)
+      // // console.log(JSON.stringify(miners))
+      this.memory.creeps.miners = miners.map(creep => creep.name)
+      this.memory.creeps.haulers = haulers.map(creep => creep.name)
+    }
+
+    const sources = this.room.memory.sources || {}
+    for (const sourceId in sources) {
+      // Sort sources by range from spawn, give  closer spawns higher priority
+      if (sources.hasOwnProperty(sourceId)) {
+        const source = Game.getObjectById<Source>(sourceId)
+
+        if (source) {
+          // Vision of source
+          const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
+          // Miner logic
+          if (miner) {
+            this.minerHarvestRoom(source, miner, haulers)
+          }
+
+          const hauler = idleHaulers.pop()
+          if (hauler) {
+            this.haul(source, hauler)
+          }
+        } else {
+          // Go to source?
+        }
+      }
+    }
     // Assign miners tasks
     // Assign haulers tasks
 
     // Run miners
+    miners.forEach(creep => creep.run())
+
     // Run haulers
+    haulers.forEach(creep => creep.run())
 
-    // // TODO determine if it should be the cheapest harvesters?
-    // // const harvesters = _.filter(Game.creeps, creep => creep.memory.role === Role.harvester)
-    // // if (harvesters.length === 0) {
-    // //   spendingCap = 300
-    // // }
-
-    // // should energy reservations have a priority? should we reserve energy for the spawn?
-    // // hatchery.queue({
-    // //   CreepMutations.HARVESTER,
-    // //   target: this.target,
-    // //   priority
-    // // })
-
-    // // TODO: We need to calculate our current energy consumption rate vs what energy harvest rate we need
-    // // based on this calculation we should adjust how many harvesters we want and what spending cap they should have
-
-    // // generate mining jobs
-    // // prioritize mining jobs
-    // Const jobs: Array<MiningJob | MiningHaulingJob> = []
-    // Const sources = this.room.memory.sources || {}
-    // For (const sourceId in sources) {
-    //   // sort sources by range from spawn, give  closer spawns higher priority
-    //   If (sources.hasOwnProperty(sourceId)) {
-    //     Const source = Game.getObjectById<Source>(sourceId)
-
-    //     If (source) {
-    //       Const sourceMemory = sources[sourceId]
-
-    //       // TODO: if there is no container, or miners do not drop resources, there is no point in haulers for this
-    //       // Should haulingjob be a subroutine/job for miningjob aswell, so mining job knows it has a hauler? Creeps should could be split into Haulers and Miners?
-    //       If (!this.memory.jobs[sourceId]) {
-    //         // TODO: this need to be refactored, HaulerJob should initialize it's memory, but what when we deseralize it?
-
-    //         Const distanceWeight = 0.3
-    //         Const miningPositionsWeight = 1
-    //         Const missionPriroty =
-    //           SourceMemory.distanceToSpawn * distanceWeight +
-    //           SourceMemory.miningPositions.length * miningPositionsWeight
-
-    //         Const haulingJob = new MiningHaulingJob(source, sourceMemory)
-    //         Const miningJob = new MiningJob(source, sourceMemory, haulingJob)
-
-    //         MiningJob.memory.missionPriority = missionPriroty
-    //         HaulingJob.memory.missionPriority = missionPriroty
-
-    //         This.memory.jobs[sourceId] = miningJob.memory
-    //         Jobs.push(miningJob)
-    //         Jobs.push(haulingJob)
-    //       } else {
-    //         Const miningMemory = this.memory.jobs[sourceId]
-    //         // console.log("miningMemeory", JSON.stringify(miningMemory))
-    //         If (miningMemory) {
-    //           If (miningMemory.jobs) {
-    //             Const haulerMemory = miningMemory.jobs[0]
-    //             Const haulers = deseralizeJobCreeps(haulerMemory)
-    //             Const miners = deseralizeJobCreeps(miningMemory)
-
-    //             Const haulingJob = new MiningHaulingJob(source, sourceMemory, haulerMemory, haulers)
-    //             Const miningJob = new MiningJob(source, sourceMemory, haulingJob, miningMemory, miners)
-
-    //             Jobs.push(miningJob)
-    //             Jobs.push(haulingJob)
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
-    // // run mining jobs
-    // // sort by priority
-    // Jobs.sort((a, b) => {
-    //   Const aPriority = a.memory.missionPriority ? a.memory.missionPriority : -1
-    //   Const bPriority = b.memory.missionPriority ? b.memory.missionPriority : -1
-    //   //
-    //   Return aPriority - bPriority
-    // })
-
-    // Jobs.forEach(job => {
-    //   Job.run()
-    // })
+    return
   }
 
-  // This mission should live in room memory
+  // This mission should live in room memory, what about remove mining missions, do they belong in the village, or the remote outpost?
 
   // EnergyMission is a mission for a specific room
   // E.g. could be our initial first room
@@ -192,7 +162,99 @@ export class EnergyMission {
 
   // It should only be responsible for specific rooms where we want to harvest
 
-  // It should be responsible for
-  // Collection of resource nodes
-  // Collection of jobs per resource node?
+  private minerHarvestRoom(source: Source, creep: Creep, haulers: Creep[]): void {
+    // // console.log(`${creep.name} is idle capacity:${creep.store.getFreeCapacity()}`)
+    if (creep.store.getFreeCapacity() === 0) {
+      // TODO: are we in drop-off room?, if not go to drop-of room, should probable have a general resource management module to determine where to drop off
+      // TODO: container?
+
+      const target = creep.pos.findClosestByRange<StructureExtension | StructureSpawn>(FIND_STRUCTURES, {
+        filter: structure => {
+          switch (structure.structureType) {
+            case STRUCTURE_EXTENSION:
+              const extension = structure as StructureExtension
+              return extension.energy < extension.energyCapacity && haulers.length === 0
+            case STRUCTURE_SPAWN:
+              const spawn = structure as StructureSpawn
+              return spawn.energy < spawn.energyCapacity && haulers.length === 0
+            // // case STRUCTURE_TOWER:
+            // //   const tower = structure as StructureTower
+            // //   return tower.energy < tower.energyCapacity && haulers.length === 0
+          }
+
+          return false
+        }
+      })
+
+      if (target) {
+        // // console.log(`${creep.name} transfer task for ${target.ref}`)
+        creep.task = Tasks.transfer(target)
+      } else if (haulers.length >= 1) {
+        creep.drop(RESOURCE_ENERGY) // TODO: Task
+      }
+    } else {
+      creep.task = Tasks.harvest(source) // Harvest task might need options for harvesting while full on energy, e.g. drop-harvesting
+    }
+  }
+  private haul(source: Source, creep: Creep): void {
+    // TODO: do we need to toggle a collection or delivery mode?, should probably check all sources, and not only 1?
+    if (creep.store.getFreeCapacity() === 0) {
+      // TODO: check source container
+      // Find spawn or extensions to deposit
+      const target = creep.pos.findClosestByRange<StructureSpawn | StructureExtension | StructureStorage>(
+        FIND_STRUCTURES,
+        {
+          filter: structure => {
+            // Console.log("MHJ", structure.structureType)
+            switch (structure.structureType) {
+              case STRUCTURE_EXTENSION:
+                const extension = structure as StructureExtension
+                return extension.energy < extension.energyCapacity
+              case STRUCTURE_SPAWN:
+                const spawn = structure as StructureSpawn
+                return spawn.energy < spawn.energyCapacity
+              case STRUCTURE_STORAGE:
+                const storage = structure as StructureStorage
+                return (
+                  storage.store[RESOURCE_ENERGY] < storage.storeCapacity &&
+                  creep.room.energyAvailable === creep.room.energyCapacityAvailable
+                )
+              // Case STRUCTURE_TOWER:
+              //     Const tower = structure as StructureTower
+              //     Return tower.energy < tower.energyCapacity
+              // Case STRUCTURE_CONTAINER:
+              //     Const container = structure as StructureContainer
+              //     Return structure.id !== job.memory.target && container.store[RESOURCE_ENERGY] < container.storeCapacity
+            }
+
+            return false
+          }
+        }
+      )
+
+      if (target) {
+        creep.task = Tasks.transfer(target)
+      }
+    } else {
+      // Find energy to haul
+      // Container
+      // // const targets = source.pos.findInRange(FIND_STRUCTURES, 2, {
+      // //   filter: structure => {
+      // //     switch (structure.structureType) {
+      // //       case STRUCTURE_CONTAINER:
+      // //         const container = structure as StructureContainer
+      // //         const amount = _.sum(container.store)
+      // //         return amount > 0 // container.storeCapacity / 4
+      // //     }
+
+      // //     return false
+      // //   }
+      // // })
+      const resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
+      if (resource.length > 0) {
+        creep.task = Tasks.pickup(resource[0])
+      }
+    }
+    // TODO: move creeps in the way?
+  }
 }
