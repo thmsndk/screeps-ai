@@ -2,7 +2,6 @@ import { profile } from "_lib/Profiler"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import PriorityQueue from "ts-priority-queue"
-import { MemoryHatchRequest } from "./Hatchery"
 
 // Hatchery"Job"?
 // We need a list of hatcheries accessable by ?? roomName? what if there are multiple hatcheries in a room
