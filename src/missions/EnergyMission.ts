@@ -1,6 +1,6 @@
-import { RuneRequirement } from "Freya"
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
+import { RuneRequirement } from "Freya"
 
 /**
  * Responsible for mining in villages, should it also handle outposts?

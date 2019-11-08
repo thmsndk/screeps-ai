@@ -32,6 +32,7 @@ export function calculateRunePowers(body: BodyPartConstant[]): RunePowers {
   return body.reduce(
     (runepowers, part) => {
       runepowers[part] = (runepowers[part] || 0) + 1
+
       return runepowers
     },
     {} as RunePowers
@@ -61,6 +62,7 @@ const comparePriority = (a: Priority, b: Priority): number => b.priority - a.pri
 
 export class Freya {
   private requests: PriorityQueue<MemoryPrayer>
+
   public constructor() {
     this.requests = new PriorityQueue<MemoryPrayer>({
       comparator: comparePriority
@@ -91,6 +93,8 @@ export class Freya {
       }
     }
   }
+
+  // TODO: a prayer should have a target / target position, so freya can decide where to summon the unit.
   public pray(requirement: RuneRequirement): { [index: string]: string[] } {
     const names = {} as { [index: string]: string[] }
 
@@ -112,8 +116,10 @@ export class Freya {
       this.requests.queue(prayer)
       // TODO: could persist to memory, but does it really matter?
     }
+
     return names
   }
+
   private spawn(spawn: StructureSpawn, prayer: MemoryPrayer): boolean {
     const body = this.generateBody(prayer.runePowers)
 
@@ -134,6 +140,7 @@ export class Freya {
 
       if (result === OK) {
         console.log("Prayer answered: " + creepName + " " + bodyCost)
+
         return true
       } else {
         console.log(`[Freya]: ${result}`)
@@ -152,6 +159,7 @@ export class Freya {
 
     // https://docs.screeps.com/api/#Creep
   }
+
   private generateBody(runePowers: RunePowers): BodyPartConstant[] {
     // // console.log("generating body")
     const body = [] as BodyPartConstant[]
@@ -167,6 +175,7 @@ export class Freya {
         }
       }
     }
+
     // // console.log(body)
     return body
   }

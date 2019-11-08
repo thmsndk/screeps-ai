@@ -1,5 +1,5 @@
 import { calculateRunePowers, compareRunePowers, Freya, RuneRequirement } from "Freya"
-import { EnergyMission } from "jobs/EnergyMission"
+import { EnergyMission } from "missions/EnergyMission"
 import { RoomPlanner } from "RoomPlanner"
 import { RoomScanner } from "RoomScanner"
 
@@ -15,27 +15,7 @@ export class Elders {
   }
 
   public run(): void {
-    // Bootstrap process - runs every X ticks to validate health of a "village" / core room
-    //    Settle first village (e.g. 1 room, safemode rcl = 1 or safemode and no spawn (auto)) - run planner
-    if (this.checkSettle) {
-      const hasOneOrLessSpawns = Object.keys(Game.spawns).length <= 1
-      const roomWithInitialController = Object.values(Game.rooms).find(
-        r =>
-          !!r.controller &&
-          r.controller.my &&
-          r.controller.level === 1 &&
-          ((!!r.controller.safeMode && r.controller.safeMode > 0) || r.name === "sim")
-      )
-
-      if (hasOneOrLessSpawns && roomWithInitialController) {
-        // Settle village
-        // TODO:  spread planning out over ticks?, should this be a planning request instead?
-        roomWithInitialController.memory.village = true // TODO: for supporting private server "auto" spawn in the plan
-        this.roomPlanner.plan(roomWithInitialController.name, 8)
-      }
-
-      this.checkSettle = false
-    }
+    this.bootstrap()
 
     //    Generate village missions
     //      Scout missions to find outposts, intell is gathered and the intell counsil member is informed?
@@ -98,6 +78,8 @@ export class Elders {
 
           energyMission.run() // TODO: mission should be put into a mission list.
           // TODO: scout mission
+
+          // TODO: new missions up, get requirements, loop creeps, loop missions, could call getRequirements repeatedly, but cache the requirements in the mission for that specific tick?
         }
       }
     }
@@ -105,6 +87,30 @@ export class Elders {
     //    Generate outpost missions
     //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
     //    Allocate creeps to missions or request creep suitible for mission
+  }
+
+  private bootstrap(): void {
+    // Bootstrap process - runs every X ticks to validate health of a "village" / core room
+    //    Settle first village (e.g. 1 room, safemode rcl = 1 or safemode and no spawn (auto)) - run planner
+    if (this.checkSettle) {
+      const hasOneOrLessSpawns = Object.keys(Game.spawns).length <= 1
+      const roomWithInitialController = Object.values(Game.rooms).find(
+        r =>
+          !!r.controller &&
+          r.controller.my &&
+          r.controller.level === 1 &&
+          ((!!r.controller.safeMode && r.controller.safeMode > 0) || r.name === "sim")
+      )
+
+      if (hasOneOrLessSpawns && roomWithInitialController) {
+        // Settle village
+        // TODO:  spread planning out over ticks?, should this be a planning request instead?
+        roomWithInitialController.memory.village = true // TODO: for supporting private server "auto" spawn in the plan
+        this.roomPlanner.plan(roomWithInitialController.name, 8)
+      }
+
+      this.checkSettle = false
+    }
   }
 
   private isWorthy(creep: Creep, missionRequirements: RuneRequirement[]): string | undefined {
