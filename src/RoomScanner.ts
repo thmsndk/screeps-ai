@@ -1,9 +1,12 @@
+/* eslint-disable max-classes-per-file */
 import { profile } from "_lib/Profiler"
 
 export class Position implements IPosition {
   public x: number
+
   public y: number
-  constructor(x: number, y: number) {
+
+  public constructor(x: number, y: number) {
     this.x = x
     this.y = y
   }
@@ -19,7 +22,7 @@ function isPositionWalkable(roomTerrain: RoomTerrain, position: Position | null)
   return terrain !== TERRAIN_MASK_WALL
 }
 
-// this is something I should write tests for tbh
+// This is something I should write tests for tbh
 export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, offset?: number): Position[] {
   const positions: Position[] = []
 
@@ -28,7 +31,7 @@ export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, off
   }
   const borderLength = target.x + offset - (target.x - offset) + 1
 
-  // topLine
+  // TopLine
   for (let index = 0; index < borderLength; index++) {
     const position = new Position(target.x - offset + index, target.y - offset)
     if (position && isPositionWalkable(roomTerrain, position)) {
@@ -36,7 +39,7 @@ export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, off
     }
   }
 
-  // right, we do not count corners
+  // Right, we do not count corners
   for (let index = 0; index < borderLength - 2; index++) {
     const position = new Position(target.x + offset, target.y - offset + index + 1)
     if (position && isPositionWalkable(roomTerrain, position)) {
@@ -44,7 +47,7 @@ export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, off
     }
   }
 
-  // bottomLine
+  // BottomLine
   for (let index = 0; index < borderLength; index++) {
     const position = new Position(target.x - offset + index, target.y + offset)
     if (position && isPositionWalkable(roomTerrain, position)) {
@@ -52,7 +55,7 @@ export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, off
     }
   }
 
-  // left, we do not count corners
+  // Left, we do not count corners
   for (let index = 0; index < borderLength - 2; index++) {
     const position = new Position(target.x - offset, target.y - offset + index + 1)
     if (position && isPositionWalkable(roomTerrain, position)) {
@@ -62,7 +65,7 @@ export function getPositions(roomTerrain: RoomTerrain, target: RoomPosition, off
 
   return positions
 }
-// tslint:disable-next-line: max-classes-per-file
+// Tslint:disable-next-line: max-classes-per-file
 @profile
 export class RoomScanner {
   public exitWalls(room: Room) {
@@ -75,10 +78,7 @@ export class RoomScanner {
         .filter(pos => pos.x !== exit.x && pos.y !== exit.y)
         .forEach(pos => {
           const roomPosition = room.getPositionAt(pos.x, pos.y)
-          const hasPosition =
-            walls.findIndex((wall: RoomPosition) => {
-              return wall.x === pos.x && wall.y === pos.y
-            }) >= 0
+          const hasPosition = walls.findIndex((wall: RoomPosition) => wall.x === pos.x && wall.y === pos.y) >= 0
 
           if (roomPosition && !hasPosition) {
             walls.push(roomPosition)
@@ -92,13 +92,14 @@ export class RoomScanner {
 
     cpuUsage = Game.cpu.getUsed() - cpuUsage
     room.visual.text(`CPU Usage: ${cpuUsage}`, 0, 0, { align: "left" })
-    // uses ~1 cpu and also generates excessive walls, should probably use pathfinding
+    // Uses ~1 cpu and also generates excessive walls, should probably use pathfinding
   }
 
   /** Scans the room for static data, currently source nodes and miningpositions */
   public scan(room: Room) {
     if (!room) {
       console.log("[Warning] room is not defined")
+
       return
     }
     const roomTerrain = new Room.Terrain(room.name)
@@ -115,7 +116,7 @@ export class RoomScanner {
         room.memory.sources = {}
       }
 
-      let sourceMemory = room.memory.sources[source.id]
+      let sourceMemory = room.memory.sources[source.id as string]
 
       if (!sourceMemory) {
         let distanceToSpawn = 0
@@ -128,7 +129,7 @@ export class RoomScanner {
           distanceToSpawn,
           miningPositions: []
         } as ISourceMemory
-        room.memory.sources[source.id] = sourceMemory
+        room.memory.sources[source.id as string] = sourceMemory
       }
 
       sourceMemory.miningPositions = positions

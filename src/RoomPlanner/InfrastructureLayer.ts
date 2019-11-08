@@ -1,12 +1,15 @@
 import { InfraStructurePositionMemory } from "./InfraStructurePositionMemory"
 import { InfraStructureLayerMemory } from "./InfraStructureLayerMemory"
 import { InfraStructurePosition } from "./InfraStructurePosition"
-// tslint:disable-next-line: max-classes-per-file
+// Tslint:disable-next-line: max-classes-per-file
 export class InfrastructureLayer {
   private memory: InfraStructureLayerMemory
+
   public roomName: string
+
   public Positions: InfraStructurePosition[]
-  constructor(roomName: string, memory: InfraStructureLayerMemory) {
+
+  public constructor(roomName: string, memory: InfraStructureLayerMemory) {
     this.roomName = roomName
     this.memory = memory
     const positions = [] as InfraStructurePosition[]
@@ -17,17 +20,18 @@ export class InfrastructureLayer {
     }
     this.Positions = positions
   }
+
   public AddPosition(
     structureType: BuildableStructureConstant,
     x: number,
     y: number,
     memory?: InfraStructurePositionMemory,
     constructionSite?: ConstructionSite
-  ) {
+  ): void {
     if (!memory) {
       memory = { structureType, x, y }
       if (constructionSite) {
-        memory.id = constructionSite.id
+        memory.id = constructionSite.id as string
       }
     }
 
@@ -41,7 +45,7 @@ export class InfrastructureLayer {
     this.Positions.push(new InfraStructurePosition(memory, constructionSite))
   }
 
-  public addConstructionSite(constructionSite: ConstructionSite<BuildableStructureConstant>) {
+  public addConstructionSite(constructionSite: ConstructionSite<BuildableStructureConstant>): void {
     this.AddPosition(
       constructionSite.structureType,
       constructionSite.pos.x,

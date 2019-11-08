@@ -2,9 +2,12 @@ import { deref } from "task/utilities/utilities"
 import { InfraStructurePositionMemory } from "./InfraStructurePositionMemory"
 export class InfraStructurePosition {
   private _constructionSite?: ConstructionSite
+
   private _structure?: Structure<StructureConstant>
+
   private memory: InfraStructurePositionMemory
-  constructor(memory: InfraStructurePositionMemory, constructionSite?: ConstructionSite) {
+
+  public constructor(memory: InfraStructurePositionMemory, constructionSite?: ConstructionSite) {
     this.memory = memory
     if (constructionSite) {
       this._constructionSite = constructionSite
@@ -23,33 +26,33 @@ export class InfraStructurePosition {
     }
   }
 
-  get constructionSite(): ConstructionSite | undefined {
+  public get constructionSite(): ConstructionSite | undefined {
     return this._constructionSite
   }
 
-  set constructionSite(constructionSite: ConstructionSite | undefined) {
+  public set constructionSite(constructionSite: ConstructionSite | undefined) {
     this._constructionSite = constructionSite
-    this.memory.id = constructionSite ? constructionSite.id : undefined
+    this.memory.id = constructionSite ? (constructionSite.id as string) : undefined
   }
 
-  get id(): string | undefined {
+  public get id(): string | undefined {
     return this.memory.id
   }
 
-  get StructureType(): BuildableStructureConstant {
+  public get StructureType(): BuildableStructureConstant {
     return this.memory.structureType
   }
 
-  set structure(structure: Structure<StructureConstant>) {
-    this.memory.id = structure.id
+  public set structure(structure: Structure<StructureConstant>) {
+    this.memory.id = structure.id as string
     this._structure = structure
   }
 
-  get pos(): IPosition {
+  public get pos(): IPosition {
     return { x: this.memory.x, y: this.memory.y }
   }
 
-  get finished(): boolean {
+  public get finished(): boolean {
     return this.memory.id && this._structure ? true : false
   }
 }

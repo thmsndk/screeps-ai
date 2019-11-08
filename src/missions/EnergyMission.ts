@@ -1,20 +1,20 @@
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
 import { RuneRequirement } from "Freya"
+import { Mission } from "./Mission"
 
 /**
  * Responsible for mining in villages, should it also handle outposts?
  */
 @profile
-export class EnergyMission {
+export class EnergyMission extends Mission {
   private room: Room
-  private memory: IEnergyMission
+
   private sourceCount: number
 
   public constructor(room: Room) {
-    this.room = room
-    if (!this.room.memory.energymission) {
-      this.room.memory.energymission = {
+    if (!room.memory.energymission) {
+      room.memory.energymission = {
         creeps: {
           // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
           haulers: [],
@@ -22,30 +22,12 @@ export class EnergyMission {
         }
       }
     }
-    this.memory = this.room.memory.energymission
+    super(room.memory.energymission)
 
+    this.room = room
     this.sourceCount = this.room.memory.sources ? Object.keys(this.room.memory.sources).length : 0
   }
 
-  public addCreep(creep: Creep | string, rune: string): void {
-    const name = typeof creep === "string" ? creep : creep.name
-    this.addCreepByName(name, rune)
-  }
-
-  public addCreepByName(creepName: string, rune: string): void {
-    this.memory.creeps[rune].push(creepName)
-  }
-
-  public hasCreep(creep: Creep): boolean {
-    const isMiner = this.memory.creeps.miners.indexOf(creep.name) >= 0
-    const isHauler = this.memory.creeps.haulers.indexOf(creep.name) >= 0
-    console.log(`${isMiner} ${isHauler}`)
-    return isMiner || isHauler
-  }
-
-  /**
-   * GetRequirements
-   */
   public getRequirements(): RuneRequirement[] {
     const requirements = []
 
@@ -91,15 +73,17 @@ export class EnergyMission {
   public run(): void {
     if (!this.room) {
       console.log("[Warning] room is not visible, skipping energy mission")
+
       return
     }
     const derefCreeps = (result: Creep[], creepName: string): Creep[] => {
       const creep = Game.creeps[creepName] /* TODO: switch to deref */
       // // console.log("Found creep")
       // // console.log(JSON.stringify(creep))
-      if (creep) {
+      if (creep && !creep.spawning) {
         result.push(creep)
       }
+
       return result
     }
 
@@ -173,9 +157,11 @@ export class EnergyMission {
           switch (structure.structureType) {
             case STRUCTURE_EXTENSION:
               const extension = structure as StructureExtension
+
               return extension.energy < extension.energyCapacity && haulers.length === 0
             case STRUCTURE_SPAWN:
               const spawn = structure as StructureSpawn
+
               return spawn.energy < spawn.energyCapacity && haulers.length === 0
             // // case STRUCTURE_TOWER:
             // //   const tower = structure as StructureTower
@@ -196,6 +182,7 @@ export class EnergyMission {
       creep.task = Tasks.harvest(source) // Harvest task might need options for harvesting while full on energy, e.g. drop-harvesting
     }
   }
+
   private haul(source: Source, creep: Creep): void {
     // TODO: do we need to toggle a collection or delivery mode?, should probably check all sources, and not only 1?
     if (creep.store.getFreeCapacity() === 0) {
@@ -209,12 +196,15 @@ export class EnergyMission {
             switch (structure.structureType) {
               case STRUCTURE_EXTENSION:
                 const extension = structure as StructureExtension
+
                 return extension.energy < extension.energyCapacity
               case STRUCTURE_SPAWN:
                 const spawn = structure as StructureSpawn
+
                 return spawn.energy < spawn.energyCapacity
               case STRUCTURE_STORAGE:
                 const storage = structure as StructureStorage
+
                 return (
                   storage.store[RESOURCE_ENERGY] < storage.storeCapacity &&
                   creep.room.energyAvailable === creep.room.energyCapacityAvailable
