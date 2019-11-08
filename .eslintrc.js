@@ -7,13 +7,19 @@ module.exports = {
   extends: [
     "plugin:@typescript-eslint/recommended", // Uses the recommended rules from the @typescript-eslint/eslint-plugin
     "prettier/@typescript-eslint", // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
-    "plugin:prettier/recommended" // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+    "plugin:prettier/recommended", // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+    // "plugin:import/order",
+    // "plugin:prefer-arrow/prefer-arrow-functions"
   ],
   parserOptions: {
     project: "tsconfig.json",
     sourceType: "module"
   },
-  plugins: ["@typescript-eslint"],
+  plugins: [
+    "@typescript-eslint",
+    // "import",
+    // "prefer-arrow"
+],
   rules: {
     "@typescript-eslint/adjacent-overload-signatures": "error",
     "@typescript-eslint/array-type": "error",
@@ -85,7 +91,7 @@ module.exports = {
       "undefined"
     ],
     "id-match": "error",
-    "import/order": "error",
+    // "import/order": "error",
     "linebreak-style": "off",
     "max-classes-per-file": ["error", 1],
     "max-len": "off",
@@ -120,7 +126,7 @@ module.exports = {
     "no-var": "error",
     "object-shorthand": "error",
     "one-var": ["error", "never"],
-    "prefer-arrow/prefer-arrow-functions": "error",
+    // "prefer-arrow/prefer-arrow-functions": "error",
     "prefer-const": "error",
     "quote-props": "off",
     radix: "error",
@@ -128,15 +134,15 @@ module.exports = {
     "spaced-comment": "error",
     "use-isnan": "error",
     "valid-typeof": "off",
-    "@typescript-eslint/tslint/config": [
-      "error",
-      {
-        rules: {
-          "jsdoc-format": true,
-          "no-reference-import": true,
-          "object-literal-sort-keys": [true, "match-declaration-order"]
-        }
-      }
-    ]
+    // "@typescript-eslint/tslint/config": [
+    //   "error",
+    //   {
+    //     rules: {
+    //       "jsdoc-format": true,
+    //       "no-reference-import": true,
+    //       "object-literal-sort-keys": [true, "match-declaration-order"]
+    //     }
+    //   }
+    // ]
   }
 }

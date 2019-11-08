@@ -1,4 +1,3 @@
-import { stringify } from "querystring"
 import { calculateRunePowers, compareRunePowers, Freya, RuneRequirement } from "Freya"
 import { EnergyMission } from "jobs/EnergyMission"
 import { RoomPlanner } from "RoomPlanner"
@@ -9,13 +8,13 @@ export class Elders {
   private roomPlanner: RoomPlanner
   private scanner: RoomScanner
   private freya: Freya
-  constructor(planner: RoomPlanner, scanner: RoomScanner, freya: Freya) {
+  public constructor(planner: RoomPlanner, scanner: RoomScanner, freya: Freya) {
     this.roomPlanner = planner
     this.scanner = scanner // Should this be intel?
     this.freya = freya
   }
 
-  public run() {
+  public run(): void {
     // Bootstrap process - runs every X ticks to validate health of a "village" / core room
     //    Settle first village (e.g. 1 room, safemode rcl = 1 or safemode and no spawn (auto)) - run planner
     if (this.checkSettle) {
