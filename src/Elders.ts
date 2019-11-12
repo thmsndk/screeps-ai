@@ -21,6 +21,8 @@ export class Elders {
   }
 
   public run(): Mission[] {
+    this.parseFlags()
+
     this.bootstrap()
 
     const missions = [] as Mission[]
@@ -49,7 +51,19 @@ export class Elders {
     }
 
     //    Generate outpost missions
-    //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
+    for (const roomName in Memory.rooms) {
+      if (Memory.rooms.hasOwnProperty(roomName)) {
+        const roomMemory = Memory.rooms[roomName]
+        if (roomMemory.outpost) {
+          // TODO: do we want an energy mission or a remote energy mission?
+          // What is special about a remote energy mission other than having to traverse rooms and the dropoff being another place?
+          // Nothing really? we still wish to send miners based on what "tier" the mission is at.
+          // But how does it determine it's tier, when it is a remote room? it knows the room memory is an outpost, we could pass that on.
+          missions.push(new EnergyMission(Game.rooms[roomName] || roomName))
+          //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
+        }
+      }
+    }
 
     //    Allocate creeps to missions or request creep suitible for mission
     for (const mission of missions) {
@@ -101,6 +115,27 @@ export class Elders {
     }
 
     return missions
+  }
+
+  /**
+   * The "counsil" should be controllable by flags, green = on, red = off
+   * E.g. mark something as an outpost, convert it to village
+   */
+  private parseFlags(): void {
+    for (const flagName in Game.flags) {
+      if (Game.flags.hasOwnProperty(flagName)) {
+        const flag = Game.flags[flagName]
+        if (flag.name.startsWith("remote") || flag.name.startsWith("outpost")) {
+          const roomMemory = Memory.rooms[flag.pos.roomName]
+
+          if (!roomMemory.outpost && flag.color === COLOR_WHITE) {
+            flag.setColor(COLOR_GREEN)
+          }
+
+          roomMemory.outpost = flag.color === COLOR_GREEN
+        }
+      }
+    }
   }
 
   private bootstrap(): void {

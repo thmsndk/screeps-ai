@@ -133,7 +133,7 @@ export class Freya {
       const creepName = prayer.name
       const result = spawn.spawnCreep(body, creepName, {
         memory: {
-          home: spawn.pos.roomName, // What is home? we might be spawning a creep for a mission in another room.
+          home: spawn.pos.roomName, // TODO: What is home? we might be spawning a creep for a mission in another room.
           rune: prayer.rune
         }
       } as SpawnOptions)

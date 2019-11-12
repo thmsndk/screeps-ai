@@ -94,9 +94,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Run Raids (attack / loot & other)
   missions.forEach(mission => mission.run())
 
-  // The "counsil" should be controllable by flags, green = on, red = off
-  // E.g. mark something as an outpost, convert it to village
-
   // How do I make sure collect stats resets room stats when I die?
 
   collect_stats()

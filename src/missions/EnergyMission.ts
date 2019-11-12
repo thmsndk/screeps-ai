@@ -8,13 +8,14 @@ import { Mission } from "./Mission"
  */
 @profile
 export class EnergyMission extends Mission {
-  private room: Room
+  private room?: Room
 
   private sourceCount: number
 
-  public constructor(room: Room) {
-    if (!room.memory.energymission) {
-      room.memory.energymission = {
+  public constructor(room: Room | string) {
+    const roomMemory = typeof room === "string" ? Memory.rooms[room] : room.memory
+    if (!roomMemory.energymission) {
+      roomMemory.energymission = {
         creeps: {
           // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
           haulers: [],
@@ -22,10 +23,14 @@ export class EnergyMission extends Mission {
         }
       }
     }
-    super(room.memory.energymission)
 
-    this.room = room
-    this.sourceCount = this.room.memory.sources ? Object.keys(this.room.memory.sources).length : 0
+    super(roomMemory.energymission)
+
+    if (room instanceof Room) {
+      this.room = room
+    }
+
+    this.sourceCount = roomMemory.sources ? Object.keys(roomMemory.sources).length : 0
   }
 
   public getRequirements(): RuneRequirement[] {

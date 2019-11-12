@@ -13,11 +13,12 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  outpost: boolean
   sources?: import("lodash").Dictionary<ISourceMemory>
   miningPositions?: number
   energymission?: IEnergyMission
   DEFCON?: import("../DEFCON").IMemoryDefcon
-  // missions: IMissionMemory[]
+  // Missions: IMissionMemory[]
   remoteEnergyMission?: IRemoteEnergyMissionMemory
   averageEnergy?: { points: number; average: number; spawn: number }
   infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory
