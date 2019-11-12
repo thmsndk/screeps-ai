@@ -126,7 +126,10 @@ export class Elders {
       if (Game.flags.hasOwnProperty(flagName)) {
         const flag = Game.flags[flagName]
         if (flag.name.startsWith("remote") || flag.name.startsWith("outpost")) {
-          const roomMemory = Memory.rooms[flag.pos.roomName]
+          let roomMemory = Memory.rooms[flag.pos.roomName]
+          if (!roomMemory) {
+            Memory.rooms[flag.pos.roomName] = roomMemory = {} as any
+          }
 
           if (!roomMemory.outpost && flag.color === COLOR_WHITE) {
             flag.setColor(COLOR_GREEN)
