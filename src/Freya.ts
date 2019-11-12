@@ -45,6 +45,8 @@ export function compareRunePowers(creepPowers: RunePowers, wishes: RunePowers, m
       if (!creepPartPower || creepPartPower < wishPartPower) {
         return false
       }
+    } else {
+      return false
     }
   }
 

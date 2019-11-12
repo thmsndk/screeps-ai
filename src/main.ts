@@ -125,3 +125,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 })
+
+// Genocide function, need to register it as utility method
+// // Object.values(Game.creeps).forEach(c => c.suicide())
