@@ -10,10 +10,15 @@ import { Mission } from "./Mission"
 export class EnergyMission extends Mission {
   private room?: Room
 
+  private roomName: string
+
+  private roomMemory: RoomMemory
+
   private sourceCount: number
 
   public constructor(room: Room | string) {
     const roomMemory = typeof room === "string" ? Memory.rooms[room] : room.memory
+    const roomName = typeof room === "string" ? room : room.name
     if (!roomMemory.energymission) {
       roomMemory.energymission = {
         creeps: {
@@ -25,6 +30,9 @@ export class EnergyMission extends Mission {
     }
 
     super(roomMemory.energymission)
+
+    this.roomMemory = roomMemory
+    this.roomName = roomName
 
     if (room instanceof Room) {
       this.room = room
@@ -76,11 +84,12 @@ export class EnergyMission extends Mission {
    * Run
    */
   public run(): void {
-    if (!this.room) {
-      console.log("[Warning] room is not visible, skipping energy mission")
+    // // if (!this.room) {
+    // //   console.log("[Warning] room is not visible, skipping energy mission")
 
-      return
-    }
+    // //   return
+    // // }
+
     const derefCreeps = (result: Creep[], creepName: string): Creep[] => {
       const creep = Game.creeps[creepName] /* TODO: switch to deref */
       // // console.log("Found creep")
@@ -100,32 +109,30 @@ export class EnergyMission extends Mission {
 
     // Cleanup old creeps where prayer is gone
     if (global.freya.prayers === 0) {
-      console.log(`Freya prayers are gone, setting miners ${miners.length} and haulers ${haulers.length} `)
+      // // console.log(`Freya prayers are gone, setting miners ${miners.length} and haulers ${haulers.length} `)
       // // console.log(JSON.stringify(miners))
       this.memory.creeps.miners = miners.map(creep => creep.name)
       this.memory.creeps.haulers = haulers.map(creep => creep.name)
     }
 
-    const sources = this.room.memory.sources || {}
+    const sources = this.roomMemory.sources || {}
     for (const sourceId in sources) {
       // Sort sources by range from spawn, give  closer spawns higher priority
       if (sources.hasOwnProperty(sourceId)) {
         const source = Game.getObjectById<Source>(sourceId)
 
-        if (source) {
-          // Vision of source
-          const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
-          // Miner logic
-          if (miner) {
-            this.minerHarvestRoom(source, miner, haulers)
-          }
+        const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
+        const hauler = idleHaulers.pop()
+        // TODO: we should use target locking to determine how many creeps are assigned to a source.
 
-          const hauler = idleHaulers.pop()
-          if (hauler) {
-            this.haul(source, hauler)
-          }
-        } else {
-          // Go to source?
+        // Vision of source
+        // Miner logic
+        if (miner) {
+          this.minerHarvestRoom(source, miner, haulers)
+        }
+
+        if (hauler) {
+          this.haul(source, hauler)
         }
       }
     }
@@ -141,6 +148,26 @@ export class EnergyMission extends Mission {
     return
   }
 
+  private goToDropOff(creep: Creep): boolean {
+    if (creep.pos.roomName !== creep.memory.home) {
+      creep.task = Tasks.goToRoom(creep.memory.home)
+
+      return true
+    }
+
+    return false
+  }
+
+  private goToGoal(creep: Creep): boolean {
+    if (creep.pos.roomName !== this.roomName) {
+      creep.task = Tasks.goToRoom(this.roomName)
+
+      return true
+    }
+
+    return false
+  }
+
   // This mission should live in room memory, what about remove mining missions, do they belong in the village, or the remote outpost?
 
   // EnergyMission is a mission for a specific room
@@ -151,11 +178,15 @@ export class EnergyMission extends Mission {
 
   // It should only be responsible for specific rooms where we want to harvest
 
-  private minerHarvestRoom(source: Source, creep: Creep, haulers: Creep[]): void {
+  private minerHarvestRoom(source: Source | null, creep: Creep, haulers: Creep[]): void {
     // // console.log(`${creep.name} is idle capacity:${creep.store.getFreeCapacity()}`)
     if (creep.store.getFreeCapacity() === 0) {
       // TODO: are we in drop-off room?, if not go to drop-of room, should probable have a general resource management module to determine where to drop off
       // TODO: container?
+
+      if (this.goToDropOff(creep)) {
+        return
+      }
 
       const target = creep.pos.findClosestByRange<StructureExtension | StructureSpawn>(FIND_STRUCTURES, {
         filter: structure => {
@@ -184,13 +215,24 @@ export class EnergyMission extends Mission {
         creep.drop(RESOURCE_ENERGY) // TODO: Task
       }
     } else {
-      creep.task = Tasks.harvest(source) // Harvest task might need options for harvesting while full on energy, e.g. drop-harvesting
+      if (source) {
+        creep.task = Tasks.harvest(source) // Harvest task might need options for harvesting while full on energy, e.g. drop-harvesting
+
+        return
+      }
+
+      if (this.goToGoal(creep)) {
+        return
+      }
     }
   }
 
-  private haul(source: Source, creep: Creep): void {
+  private haul(source: Source | null, creep: Creep): void {
     // TODO: do we need to toggle a collection or delivery mode?, should probably check all sources, and not only 1?
     if (creep.store.getFreeCapacity() === 0) {
+      if (this.goToDropOff(creep)) {
+        return
+      }
       // TODO: check source container
       // Find spawn or extensions to deposit
       const target = creep.pos.findClosestByRange<StructureSpawn | StructureExtension | StructureStorage>(
@@ -231,23 +273,31 @@ export class EnergyMission extends Mission {
         creep.task = Tasks.transfer(target)
       }
     } else {
-      // Find energy to haul
-      // Container
-      // // const targets = source.pos.findInRange(FIND_STRUCTURES, 2, {
-      // //   filter: structure => {
-      // //     switch (structure.structureType) {
-      // //       case STRUCTURE_CONTAINER:
-      // //         const container = structure as StructureContainer
-      // //         const amount = _.sum(container.store)
-      // //         return amount > 0 // container.storeCapacity / 4
-      // //     }
+      if (source) {
+        // Find energy to haul
+        // Container
+        // // const targets = source.pos.findInRange(FIND_STRUCTURES, 2, {
+        // //   filter: structure => {
+        // //     switch (structure.structureType) {
+        // //       case STRUCTURE_CONTAINER:
+        // //         const container = structure as StructureContainer
+        // //         const amount = _.sum(container.store)
+        // //         return amount > 0 // container.storeCapacity / 4
+        // //     }
 
-      // //     return false
-      // //   }
-      // // })
-      const resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
-      if (resource.length > 0) {
-        creep.task = Tasks.pickup(resource[0])
+        // //     return false
+        // //   }
+        // // })
+        const resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
+        if (resource.length > 0) {
+          creep.task = Tasks.pickup(resource[0])
+        }
+
+        return
+      }
+
+      if (this.goToGoal(creep)) {
+        return
       }
     }
     // TODO: move creeps in the way?
