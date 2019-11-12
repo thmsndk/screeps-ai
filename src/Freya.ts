@@ -29,14 +29,11 @@ export type RunePowers = { [key in BodyPartConstant]?: number }
 // TODO: calculate runes
 // Calculate runepower
 export function calculateRunePowers(body: BodyPartConstant[]): RunePowers {
-  return body.reduce(
-    (runepowers, part) => {
-      runepowers[part] = (runepowers[part] || 0) + 1
+  return body.reduce((runepowers, part) => {
+    runepowers[part] = (runepowers[part] || 0) + 1
 
-      return runepowers
-    },
-    {} as RunePowers
-  )
+    return runepowers
+  }, {} as RunePowers)
 }
 
 export function compareRunePowers(creepPowers: RunePowers, wishes: RunePowers, minRequirements?: RunePowers): boolean {
@@ -95,11 +92,12 @@ export class Freya {
   }
 
   // TODO: a prayer should have a target / target position, so freya can decide where to summon the unit.
+  // TODO: multiple prayers on the same tick causes name clases.
   public pray(requirement: RuneRequirement): { [index: string]: string[] } {
     const names = {} as { [index: string]: string[] }
-
+    const prayerBatch = this.prayers + 1
     for (let index = 0; index < requirement.count; index++) {
-      const name = `${requirement.rune} ${index} ${Game.time}`
+      const name = `${requirement.rune} ${prayerBatch} ${index} ${Game.time}`
 
       if (!names[requirement.rune]) {
         names[requirement.rune] = []

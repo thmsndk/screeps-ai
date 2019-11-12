@@ -93,61 +93,66 @@ export class EnergyMission extends Mission {
    * Run
    */
   public run(): void {
-    // // if (!this.room) {
-    // //   console.log("[Warning] room is not visible, skipping energy mission")
+    try {
+      // // if (!this.room) {
+      // //   console.log("[Warning] room is not visible, skipping energy mission")
 
-    // //   return
-    // // }
+      // //   return
+      // // }
 
-    // Does this depend on stage / tier? e.g. if we have no haulers, we should be delivering energy
-    const miners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
-    const idleMiners = miners.filter(creep => creep.isIdle)
-    const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
-    const idleHaulers = haulers.filter(creep => creep.isIdle)
+      // Does this depend on stage / tier? e.g. if we have no haulers, we should be delivering energy
+      const miners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
+      const idleMiners = miners.filter(creep => creep.isIdle)
+      const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
+      const idleHaulers = haulers.filter(creep => creep.isIdle)
 
-    // Cleanup old creeps where prayer is gone
-    if (global.freya.prayers === 0) {
-      // // console.log(`Freya prayers are gone, setting miners ${miners.length} and haulers ${haulers.length} `)
-      // // console.log(JSON.stringify(miners))
-      this.memory.creeps.miners = miners.map(creep => creep.name)
-      this.memory.creeps.haulers = haulers.map(creep => creep.name)
-    }
+      // Cleanup old creeps where prayer is gone
+      if (global.freya.prayers === 0) {
+        // // console.log(`Freya prayers are gone, setting miners ${miners.length} and haulers ${haulers.length} `)
+        // // console.log(JSON.stringify(miners))
+        this.memory.creeps.miners = miners.map(creep => creep.name)
+        this.memory.creeps.haulers = haulers.map(creep => creep.name)
+      }
 
-    const sources = this.roomMemory.sources || {}
-    for (const sourceId in sources) {
-      // Sort sources by range from spawn, give  closer spawns higher priority
-      if (sources.hasOwnProperty(sourceId)) {
-        const source = Game.getObjectById<Source>(sourceId)
+      const sources = this.roomMemory.sources || {}
+      for (const sourceId in sources) {
+        // Sort sources by range from spawn, give  closer spawns higher priority
+        if (sources.hasOwnProperty(sourceId)) {
+          const source = Game.getObjectById<Source>(sourceId)
 
-        const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
-        const hauler = idleHaulers.pop()
-        // TODO: we should use target locking to determine how many creeps are assigned to a source.
+          const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
+          const hauler = idleHaulers.pop()
+          // TODO: we should use target locking to determine how many creeps are assigned to a source.
 
-        // Vision of source
-        // Miner logic
-        if (miner) {
-          this.minerHarvestRoom(source, miner, haulers)
-        }
+          // Vision of source
+          // Miner logic
+          if (miner) {
+            this.minerHarvestRoom(source, miner, haulers)
+          }
 
-        if (hauler) {
-          this.haul(source, hauler)
+          if (hauler) {
+            this.haul(source, hauler)
+          }
         }
       }
+      // Assign miners tasks
+      // Assign haulers tasks
+
+      // Run miners
+      miners.forEach(creep => creep.run())
+
+      // Run haulers
+      haulers.forEach(creep => creep.run())
+
+      return
+    } catch (error) {
+      console.log(`[EnergyMission] ${error}`)
     }
-    // Assign miners tasks
-    // Assign haulers tasks
-
-    // Run miners
-    miners.forEach(creep => creep.run())
-
-    // Run haulers
-    haulers.forEach(creep => creep.run())
-
-    return
   }
 
   private goToDropOff(creep: Creep): boolean {
     if (creep.pos.roomName !== creep.memory.home) {
+      console.log(`${creep.name} => dropoff: ${creep.memory.home}`)
       creep.task = Tasks.goToRoom(creep.memory.home)
 
       return true
@@ -158,6 +163,7 @@ export class EnergyMission extends Mission {
 
   private goToGoal(creep: Creep): boolean {
     if (creep.pos.roomName !== this.roomName) {
+      console.log(`${creep.name} => goal: ${this.roomName}`)
       creep.task = Tasks.goToRoom(this.roomName)
 
       return true
