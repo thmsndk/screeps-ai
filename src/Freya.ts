@@ -18,7 +18,7 @@ import PriorityQueue from "ts-priority-queue"
 //   UPGRADER = "upgrader"
 // }
 
-export interface RuneRequirement {
+export interface RuneRequirement extends Priority {
   rune: string
   runePowers: RunePowers
   count: number
