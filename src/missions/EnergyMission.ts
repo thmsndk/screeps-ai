@@ -49,7 +49,7 @@ export class EnergyMission extends Mission {
       this.room = room
     }
 
-    this.sourceCount = roomMemory.sources ? Object.keys(roomMemory.sources).length : 0
+    this.sourceCount = roomMemory.sources ? Object.keys(roomMemory.sources).length : 1
   }
 
   public getRequirements(): RuneRequirement[] {
