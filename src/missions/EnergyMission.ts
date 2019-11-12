@@ -3,6 +3,17 @@ import { profile } from "_lib/Profiler"
 import { RuneRequirement } from "Freya"
 import { Mission } from "./Mission"
 
+const derefCreeps = (result: Creep[], creepName: string): Creep[] => {
+  const creep = Game.creeps[creepName] /* TODO: switch to deref */
+  // // console.log("Found creep")
+  // // console.log(JSON.stringify(creep))
+  if (creep && !creep.spawning) {
+    result.push(creep)
+  }
+
+  return result
+}
+
 /**
  * Responsible for mining in villages, should it also handle outposts?
  */
@@ -51,13 +62,10 @@ export class EnergyMission extends Mission {
       rune: "miners",
       count: this.sourceCount - (this.memory.creeps.miners.length || 0),
       // 300 energy
-      runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 }
+      runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
+      priority: 10
     }
-    /**
-     * You could define something like this though, which is the same idea but a little cleaner:
-      export type RunePower = Array<[BodyPartConstant, number]>
-      let runes: RunePower = [[WORK, 2], [CARRY, 1], [MOVE, 1]]
-    */
+
     if (miners.count > 0) {
       requirements.push(miners)
     }
@@ -66,7 +74,8 @@ export class EnergyMission extends Mission {
       rune: "haulers",
       count: this.sourceCount - (this.memory.creeps.haulers.length || 0),
       // 300 energy
-      runePowers: { [CARRY]: 3, [MOVE]: 3 }
+      runePowers: { [CARRY]: 3, [MOVE]: 3 },
+      priority: 1
     }
 
     if (haulers.count > 0) {
@@ -89,17 +98,6 @@ export class EnergyMission extends Mission {
 
     // //   return
     // // }
-
-    const derefCreeps = (result: Creep[], creepName: string): Creep[] => {
-      const creep = Game.creeps[creepName] /* TODO: switch to deref */
-      // // console.log("Found creep")
-      // // console.log(JSON.stringify(creep))
-      if (creep && !creep.spawning) {
-        result.push(creep)
-      }
-
-      return result
-    }
 
     // Does this depend on stage / tier? e.g. if we have no haulers, we should be delivering energy
     const miners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
