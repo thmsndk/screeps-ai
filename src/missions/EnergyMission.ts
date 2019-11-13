@@ -69,6 +69,7 @@ export class EnergyMission extends Mission {
     }
 
     if (miners.count > 0) {
+      // // console.log(`[EnergyMission]: miners ${miners.count} ${this.sourceCount} ${this.memory.creeps.miners.length} `)
       requirements.push(miners)
     }
 
@@ -82,6 +83,7 @@ export class EnergyMission extends Mission {
     }
 
     if (haulers.count > 0) {
+      // // console.log(`[EnergyMission]: haulers ${haulers.count} ${this.sourceCount} ${this.memory.creeps.haulers.length} `)
       requirements.push(haulers)
     }
 
@@ -110,12 +112,13 @@ export class EnergyMission extends Mission {
       const idleHaulers = haulers.filter(creep => creep.isIdle)
 
       // Cleanup old creeps where prayer is gone
-      if (global.freya.prayers === 0) {
-        // // console.log(`Freya prayers are gone, setting miners ${miners.length} and haulers ${haulers.length} `)
-        // // console.log(JSON.stringify(miners))
-        this.memory.creeps.miners = miners.map(creep => creep.name)
-        this.memory.creeps.haulers = haulers.map(creep => creep.name)
-      }
+      // TODO: this removes the last queued creep and queues a new one, it was an attempt at fixing sim, and remove old creeps from missions, when we spawn the last creep, we then reset the assigned creep....
+      // // if (global.freya.prayers === 0) {
+      // //   // // console.log(`Freya prayers are gone, setting miners ${miners.length} and haulers ${haulers.length} `)
+      // //   // // console.log(JSON.stringify(miners))
+      // //   this.memory.creeps.miners = miners.map(creep => creep.name)
+      // //   this.memory.creeps.haulers = haulers.map(creep => creep.name)
+      // // }
 
       const sources = this.roomMemory.sources || { dummyForceMiningScout: "" }
       for (const sourceId in sources) {

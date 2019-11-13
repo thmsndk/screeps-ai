@@ -75,6 +75,9 @@ export class Freya {
   }
 
   public run(): void {
+    if (this.prayers > 0) {
+      // // console.log(`[Freya]: ${this.prayers} prayers`)
+    }
     // TODO: something smart in regards to selecting spawn
     for (const spawnName in Game.spawns) {
       if (Game.spawns.hasOwnProperty(spawnName)) {
@@ -99,6 +102,7 @@ export class Freya {
   public pray(requirement: RuneRequirement): { [index: string]: string[] } {
     const names = {} as { [index: string]: string[] }
     const prayerBatch = this.prayers + 1
+    console.log(`[Freya]: ${requirement.rune} ${requirement.count}`)
     for (let index = 0; index < requirement.count; index++) {
       const name = `${requirement.rune} ${prayerBatch} ${index} ${Game.time}`
 
@@ -114,7 +118,7 @@ export class Freya {
         runePowers: requirement.runePowers,
         mission: requirement.mission
       }
-
+      console.log(`   ${name} queued`)
       this.requests.queue(prayer)
       // TODO: could persist to memory, but does it really matter?
     }
