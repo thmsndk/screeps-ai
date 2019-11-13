@@ -67,10 +67,6 @@ export class Elders {
 
     //    Allocate creeps to missions or request creep suitible for mission
     for (const mission of missions) {
-      // Search for creep with correct runes / power levels
-      // Request a creep from freya with specific runes / power levels
-      // Should freya be in global scope? should freya contain logic to find creeps?
-      // The energy mission should be responsible for determining the stage it is at, and what power levels it requires?
       const missionRequirements = mission.getRequirements()
       // // console.log(JSON.stringify(missionRequirements))
       // Loop creeps, verify requirements,
@@ -81,7 +77,7 @@ export class Elders {
 
             // TODO: what if a creep is already allocated to a mission?
             // TODO: does it make sense to allocate a creep that is very far away from the mission goal?
-            if (creep.spawning || !creep.isIdle || mission.hasCreep(creep)) {
+            if (creep.spawning || !creep.isIdle || creep.memory.mission || mission.hasCreep(creep)) {
               continue
             }
 

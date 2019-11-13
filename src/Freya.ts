@@ -22,6 +22,7 @@ export interface RuneRequirement extends Priority {
   rune: string
   runePowers: RunePowers
   count: number
+  mission: string
 }
 
 export type RunePowers = { [key in BodyPartConstant]?: number }
@@ -110,7 +111,8 @@ export class Freya {
         name,
         priority: 0,
         rune: requirement.rune,
-        runePowers: requirement.runePowers
+        runePowers: requirement.runePowers,
+        mission: requirement.mission
       }
 
       this.requests.queue(prayer)
@@ -134,7 +136,8 @@ export class Freya {
       const result = spawn.spawnCreep(body, creepName, {
         memory: {
           home: spawn.pos.roomName, // TODO: What is home? we might be spawning a creep for a mission in another room.
-          rune: prayer.rune
+          rune: prayer.rune,
+          mission: prayer.mission
         }
       } as SpawnOptions)
 
@@ -185,6 +188,7 @@ interface Priority {
   priority: number
 }
 interface MemoryPrayer extends Priority {
+  mission: string
   runePowers: RunePowers
   rune: string
   name: string

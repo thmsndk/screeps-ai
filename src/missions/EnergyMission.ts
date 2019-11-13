@@ -32,6 +32,7 @@ export class EnergyMission extends Mission {
     const roomName = typeof room === "string" ? room : room.name
     if (!roomMemory.energymission) {
       roomMemory.energymission = {
+        id: "",
         creeps: {
           // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
           haulers: [],
@@ -63,7 +64,8 @@ export class EnergyMission extends Mission {
       count: this.sourceCount - (this.memory.creeps.miners.length || 0),
       // 300 energy
       runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
-      priority: 10
+      priority: 10,
+      mission: this.memory.id
     }
 
     if (miners.count > 0) {
@@ -75,7 +77,8 @@ export class EnergyMission extends Mission {
       count: this.sourceCount - (this.memory.creeps.haulers.length || 0),
       // 300 energy
       runePowers: { [CARRY]: 3, [MOVE]: 3 },
-      priority: 1
+      priority: 1,
+      mission: this.memory.id
     }
 
     if (haulers.count > 0) {
@@ -151,6 +154,7 @@ export class EnergyMission extends Mission {
   }
 
   private goToDropOff(creep: Creep): boolean {
+    console.log(`${creep.name} ${creep.pos.roomName} => goal: ${creep.memory.home}`)
     if (creep.pos.roomName !== creep.memory.home) {
       console.log(`${creep.name} => dropoff: ${creep.memory.home}`)
       creep.task = Tasks.goToRoom(creep.memory.home)
@@ -162,6 +166,7 @@ export class EnergyMission extends Mission {
   }
 
   private goToGoal(creep: Creep): boolean {
+    console.log(`${creep.name} ${creep.pos.roomName} => goal: ${this.roomName}`)
     if (creep.pos.roomName !== this.roomName) {
       console.log(`${creep.name} => goal: ${this.roomName}`)
       creep.task = Tasks.goToRoom(this.roomName)

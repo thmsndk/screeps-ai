@@ -5,6 +5,11 @@ export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
 
   public constructor(memory?: M) {
     this._memory = memory || ({} as any)
+    if (!this._memory.id) {
+      this._memory.id = Math.random()
+        .toString(36)
+        .substr(2, 9)
+    }
   }
 
   public abstract getRequirements(): RuneRequirement[]

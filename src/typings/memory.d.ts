@@ -1,4 +1,5 @@
 interface CreepMemory {
+  mission: string
   rune?: string
   mode?: number
   cost?: number
@@ -64,5 +65,6 @@ interface IMemoryJob {
 }
 
 interface IMissionMemory {
+  id: string
   creeps: { [index: string]: string[] }
 }
