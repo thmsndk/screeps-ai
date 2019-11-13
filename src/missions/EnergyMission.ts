@@ -117,7 +117,7 @@ export class EnergyMission extends Mission {
         this.memory.creeps.haulers = haulers.map(creep => creep.name)
       }
 
-      const sources = this.roomMemory.sources || {}
+      const sources = this.roomMemory.sources || { dummyForceMiningScout: "" }
       for (const sourceId in sources) {
         // Sort sources by range from spawn, give  closer spawns higher priority
         if (sources.hasOwnProperty(sourceId)) {
@@ -130,16 +130,14 @@ export class EnergyMission extends Mission {
           // Vision of source
           // Miner logic
           if (miner) {
-            this.minerHarvestRoom(source, miner, haulers)
+            this.assignMinerTasks(source, miner, haulers)
           }
 
           if (hauler) {
-            this.haul(source, hauler)
+            this.assignHaulTask(source, hauler)
           }
         }
       }
-      // Assign miners tasks
-      // Assign haulers tasks
 
       // Run miners
       miners.forEach(creep => creep.run())
@@ -154,7 +152,6 @@ export class EnergyMission extends Mission {
   }
 
   private goToDropOff(creep: Creep): boolean {
-    console.log(`${creep.name} ${creep.pos.roomName} => goal: ${creep.memory.home}`)
     if (creep.pos.roomName !== creep.memory.home) {
       console.log(`${creep.name} => dropoff: ${creep.memory.home}`)
       creep.task = Tasks.goToRoom(creep.memory.home)
@@ -166,7 +163,6 @@ export class EnergyMission extends Mission {
   }
 
   private goToGoal(creep: Creep): boolean {
-    console.log(`${creep.name} ${creep.pos.roomName} => goal: ${this.roomName}`)
     if (creep.pos.roomName !== this.roomName) {
       console.log(`${creep.name} => goal: ${this.roomName}`)
       creep.task = Tasks.goToRoom(this.roomName)
@@ -187,13 +183,13 @@ export class EnergyMission extends Mission {
 
   // It should only be responsible for specific rooms where we want to harvest
 
-  private minerHarvestRoom(source: Source | null, creep: Creep, haulers: Creep[]): void {
+  private assignMinerTasks(source: Source | null, creep: Creep, haulers: Creep[]): void {
     // // console.log(`${creep.name} is idle capacity:${creep.store.getFreeCapacity()}`)
     if (creep.store.getFreeCapacity() === 0) {
       // TODO: are we in drop-off room?, if not go to drop-of room, should probable have a general resource management module to determine where to drop off
       // TODO: container?
 
-      if (this.goToDropOff(creep)) {
+      if (haulers.length === 0 && this.goToDropOff(creep)) {
         return
       }
 
@@ -236,7 +232,7 @@ export class EnergyMission extends Mission {
     }
   }
 
-  private haul(source: Source | null, creep: Creep): void {
+  private assignHaulTask(source: Source | null, creep: Creep): void {
     // TODO: do we need to toggle a collection or delivery mode?, should probably check all sources, and not only 1?
     if (creep.store.getFreeCapacity() === 0) {
       if (this.goToDropOff(creep)) {
