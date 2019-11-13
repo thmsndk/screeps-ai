@@ -152,7 +152,7 @@ export class EnergyMission extends Mission {
   }
 
   private goToDropOff(creep: Creep): boolean {
-    if (creep.pos.roomName !== creep.memory.home) {
+    if (creep.pos.roomName !== creep.memory.home && creep.memory.home /* In case of amnesia */) {
       console.log(`${creep.name} => dropoff: ${creep.memory.home}`)
       creep.task = Tasks.goToRoom(creep.memory.home)
 
