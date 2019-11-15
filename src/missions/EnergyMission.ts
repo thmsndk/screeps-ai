@@ -3,12 +3,22 @@ import { profile } from "_lib/Profiler"
 import { RuneRequirement } from "Freya"
 import { Mission } from "./Mission"
 
-const derefCreeps = (result: Creep[], creepName: string): Creep[] => {
+const derefCreeps = (result: Creep[], creepName: string, index: number, creepNames: string[]): Creep[] => {
   const creep = Game.creeps[creepName] /* TODO: switch to deref */
   // // console.log("Found creep")
   // // console.log(JSON.stringify(creep))
-  if (creep && !creep.spawning) {
-    result.push(creep)
+  if (creep) {
+    // // console.log(`${creepName} found`)
+    if (!creep.spawning) {
+      result.push(creep)
+    }
+  } else {
+    const queued = global.freya.queued(creepName)
+    // // console.log(`${creepName} queued?${JSON.stringify(queued)}`)
+    if (!queued) {
+      console.log(`${creepName} has no prayer`)
+      creepNames.splice(creepNames.indexOf(creepName), 1)
+    }
   }
 
   return result

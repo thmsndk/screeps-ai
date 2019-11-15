@@ -10,7 +10,6 @@ import { add_stats_callback, collect_stats } from "_lib/screepsplus"
 import { PathStyle } from "jobs/MovementPathStyles"
 import { Dictionary } from "lodash"
 import { InfraStructureMission } from "missions/InfrastructureMission"
-import PriorityQueue from "ts-priority-queue"
 import { ErrorMapper } from "utils/ErrorMapper"
 
 import { init } from "./_lib/Profiler"

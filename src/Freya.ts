@@ -1,4 +1,4 @@
-import PriorityQueue from "ts-priority-queue"
+import PriorityQueue from "_lib/PriorityQueue/PriorityQueue"
 
 // Function bodyCost(body: BodyPartConstant[]) {
 //   Return body.reduce((cost, part) => {
@@ -74,10 +74,33 @@ export class Freya {
     return this.requests.length
   }
 
+  public queued(creepName: string): boolean
+
+  public queued(creepNames: string[]): { [index: string]: boolean }
+
+  public queued(creepName: string | string[]): boolean | { [index: string]: boolean } {
+    const allPrayers = this.requests.length ? this.requests.peek(this.requests.length) : []
+
+    if (typeof creepName === "string") {
+      return allPrayers.some(prayer => prayer.name === creepName)
+    }
+
+    const creepNames = creepName as string[]
+
+    return allPrayers.reduce((result, prayer) => {
+      if (creepNames.some(name => prayer.name === name)) {
+        result[prayer.name] = true
+      }
+
+      return result
+    }, {} as { [index: string]: boolean })
+  }
+
   public run(): void {
     if (this.prayers > 0) {
       // // console.log(`[Freya]: ${this.prayers} prayers`)
     }
+
     // TODO: something smart in regards to selecting spawn
     for (const spawnName in Game.spawns) {
       if (Game.spawns.hasOwnProperty(spawnName)) {
