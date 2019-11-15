@@ -2,6 +2,7 @@ import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
 import { RuneRequirement } from "Freya"
 import { Mission } from "./Mission"
+import { ErrorMapper } from "utils/ErrorMapper"
 
 const derefCreeps = (result: Creep[], creepName: string, index: number, creepNames: string[]): Creep[] => {
   const creep = Game.creeps[creepName] /* TODO: switch to deref */
@@ -160,7 +161,9 @@ export class EnergyMission extends Mission {
 
       return
     } catch (error) {
-      console.log(`[EnergyMission] ${error}`)
+      console.log(
+        `<span style='color:red'>[EnergyMission] ${_.escape(ErrorMapper.sourceMappedStackTrace(error))}</span>`
+      )
     }
   }
 
