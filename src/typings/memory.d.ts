@@ -23,7 +23,7 @@ interface RoomMemory {
   remoteEnergyMission?: IRemoteEnergyMissionMemory
   averageEnergy?: { points: number; average: number; spawn: number }
   infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory
-  infrastructureMission?: import("../missions/InfrastructureMissionMemory").InfrastructureMissionMemory
+  infrastructureMission?: IMissionMemory
   runPlanner?: boolean
   village?: boolean
 }

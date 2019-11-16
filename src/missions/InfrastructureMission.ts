@@ -3,51 +3,76 @@ import { Infrastructure } from "RoomPlanner/Infrastructure"
 import { derefRoomPosition } from "task/utilities/utilities"
 import { Tasks } from "../task/Tasks"
 import { TaskWithdraw } from "./../task/Tasks/TaskWithdraw"
-import { InfrastructureMissionMemory } from "./InfrastructureMissionMemory"
-import { Mission } from "./Mission"
+import { Mission, derefCreeps } from "./Mission"
+import { RuneRequirement } from "Freya"
 
 interface InfraStructureMissionConstructor {
-  memory?: InfrastructureMissionMemory
+  room: Room | string
   infrastructure: Infrastructure
 }
 
 // Tslint:disable-next-line: max-classes-per-file
 export class InfraStructureMission extends Mission {
-  public memory?: InfrastructureMissionMemory // TODO: Private
+  private room?: Room
 
-  public creeps!: Dictionary<Creep>
+  private roomName: string
+
+  private roomMemory: RoomMemory
 
   private infrastructure: Infrastructure
 
   public constructor(parameters: InfraStructureMissionConstructor) {
-    super(parameters ? parameters.memory : undefined)
-    this.infrastructure = parameters.infrastructure
-
-    const creeps = {} as Dictionary<Creep>
-    if (parameters.memory) {
-      if (parameters.memory.creeps) {
-        Object.keys(parameters.memory.creeps.builders).forEach(creepName => {
-          const creep = Game.creeps[creepName]
-          if (creep) {
-            creeps[creepName] = creep
-          }
-        })
+    const { room, infrastructure } = parameters
+    const roomMemory = typeof room === "string" ? Memory.rooms[room] : room.memory
+    const roomName = typeof room === "string" ? room : room.name
+    if (!roomMemory.infrastructureMission) {
+      roomMemory.infrastructureMission = {
+        id: "",
+        creeps: {
+          // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
+          builders: []
+        }
       }
     }
 
-    this.creeps = creeps
+    super(roomMemory.infrastructureMission)
+    this.infrastructure = infrastructure
+    this.roomMemory = roomMemory
+    this.roomName = roomName
+
+    if (room instanceof Room) {
+      this.room = room
+    }
   }
 
-  public addCreep(creep: Creep): void {
-    if (this.memory) {
-      this.memory.creeps.builders.push(creep.name)
+  public getRequirements(): RuneRequirement[] {
+    const requirements = []
+    const constructionSites = this.room?.find(FIND_MY_CONSTRUCTION_SITES)
+    const neededWorkers = constructionSites?.length ?? 0 > 0 ? 2 : 0 // Currently a naive approach making us have 2 workers
+
+    const builders = {
+      rune: "builders",
+      count: neededWorkers - (this.memory.creeps.builders.length || 0),
+      // 300 energy
+      runePowers: { [WORK]: 1, [CARRY]: 3, [MOVE]: 1 },
+      priority: 1,
+      mission: this.memory.id
     }
 
-    this.creeps[creep.name] = creep
+    if (builders.count > 0) {
+      // // console.log(`[EnergyMission]: haulers ${haulers.count} ${this.sourceCount} ${this.memory.creeps.haulers.length} `)
+      requirements.push(builders)
+    }
+
+    // Do we want a dedicated hauler per source?
+    // I guess it all depends on some sort of math?
+    // Also, how do we change the spawn priority of them? and is it important?
+
+    return requirements
   }
 
-  public distributeTasks(): void {
-    const idleCreeps = _.filter(this.creeps, creep => creep.isIdle)
+  public distributeTasks(builders: Creep[]): void {
+    const idleCreeps = builders.filter(creep => creep.isIdle)
 
     // We should probably have a PriortyQueue of construction sites
     for (let index = 0; index < this.infrastructure.Layers.length; index++) {
@@ -123,7 +148,11 @@ export class InfraStructureMission extends Mission {
   }
 
   public run(): void {
-    Object.values(this.creeps).forEach(creep => {
+    const builders = this.memory.creeps.builders.reduce<Creep[]>(derefCreeps, [])
+
+    this.distributeTasks(builders)
+
+    Object.values(builders).forEach(creep => {
       if (creep.carry.energy === 0) {
         // Const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
         // Chain dropped resources in a close quarter
@@ -139,18 +168,23 @@ export class InfraStructureMission extends Mission {
             switch (structure.structureType) {
               case STRUCTURE_CONTAINER:
                 const container = structure as StructureContainer
+
                 return _.sum(container.store) >= creep.carryCapacity
               case STRUCTURE_EXTENSION:
                 const extension = structure as StructureExtension
+
                 return extension.energy >= creep.carryCapacity
               case STRUCTURE_SPAWN:
                 const spawn = structure as StructureSpawn
+
                 return spawn.energy >= creep.carryCapacity
               case STRUCTURE_TOWER:
                 const tower = structure as StructureTower
+
                 return tower.energy >= creep.carryCapacity
               case STRUCTURE_STORAGE:
                 const storage = structure as StructureStorage
+
                 return storage.store[RESOURCE_ENERGY] < storage.storeCapacity
             }
 

@@ -4,6 +4,8 @@ import { RoomPlanner } from "RoomPlanner"
 import { RoomScanner } from "RoomScanner"
 import { IntelMission } from "missions/IntellMission"
 import { Mission } from "missions/Mission"
+import { InfraStructureMission } from "missions/InfrastructureMission"
+import { Infrastructure } from "RoomPlanner/Infrastructure"
 
 export class Elders {
   private checkSettle = true
@@ -14,10 +16,13 @@ export class Elders {
 
   private freya: Freya
 
-  public constructor(planner: RoomPlanner, scanner: RoomScanner, freya: Freya) {
+  private infrastructure: Infrastructure
+
+  public constructor(planner: RoomPlanner, scanner: RoomScanner, freya: Freya, infrastructure: Infrastructure) {
     this.roomPlanner = planner
     this.scanner = scanner // Should this be intel?
     this.freya = freya
+    this.infrastructure = infrastructure
   }
 
   public run(): Mission[] {
@@ -35,6 +40,33 @@ export class Elders {
 
         // Gather intell
         this.scanner.scan(room)
+
+        if (room.memory.runPlanner) {
+          this.roomPlanner.plan(room.name, 8 /* Room.controller.level + 1*/)
+          room.memory.runPlanner = false
+        }
+
+        this.infrastructure.visualize()
+
+        const infrastructureMission = new InfraStructureMission({
+          room,
+          infrastructure: this.infrastructure
+        })
+        missions.push(infrastructureMission)
+
+        // Add manual cSites
+        if (this.roomPlanner.lastRun !== Game.time) {
+          const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES)
+          constructionSites.forEach(site => {
+            // Plan was just run, the cSite does not exist in this tick
+            const plan = this.infrastructure.findInfrastructure(site.id as string)
+            // TODO: there seem to be an issue finding existing cSites in the plan
+            if (!plan || Object.keys(plan).length <= 0) {
+              console.log("adding to layer 0")
+              this.infrastructure.addConstructionSite(0, site)
+            }
+          })
+        }
 
         if (room.memory.village) {
           const energyMission = new EnergyMission(room)

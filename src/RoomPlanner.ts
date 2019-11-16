@@ -3,20 +3,24 @@ import { getPositions } from "RoomScanner"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
 export class RoomPlanner {
   private infrastructure: Infrastructure
-  constructor(infrastructure: Infrastructure) {
+
+  public lastRun?: number
+
+  public constructor(infrastructure: Infrastructure) {
     // Should probably be an interface and not an exact implementation
     this.infrastructure = infrastructure
   }
 
   public plan(roomName: string, rcl: number): Infrastructure {
+    this.lastRun = Game.time
     for (let index = 0; index <= rcl; index++) {
       if (!this.infrastructure.Layers[index]) {
         this.infrastructure.AddLayer(roomName)
       }
     }
     // TODO: do we need to define what we are planning for? e.g. Main room, Remote Room
-    // wall = RCL 2
-    // extension = RCL 2
+    // Wall = RCL 2
+    // Extension = RCL 2
     // Rampart = RCL 2
     // Tower = RCL 3
     // Storage = RCL 4
@@ -46,8 +50,8 @@ export class RoomPlanner {
       let offset = 2
       this.AlternatePositions(positions, 2, roomTerrain, spawn.pos, offset, 5)
       // TODO: containers, when do we build them? When 1 extension is build? because that allows for big enough harvesters for static?
-      // this reveals a problem though, we need to activate the container part of the plan. should it be on a new layer?
-      // should we be able to flag a position with meta data that will evaluate when pulling a job? could flag it with "minAvailableEnergy"
+      // This reveals a problem though, we need to activate the container part of the plan. should it be on a new layer?
+      // Should we be able to flag a position with meta data that will evaluate when pulling a job? could flag it with "minAvailableEnergy"
       if (rcl >= 3) {
         offset += 1
         this.AlternatePositions(positions, 3, roomTerrain, spawn.pos, offset, 5)
@@ -107,7 +111,7 @@ export class RoomPlanner {
         this.infrastructure.AddPosition(layerIndex, STRUCTURE_EXTENSION, position.x, position.y)
       }
 
-      // skip every second position
+      // Skip every second position
       existingPositions.pop()
     }
 

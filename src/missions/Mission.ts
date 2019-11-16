@@ -1,5 +1,26 @@
 import { RuneRequirement } from "Freya"
 
+export const derefCreeps = (result: Creep[], creepName: string, index: number, creepNames: string[]): Creep[] => {
+  const creep = Game.creeps[creepName] /* TODO: switch to deref */
+  // // console.log("Found creep")
+  // // console.log(JSON.stringify(creep))
+  if (creep) {
+    // // console.log(`${creepName} found`)
+    if (!creep.spawning) {
+      result.push(creep)
+    }
+  } else {
+    const queued = global.freya.queued(creepName)
+    // // console.log(`${creepName} queued?${JSON.stringify(queued)}`)
+    if (!queued) {
+      console.log(`${creepName} has no prayer`)
+      creepNames.splice(creepNames.indexOf(creepName), 1)
+    }
+  }
+
+  return result
+}
+
 export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
   private _memory: M
 

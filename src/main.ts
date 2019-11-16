@@ -52,7 +52,7 @@ const roomScanner = new RoomScanner()
 const freya = new Freya()
 global.freya = freya
 
-const counsil = new Elders(roomPlanner, roomScanner, freya)
+const counsil = new Elders(roomPlanner, roomScanner, freya, infrastructure)
 
 export const infraStructureMissions: Dictionary<InfraStructureMission> = {}
 
