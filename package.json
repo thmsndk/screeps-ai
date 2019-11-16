@@ -48,6 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^2.6.1",
     "@typescript-eslint/parser": "^2.6.1",
     "@typescript-eslint/typescript-estree": "^2.6.1",
+    "@types/screeps": "screepers/typed-screeps#master",
     "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.5.0",
