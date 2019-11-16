@@ -66,6 +66,12 @@ export class Elders {
     }
 
     //    Allocate creeps to missions or request creep suitible for mission
+    this.assignMissionCreeps(missions)
+
+    return missions
+  }
+
+  private assignMissionCreeps(missions: Mission<IMissionMemory>[]): void {
     for (const mission of missions) {
       const missionRequirements = mission.getRequirements()
       // // console.log(JSON.stringify(missionRequirements))
@@ -109,8 +115,6 @@ export class Elders {
         }
       }
     }
-
-    return missions
   }
 
   /**
