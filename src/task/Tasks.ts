@@ -17,7 +17,7 @@ import { pickupTargetType, TaskPickup } from "./Tasks/TaskPickup"
 // // import { signControllerTargetType, TaskSignController } from "./Tasks/task_signController"
 import { transferTargetType, TransferTask } from "./Tasks/TransferTask"
 
-// // import { TaskUpgrade, upgradeTargetType } from "./Tasks/task_upgrade"
+import { TaskUpgrade, upgradeTargetType } from "./Tasks/TaskUpgrade"
 import { TaskWithdraw, withdrawTargetType } from "./Tasks/TaskWithdraw"
 // // import { dropTargetType, TaskDrop } from "./Tasks/task_drop"
 // // import { TaskTransferAll, transferAllTargetType } from "./Tasks/task_transferAll"
@@ -47,6 +47,7 @@ export class Tasks {
       // Iterate over the remaining tasks
       task = task.fork(tasks[i])
     }
+
     return task
   }
 
@@ -148,9 +149,9 @@ export class Tasks {
   // // 	return new TaskTransferAll(target, skipEnergy, options);
   // // }
 
-  // // static upgrade(target: upgradeTargetType, options = {} as TaskOptions): TaskUpgrade {
-  // // 	return new TaskUpgrade(target, options);
-  // // }
+  public static upgrade(target: upgradeTargetType, options = {} as TaskOptions): TaskUpgrade {
+    return new TaskUpgrade(target, options)
+  }
 
   public static withdraw(
     target: withdrawTargetType,

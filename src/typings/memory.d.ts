@@ -14,6 +14,7 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  upgradecontrollermission: IMissionMemory
   outpost: boolean
   sources?: import("lodash").Dictionary<ISourceMemory>
   miningPositions?: number

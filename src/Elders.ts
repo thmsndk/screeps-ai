@@ -6,6 +6,8 @@ import { IntelMission } from "missions/IntellMission"
 import { Mission } from "missions/Mission"
 import { InfraStructureMission } from "missions/InfrastructureMission"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
+import { UpgradeControllerMission } from "missions/UpgradeControllerMission"
+import { calculateAverageEnergy } from "calculateAverageEnergy"
 
 export class Elders {
   private checkSettle = true
@@ -78,6 +80,10 @@ export class Elders {
           // // missions.push(intelMission)
 
           // TODO: new missions up, get requirements, loop creeps, loop missions, could call getRequirements repeatedly, but cache the requirements in the mission for that specific tick?
+          // TODO: Upgradecontroller mission
+          calculateAverageEnergy(room)
+
+          missions.push(new UpgradeControllerMission(room))
         }
       }
     }
