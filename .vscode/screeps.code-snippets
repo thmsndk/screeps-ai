@@ -1,0 +1,99 @@
+{
+  // Place your Screeps workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+  // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+  // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+  // used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+  // $1, ${2:creepRune} for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+  // Placeholders with the same ids are connected.
+  // Example:
+  // "Print to console": {
+  // 	"scope": "javascript,typescript",
+  // 	"prefix": "log",
+  // 	"body": [
+  // 		"console.log('$1');",
+  // 		"${2:creepRune}"
+  // 	],
+  // 	"description": "Log output to console"
+  // }
+  "mission class": {
+    "scope": "javascript,typescript",
+    "prefix": ["mclass", "mission"],
+    "body": [
+      "import { Tasks } from \"task\"",
+      "import { profile } from \"_lib/Profiler\"",
+      "import { RuneRequirement } from \"Freya\"",
+      "import { Mission, derefCreeps } from \"./Mission\"",
+      "import { ErrorMapper } from \"utils/ErrorMapper\"",
+      "@profile",
+      "export class ${TM_FILENAME_BASE} extends Mission {",
+      "  private room?: Room",
+      "",
+      "  private roomName: string",
+      "",
+      "  private roomMemory: RoomMemory",
+      "",
+      "\tpublic constructor(room: Room | string) {",
+      "\t\tconst roomMemory = typeof room === \"string\" ? Memory.rooms[room] : room.memory",
+      "\t\tconst roomName = typeof room === \"string\" ? room : room.name",
+      "\t\tif (!roomMemory.${TM_FILENAME_BASE/(.+)/${1:/downcase}/}) {",
+      "\t\t\troomMemory.${TM_FILENAME_BASE/(.+)/${1:/downcase}/} = {",
+      "\t\t\t\tid: \"\",",
+      "\t\t\t\tcreeps: {",
+      "\t\t\t\t// TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?",
+      "\t\t\t\t\t${2:creepRune}: [],",
+      "\t\t\t}",
+      "\t\t}",
+      "\t}",
+      "",
+      "\tsuper(roomMemory.${TM_FILENAME_BASE/(.+)/${1:/downcase}/})",
+      "",
+      "\tthis.roomMemory = roomMemory",
+      "\tthis.roomName = roomName",
+      "",
+      "\tif (room instanceof Room) {",
+      "\t\tthis.room = room",
+      "\t\t}",
+      "\t}",
+      "",
+      "\tpublic getRequirements(): RuneRequirement[] {",
+	  "\tconst requirements = []",
+	  "\tconst neededWorkers = 1"
+      "",
+      "\tconst ${2:creepRune} = {",
+      "\t  rune: \"${2:creepRune}\",",
+      "\t  count: neededWorkers - (this.memory.creeps.${2:creepRune}.length || 0),",
+      "\t  // 300 energy",
+      "\t  runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },",
+      "\t  priority: 10,",
+      "\t  mission: this.memory.id",
+      "\t}",
+      "",
+      "\tif (${2:creepRune}.count > 0) {",
+      "\t  requirements.push(${2:creepRune})",
+      "\t}",
+      "",
+      "\treturn requirements",
+      "  }",
+      "",
+      "  public run(): void {",
+      "\ttry {",
+      "\t\tconst ${2:creepRune} = this.memory.creeps.${2:creepRune}.reduce<Creep[]>(derefCreeps, [])",
+      "\t\tconst idle${2:creepRune} = ${2:creepRune}.filter(creep => creep.isIdle)",
+      "",
+      "\t\t// TODO: Assign tasks",
+      "\t\tconst $4 = idle${2:creepRune}.pop() // TODO: We should pick the closest creep not just any idle creep",
+      "",
+      "\t\t// Run ${2:creepRune}",
+      "\t\t${2:creepRune}.forEach(creep => creep.run())",
+      "\t\treturn",
+      "\t} catch (error) {",
+      "\t\tconsole.log(",
+      "\t\t`<span style='color:red'>[${TM_FILENAME_BASE}] ${_.escape(ErrorMapper.sourceMappedStackTrace(error))}</span>`",
+      "\t\t)",
+      "\t}",
+      "\t}",
+      "}"
+    ],
+    "description": "generate a new class for a mission"
+  }
+}
