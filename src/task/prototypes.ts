@@ -1,13 +1,15 @@
 import { deseralize } from "./utilities/TaskFactory"
+import { TargetCache } from "./utilities/caching"
 
 // Creep prototypes ===============================================================================================
 
 Object.defineProperty(Creep.prototype, "task", {
-  get() {
+  get(): ITask | null {
     if (!this._task) {
       const memoryTask = this.memory.task
       this._task = memoryTask ? deseralize(memoryTask) : null
     }
+
     return this._task
   },
   set(task: ITask | null) {
@@ -49,25 +51,26 @@ Object.defineProperty(RoomObject.prototype, "ref", {
   }
 })
 
-// Object.defineProperty(RoomObject.prototype, 'targetedBy', {
-// 	get: function () {
-// 		// Check that target cache has been initialized - you can move this to execute once per tick if you want
-// 		TargetCache.assert();
-// 		return _.map(Game.TargetCache.targets[this.ref], name => Game.creeps[name]);
-// 	},
-// });
+Object.defineProperty(RoomObject.prototype, "targetedBy", {
+  get() {
+    // Check that target cache has been initialized - you can move this to execute once per tick if you want
+    TargetCache.assert()
+
+    return _.map(Game.TargetCache.targets[this.ref], name => Game.creeps[name])
+  }
+})
 
 // RoomPosition prototypes =============================================================================================
 
 Object.defineProperty(RoomPosition.prototype, "isEdge", {
-  // if the position is at the edge of a room
+  // If the position is at the edge of a room
   get() {
     return this.x === 0 || this.x === 49 || this.y === 0 || this.y === 49
   }
 })
 
 Object.defineProperty(RoomPosition.prototype, "isVisible", {
-  // if the position is in a defined room
+  // If the position is in a defined room
   get() {
     return Game.rooms[this.roomName] !== undefined
   },
@@ -88,6 +91,7 @@ Object.defineProperty(RoomPosition.prototype, "neighbors", {
         }
       }
     }
+
     return adjPos
   }
 })
@@ -103,15 +107,17 @@ RoomPosition.prototype.isPassible = function(ignoreCreeps = false): boolean {
       return false
     }
     // Are there structures?
-    const impassibleStructures = _.filter(this.lookFor(LOOK_STRUCTURES), (s: Structure) => {
-      return (
+    const impassibleStructures = _.filter(
+      this.lookFor(LOOK_STRUCTURES),
+      (s: Structure) =>
         s.structureType !== STRUCTURE_ROAD &&
         s.structureType !== STRUCTURE_CONTAINER &&
         !(s.structureType === STRUCTURE_RAMPART && ((s as StructureRampart).my || (s as StructureRampart).isPublic))
-      )
-    })
+    )
+
     return impassibleStructures.length == 0
   }
+
   return true
 }
 

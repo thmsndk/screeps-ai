@@ -51,12 +51,14 @@ export class EnergyMission extends Mission {
   public getRequirements(): RuneRequirement[] {
     const requirements = []
 
-    // TODO: clean up dead creeps from mission
     // TODO: early RCL, we want to spawn more miners to get more energy
-    // TODO: should requirements also contain a memory payload for freya?
+    // TODO: calculate  potential energy income based on mining positions.
+    // Also assign amount of miners pr source, this allows the task assignment to know how many miners are allowed.
+
+    const neededMiners = this.roomMemory.miningPositions ?? this.sourceCount
     const miners = {
       rune: "miners",
-      count: this.sourceCount - (this.memory.creeps.miners.length || 0),
+      count: neededMiners - (this.memory.creeps.miners.length || 0),
       // 300 energy
       runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
       priority: 10,
@@ -70,7 +72,7 @@ export class EnergyMission extends Mission {
 
     const haulers = {
       rune: "haulers",
-      count: this.sourceCount - (this.memory.creeps.haulers.length || 0),
+      count: this.sourceCount * 2 - (this.memory.creeps.haulers.length || 0),
       // 300 energy
       runePowers: { [CARRY]: 3, [MOVE]: 3 },
       priority: 1,
@@ -116,23 +118,34 @@ export class EnergyMission extends Mission {
       // // }
 
       const sources = this.roomMemory.sources || { dummyForceMiningScout: "" }
+
       for (const sourceId in sources) {
         // Sort sources by range from spawn, give  closer spawns higher priority
         if (sources.hasOwnProperty(sourceId)) {
+          const targetedBy = _.groupBy(
+            _.map(Game.TargetCache.targets[sourceId], name => Game.creeps[name]),
+            "rune"
+          )
+
           const source = Game.getObjectById<Source>(sourceId)
 
-          const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
-          const hauler = idleHaulers.pop()
-          // TODO: we should use target locking to determine how many creeps are assigned to a source.
+          const sourceScan = this.roomMemory?.sources ? this.roomMemory.sources[sourceId] : ({} as ISourceMemory)
 
-          // Vision of source
-          // Miner logic
-          if (miner) {
-            this.assignMinerTasks(source, miner, haulers)
+          if (!targetedBy.miners || targetedBy.miners.length <= Object.keys(sourceScan.miningPositions).length) {
+            const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
+            // Miner logic
+            if (miner) {
+              this.assignMinerTasks(source, miner, haulers)
+            }
           }
 
-          if (hauler) {
-            this.assignHaulTask(source, hauler)
+          if (!targetedBy.haulers || targetedBy.haulers.length === 0) {
+            const hauler = idleHaulers.pop()
+            // TODO: we should use target locking to determine how many creeps are assigned to a source.
+
+            if (hauler) {
+              this.assignHaulTask(source, hauler)
+            }
           }
         }
       }

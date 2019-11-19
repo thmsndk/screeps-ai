@@ -7,8 +7,16 @@
     - build
     - goTo(RoomObject|RoomPosition)
  */
+interface Game {
+  TargetCache: {
+    tick: number
+    targets: { [ref: string]: string[] }
+    build(): void
+  }
+}
+
 interface CreepMemory {
-  task?: TaskMemory
+  task?: TaskMemory | null
 }
 
 interface Creep {
@@ -41,7 +49,7 @@ interface PositionMemory {
    * Y position in the room.
    */
   y: number
-  /** room name */
+  /** Room name */
   roomName: string
 }
 
@@ -55,11 +63,11 @@ interface TaskOptions {
   blind?: boolean
   nextPos?: PositionMemory
   moveOptions?: MoveToOpts
-  // moveOptions: TravelToOptions; // <- uncomment this line if you use Traveler
+  // MoveOptions: TravelToOptions; // <- uncomment this line if you use Traveler
 }
 
 interface TaskData {
-  //   quiet?: boolean
+  //   Quiet?: boolean
   resourceType?: string
   amount?: number
   signature?: string
@@ -88,9 +96,9 @@ interface ITask extends TaskMemory {
   target: RoomObject | null
   targetPos: PositionMemory
   parent: ITask | null
-  // manifest: ITask[];
-  // targetManifest: (RoomObject | null)[];
-  // targetPosManifest: RoomPosition[];
+  // Manifest: ITask[];
+  // TargetManifest: (RoomObject | null)[];
+  // TargetPosManifest: RoomPosition[];
   eta: number | undefined
 
   /** This allows you to do another task returning to the task it was forked from */
