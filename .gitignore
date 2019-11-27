@@ -1,3 +1,6 @@
+# deploy file written in ts
+deploy.js
+
 # yarn lock file
 /yarn.lock
 
@@ -12,7 +15,7 @@
 /_book
 
 # TypeScript definitions installed by Typings
-/typings
+#/typings
 
 # Screeps Config
 screeps.json
