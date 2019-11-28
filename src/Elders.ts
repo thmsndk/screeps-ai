@@ -9,6 +9,7 @@ import { Infrastructure } from "RoomPlanner/Infrastructure"
 import { UpgradeControllerMission } from "missions/UpgradeControllerMission"
 import { calculateAverageEnergy } from "calculateAverageEnergy"
 import { TargetCache } from "task/utilities/caching"
+import { TowerMission } from "missions/TowerMission"
 
 export class Elders {
   private checkSettle = true
@@ -88,6 +89,8 @@ export class Elders {
           calculateAverageEnergy(room)
 
           missions.push(new UpgradeControllerMission(room))
+
+          missions.push(new TowerMission(room))
         }
       }
     }
