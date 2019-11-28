@@ -70,6 +70,11 @@ export class RoomPlanner {
       if (rcl >= 5) {
         offset += 1
         this.AlternatePositions(positions, 5, roomTerrain, spawn.pos, offset, 10)
+
+        const position = positions.pop()
+        if (position) {
+          this.infrastructure.AddPosition(5, STRUCTURE_TOWER, position.x, position.y)
+        }
       }
 
       if (rcl >= 6) {
@@ -80,11 +85,29 @@ export class RoomPlanner {
       if (rcl >= 7) {
         offset += 1
         this.AlternatePositions(positions, 7, roomTerrain, spawn.pos, offset, 10)
+
+        const position = positions.pop()
+        if (position) {
+          this.infrastructure.AddPosition(7, STRUCTURE_TOWER, position.x, position.y)
+        }
       }
 
       if (rcl >= 8) {
         offset += 1
         this.AlternatePositions(positions, 8, roomTerrain, spawn.pos, offset, 10)
+
+        let position = positions.pop()
+        if (position) {
+          this.infrastructure.AddPosition(8, STRUCTURE_TOWER, position.x, position.y)
+        }
+        position = positions.pop()
+        if (position) {
+          this.infrastructure.AddPosition(8, STRUCTURE_TOWER, position.x, position.y)
+        }
+        position = positions.pop()
+        if (position) {
+          this.infrastructure.AddPosition(8, STRUCTURE_TOWER, position.x, position.y)
+        }
       }
     }
 
