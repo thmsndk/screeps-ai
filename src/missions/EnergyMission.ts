@@ -3,6 +3,7 @@ import { profile } from "_lib/Profiler"
 import { RuneRequirement } from "Freya"
 import { Mission, derefCreeps } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
+import { deref } from "task/utilities/utilities"
 
 enum HaulingMode {
   collecting,
@@ -131,6 +132,22 @@ export class EnergyMission extends Mission {
 
           const sourceScan = this.roomMemory?.sources ? this.roomMemory.sources[sourceId] : ({} as ISourceMemory)
 
+          if (!sourceScan.containerId || !deref(sourceScan.containerId as string)) {
+            sourceScan.containerId = source?.pos.findInRange<StructureContainer>(FIND_STRUCTURES, 2, {
+              filter: structure => {
+                // Console.log("MHJ", structure.structureType)
+                switch (structure.structureType) {
+                  case STRUCTURE_CONTAINER:
+                    const container = structure as StructureContainer
+
+                    return true
+                }
+
+                return false
+              }
+            })[0]?.id
+          }
+
           if (!targetedBy.miners || targetedBy.miners.length <= Object.keys(sourceScan.miningPositions).length) {
             const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
             // Miner logic
@@ -257,6 +274,9 @@ export class EnergyMission extends Mission {
       }
     }
 
+    const sources = this.roomMemory?.sources
+    const sourceMemory = sources ? sources[source?.id as string] : null
+
     if (creep.memory.mode === HaulingMode.delivering) {
       if (this.goToDropOff(creep)) {
         return
@@ -287,9 +307,13 @@ export class EnergyMission extends Mission {
               // Case STRUCTURE_TOWER:
               //     Const tower = structure as StructureTower
               //     Return tower.energy < tower.energyCapacity
-              // Case STRUCTURE_CONTAINER:
-              //     Const container = structure as StructureContainer
-              //     Return structure.id !== job.memory.target && container.store[RESOURCE_ENERGY] < container.storeCapacity
+              case STRUCTURE_CONTAINER:
+                const container = structure as StructureContainer
+
+                return (
+                  structure.id !== sourceMemory?.containerId &&
+                  container.store[RESOURCE_ENERGY] < container.storeCapacity
+                )
             }
 
             return false
@@ -303,19 +327,26 @@ export class EnergyMission extends Mission {
     } else {
       if (source) {
         // Find energy to haul
-        // Container
-        // // const targets = source.pos.findInRange(FIND_STRUCTURES, 2, {
+        // Source container
+        const sourceContainer = deref(sourceMemory?.containerId as string) as StructureContainer
+        // // const targets = source.pos.findInRange<StructureContainer>(FIND_STRUCTURES, 2, {
         // //   filter: structure => {
         // //     switch (structure.structureType) {
         // //       case STRUCTURE_CONTAINER:
         // //         const container = structure as StructureContainer
         // //         const amount = _.sum(container.store)
-        // //         return amount > 0 // container.storeCapacity / 4
+
+        // //         return amount > 0 // Container.storeCapacity / 4
         // //     }
 
         // //     return false
         // //   }
         // // })
+
+        if (sourceContainer) {
+          creep.task = Tasks.withdraw(sourceContainer)
+        }
+
         const resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
         if (resource.length > 0) {
           creep.task = Tasks.pickup(resource[0])

@@ -46,6 +46,7 @@ interface Memory {
 }
 
 interface ISourceMemory {
+  containerId?: Id<StructureContainer>
   miningPositions: IPosition[]
   distanceToSpawn: number
 }
