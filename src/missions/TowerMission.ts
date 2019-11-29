@@ -105,6 +105,11 @@ export class TowerMission extends Mission {
                     const amount = _.sum(container.store)
 
                     return amount > 0
+                  case STRUCTURE_STORAGE:
+                    const storage = structure as StructureStorage
+
+                    return true // Storage.store[RESOURCE_ENERGY] < storage.storeCapacity
+                  // && storage.room.energyAvailable === storage.room.energyCapacityAvailable
                 }
 
                 return false
