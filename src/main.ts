@@ -43,10 +43,8 @@ global.Profiler = init()
 //     // })
 //   }
 // })
-if (!Memory.infrastructure) {
-  Memory.infrastructure = { layers: [] }
-}
-const infrastructure = new Infrastructure({ memory: Memory.infrastructure }) // Should memory be in the village room?
+
+const infrastructure = new Infrastructure() // Should memory be in the village room?
 const roomPlanner = new RoomPlanner(infrastructure) // How do we plan accross rooms?
 const roomScanner = new RoomScanner()
 const freya = new Freya()
@@ -81,6 +79,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
       // Console.log("Clearing non-existing creep memory:", name)
     }
   }
+
+  infrastructure.hydrate()
 
   // Run "Counsil"
   const missions = counsil.run()

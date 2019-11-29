@@ -6,7 +6,7 @@ import { InfrastructureMemory } from "./InfrastructureMemory"
 import { InfraStructurePositionMemory } from "./InfraStructurePositionMemory"
 
 interface InfraStructureConstructor {
-  memory: InfrastructureMemory
+  memory?: InfrastructureMemory
 }
 
 export class Infrastructure {
@@ -14,12 +14,24 @@ export class Infrastructure {
 
   private memory: InfrastructureMemory // TODO: should it be a property that fetches memory from the memory object?
 
-  constructor(parameters: InfraStructureConstructor) {
+  public constructor(parameters?: InfraStructureConstructor) {
+    this.hydrate()
+
     const layers = [] as InfrastructureLayer[]
 
-    this.memory = parameters.memory
-    if (parameters.memory.layers) {
+    if (!Memory.infrastructure) {
+      Memory.infrastructure = { layers: [] }
+    }
+
+    this.memory = Memory.infrastructure
+    if (parameters?.memory?.layers) {
       parameters.memory.layers.forEach(layer => {
+        layers.push(new InfrastructureLayer(layer.roomName, layer))
+      })
+    }
+
+    if (this.memory?.layers) {
+      this.memory.layers.forEach(layer => {
         layers.push(new InfrastructureLayer(layer.roomName, layer))
       })
     }
@@ -27,7 +39,13 @@ export class Infrastructure {
     this.Layers = layers
   }
 
-  public AddLayer(roomName: string, memory?: InfraStructureLayerMemory) {
+  public hydrate(): void {
+    if (Memory.infrastructure) {
+      this.memory = Memory.infrastructure
+    }
+  }
+
+  public AddLayer(roomName: string, memory?: InfraStructureLayerMemory): void {
     if (this.memory) {
       if (!memory) {
         memory = { roomName, positions: [] as InfraStructurePositionMemory[] }
@@ -37,13 +55,14 @@ export class Infrastructure {
     this.Layers.push(new InfrastructureLayer(roomName, memory as InfraStructureLayerMemory))
   }
 
-  public AddPosition(layerIndex: number, structureType: BuildableStructureConstant, x: number, y: number) {
+  public AddPosition(layerIndex: number, structureType: BuildableStructureConstant, x: number, y: number): void {
     this.Layers[layerIndex].AddPosition(structureType, x, y)
   }
 
-  public addConstructionSite(layerIndex: number, constructionSite: ConstructionSite<BuildableStructureConstant>) {
+  public addConstructionSite(layerIndex: number, constructionSite: ConstructionSite<BuildableStructureConstant>): void {
     this.Layers[layerIndex].addConstructionSite(constructionSite)
   }
+
   // TODO: merge findInfrastructure with some sort of overload
   public findBuildableInfrastructure(
     structureType: BuildableStructureConstant
@@ -77,8 +96,8 @@ export class Infrastructure {
     return results
   }
 
-  public visualize() {
-    // should probably limit to room?
+  public visualize(): void {
+    // Should probably limit to room?
     let extensionCount = 0
     this.Layers.forEach((layer, index) => {
       const room = Game.rooms[layer.roomName]
@@ -87,12 +106,14 @@ export class Infrastructure {
           if (position.StructureType === STRUCTURE_EXTENSION) {
             extensionCount++
           }
-          // console.log("=== Extension " + extensionCount)
-          // console.log(JSON.stringify(position))
+          // Console.log("=== Extension " + extensionCount)
+          // Console.log(JSON.stringify(position))
           if (!position.finished) {
             room.visual.structure(position.pos.x, position.pos.y, position.StructureType, { opacity: 0.25 })
             // TODO: color by RCL level
-            room.visual.text(extensionCount.toString(), position.pos.x, position.pos.y + 0.25, { opacity: 0.25 })
+            if (position.StructureType === STRUCTURE_EXTENSION) {
+              room.visual.text(extensionCount.toString(), position.pos.x, position.pos.y + 0.25, { opacity: 0.25 })
+            }
           }
         })
       }
