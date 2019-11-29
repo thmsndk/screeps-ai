@@ -136,7 +136,7 @@ export class Freya {
 
       const prayer = {
         name,
-        priority: 0,
+        priority: requirement.priority,
         rune: requirement.rune,
         runePowers: requirement.runePowers,
         mission: requirement.mission
