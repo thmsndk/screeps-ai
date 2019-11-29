@@ -64,7 +64,7 @@
       "\t  count: neededWorkers - (this.memory.creeps.${2:creepRune}.length || 0),",
       "\t  // 300 energy",
       "\t  runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },",
-      "\t  priority: 10,",
+      "\t  priority: 1, // TODO: change priorty perhaps it should be a tab-step?",
       "\t  mission: this.memory.id",
       "\t}",
       "",

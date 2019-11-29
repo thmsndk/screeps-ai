@@ -61,7 +61,7 @@ export class EnergyMission extends Mission {
       count: neededMiners - (this.memory.creeps.miners.length || 0),
       // 300 energy
       runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
-      priority: 10,
+      priority: this.roomMemory.village ? 10 : 5,
       mission: this.memory.id
     }
 
@@ -75,7 +75,7 @@ export class EnergyMission extends Mission {
       count: this.sourceCount * 2 - (this.memory.creeps.haulers.length || 0),
       // 300 energy
       runePowers: { [CARRY]: 3, [MOVE]: 3 },
-      priority: 1,
+      priority: this.roomMemory.village ? 5 : 2,
       mission: this.memory.id
     }
 
