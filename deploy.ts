@@ -18,7 +18,13 @@ const pserver: Config = {
   rooms: [["W8N3", 31, 16]]
 }
 
-const config = pserver
+const swc: Config = {
+  ...baseConfig,
+  server: "swc",
+  rooms: [["W8N3", 31, 16]]
+}
+
+const config = swc
 const BRANCH = "Yggdrasil"
 // Const BRANCH='default'
 
