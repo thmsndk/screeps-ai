@@ -125,7 +125,7 @@ export class EnergyMission extends Mission {
         if (sources.hasOwnProperty(sourceId)) {
           const targetedBy = _.groupBy(
             _.map(Game.TargetCache.targets[sourceId], name => Game.creeps[name]),
-            "rune"
+            "memory.rune"
           )
 
           const source = Game.getObjectById<Source>(sourceId)
@@ -147,7 +147,7 @@ export class EnergyMission extends Mission {
             })[0]?.id
           }
 
-          if (!targetedBy.miners || targetedBy.miners.length <= Object.keys(sourceScan.miningPositions).length) {
+          if (!targetedBy.miners || targetedBy.miners.length < Object.keys(sourceScan.miningPositions).length) {
             const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
             // Miner logic
             if (miner) {
@@ -155,9 +155,9 @@ export class EnergyMission extends Mission {
             }
           }
 
+          // TargetBy should always be 0? a hauler never targets the source with a task?
           if (!targetedBy.haulers || targetedBy.haulers.length === 0) {
             const hauler = idleHaulers.pop()
-            // TODO: we should use target locking to determine how many creeps are assigned to a source.
 
             if (hauler) {
               this.assignHaulTask(source, hauler)
