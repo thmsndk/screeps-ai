@@ -1,6 +1,6 @@
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
-import { RuneRequirement } from "Freya"
+import { RuneRequirement, RunePowers } from "Freya"
 import { Mission, derefCreeps } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { deref } from "task/utilities/utilities"
@@ -56,12 +56,30 @@ export class EnergyMission extends Mission {
     // TODO: calculate  potential energy income based on mining positions.
     // Also assign amount of miners pr source, this allows the task assignment to know how many miners are allowed.
 
-    const neededMiners = this.roomMemory.miningPositions ?? this.sourceCount
+    const minerRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
+      300: { needed: 3, powers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 } },
+      400: { needed: 2, powers: { [WORK]: 3, [CARRY]: 1, [MOVE]: 1 } },
+      500: { needed: 2, powers: { [WORK]: 4, [CARRY]: 1, [MOVE]: 1 } },
+      600: { needed: 1, powers: { [WORK]: 5, [CARRY]: 1, [MOVE]: 1 } }
+    }
+
+    const maxRunePowerLookup = Math.min(600, this.room?.energyCapacityAvailable ?? 300)
+    let minerRequirementLookup = minerRunePowers[300]
+    for (const key in minerRunePowers) {
+      const energyCapacityRequirement = (key as any) as number
+      if (minerRequirementLookup.hasOwnProperty(energyCapacityRequirement)) {
+        if (energyCapacityRequirement <= maxRunePowerLookup) {
+          minerRequirementLookup = minerRunePowers[energyCapacityRequirement]
+        }
+      }
+    }
+    const neededMiners =
+      Math.min(minerRequirementLookup.needed, this.roomMemory.miningPositions ?? this.sourceCount) * this.sourceCount
     const miners = {
       rune: "miners",
       count: neededMiners - (this.memory.creeps.miners.length || 0),
       // 300 energy
-      runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
+      runePowers: minerRequirementLookup.powers,
       priority: this.roomMemory.village ? 10 : 5,
       mission: this.memory.id
     }
