@@ -69,10 +69,10 @@ export class Stats {
           const room = Game.rooms[roomName]
           if (room) {
             // Log energy and rcl
-            Stats.log(`colonies.${this.name}.storage.energy`, room.storage?.store.getUsedCapacity(RESOURCE_ENERGY))
-            Stats.log(`colonies.${this.name}.rcl.level`, room.controller?.level)
-            Stats.log(`colonies.${this.name}.rcl.progress`, room.controller?.progress)
-            Stats.log(`colonies.${this.name}.rcl.progressTotal`, room.controller?.progressTotal)
+            Stats.log(`colonies.${room.name}.storage.energy`, room.storage?.store.getUsedCapacity(RESOURCE_ENERGY))
+            Stats.log(`colonies.${room.name}.rcl.level`, room.controller?.level)
+            Stats.log(`colonies.${room.name}.rcl.progress`, room.controller?.progress)
+            Stats.log(`colonies.${room.name}.rcl.progressTotal`, room.controller?.progressTotal)
             // Log average miningSite usage and uptime and estimated colony energy income
             // // const numSites = _.keys(this.miningSites).length
             // // const avgDowntime = _.sum(this.miningSites, site => site.memory[_HARVEST_MEM_DOWNTIME]) / numSites
