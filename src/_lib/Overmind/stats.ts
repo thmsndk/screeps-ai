@@ -92,7 +92,7 @@ export class Stats {
                 structure.structureType === STRUCTURE_RAMPART || structure.structureType === STRUCTURE_WALL
             })
             const avgBarrierHits = _.sum(barriers, barrier => barrier.hits) / barriers.length
-            Stats.log(`colonies.${this.name}.avgBarrierHits`, avgBarrierHits)
+            Stats.log(`colonies.${room.name}.avgBarrierHits`, avgBarrierHits)
           }
         }
       }
