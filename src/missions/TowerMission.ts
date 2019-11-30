@@ -140,16 +140,16 @@ export class TowerMission extends Mission {
               const currentEnergy = tower.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0
               // // const capacity = tower.store.getCapacity() ?? 0 // returns null for some reason
               const capacity = tower.store.getCapacity(RESOURCE_ENERGY) ?? 0
-              console.log(`${currentEnergy} / ${capacity} = ${currentEnergy / capacity}`)
+              // // console.log(`${currentEnergy} / ${capacity} = ${currentEnergy / capacity}`)
 
               if (currentEnergy / capacity <= 0.8) {
                 // TODO: chain tower filling, tasks if we have surplus energy
                 const neededEnergy = tower.store.getFreeCapacity(RESOURCE_ENERGY)
 
                 usedEnergy += Math.min(neededEnergy, haulerEnergy)
-                console.log(`${usedEnergy} <= ${hauler.store.getUsedCapacity()}`)
+                // // console.log(`${usedEnergy} <= ${hauler.store.getUsedCapacity()}`)
                 if (usedEnergy <= hauler.store.getUsedCapacity()) {
-                  console.log(`${tower.id} => ${neededEnergy}`)
+                  // // console.log(`${tower.id} => ${neededEnergy}`)
                   tasks.push(Tasks.transfer(tower))
                 }
               }
