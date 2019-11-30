@@ -115,17 +115,19 @@ export class InfraStructureMission extends Mission {
           } else {
             const newConstructionSiteResult = room.createConstructionSite(roomPosition, position.StructureType)
             if (newConstructionSiteResult !== OK) {
-              console.log("plan cSite:" + newConstructionSiteResult)
+              console.log(
+                `[${position.pos.roomName} ${position.pos.x}, ${position.pos.y}] plan cSite: ${newConstructionSiteResult}`
+              )
             }
 
             // Assign creeps to move to target
-            idleCreeps.forEach(creep => {
-              if (position && position.constructionSite) {
+            if (position && position.constructionSite) {
+              idleCreeps.forEach(creep => {
                 creep.task = Tasks.goTo(roomPosition, { moveOptions: { range: 3 } })
-              }
-            })
+              })
 
-            break
+              break
+            }
           }
         }
 

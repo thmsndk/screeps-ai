@@ -135,7 +135,6 @@ export class EnergyMission extends Mission {
           if (!sourceScan.containerId || !deref(sourceScan.containerId as string)) {
             sourceScan.containerId = source?.pos.findInRange<StructureContainer>(FIND_STRUCTURES, 2, {
               filter: structure => {
-                // Console.log("MHJ", structure.structureType)
                 switch (structure.structureType) {
                   case STRUCTURE_CONTAINER:
                     const container = structure as StructureContainer
