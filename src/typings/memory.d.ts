@@ -34,12 +34,21 @@ interface FlagMemory {
   miningPositions: number
 }
 
+interface RawMemory {
+  _parsed: any
+}
+
 interface Memory {
+  // Overmind stats
+  settings: any
+  resetBucket: boolean
+  haltTick: any
+  // End overmind stats
   uuid: number
   log: any
   SCRIPT_VERSION: string
   BUILD_TIME: number
-  stats: IStats
+  stats: any // IStats
   jobs: import("lodash").Dictionary<IMemoryJob[]>
   foo: any
   infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory

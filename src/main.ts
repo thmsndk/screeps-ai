@@ -20,6 +20,8 @@ import { RoomScanner } from "./RoomScanner"
 import { Task } from "./task/Task"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
 import { InfrastructureMemory } from "RoomPlanner/InfrastructureMemory"
+import { Stats } from "_lib/Overmind/stats"
+import { Mem } from "_lib/Overmind/Memory"
 
 // Import "./_lib/client-abuse/injectBirthday.js"
 
@@ -80,6 +82,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
+  // Memory operations: load and clean memory, suspend operation as needed -------------------------------------------
+  Mem.load() // Load previous parsed memory if present
+  if (!Mem.shouldRun()) {
+    return
+  } // Suspend operation if necessary
+  Mem.clean() // Clean memory contents
+
   infrastructure.hydrate()
 
   // Run "Counsil"
@@ -95,35 +104,52 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // How do I make sure collect stats resets room stats when I die?
 
-  collect_stats()
+  Stats.run()
+  // Collect_stats()
+  Stats.colonyStats()
 
   visualizeCreepRole()
 
-  if (Game.spawns.Spawn1) {
-    const spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
-    let y = 25
-    if (spawn1Stats) {
-      // Game.spawns.Spawn1.room.visual.text(
-      //   `⚡ ${spawn1Stats.energy_avail} / ${spawn1Stats.energy_cap}`,
-      //   25,
-      //   Y,
-      //   { align: 'center', opacity: 0.8 });
+  // // if (Game.spawns.Spawn1) {
+  // //   const spawn1Stats = summarize_room(Game.spawns.Spawn1.room)
+  // //   let y = 25
+  // //   if (spawn1Stats) {
+  // //     // Game.spawns.Spawn1.room.visual.text(
+  // //     //   `⚡ ${spawn1Stats.energy_avail} / ${spawn1Stats.energy_cap}`,
+  // //     //   25,
+  // //     //   Y,
+  // //     //   { align: 'center', opacity: 0.8 });
 
-      // Y += 1
+  // //     // Y += 1
 
-      for (const role in spawn1Stats.creep_counts) {
-        if (spawn1Stats.creep_counts.hasOwnProperty(role)) {
-          const count = spawn1Stats.creep_counts[role]
-          y += 1
-          Game.spawns.Spawn1.room.visual.text(`${role}: ${count}`, 25, y, {
-            align: "center",
-            opacity: 0.8
-          })
-        }
-      }
-    }
-  }
+  // //     for (const role in spawn1Stats.creep_counts) {
+  // //       if (spawn1Stats.creep_counts.hasOwnProperty(role)) {
+  // //         const count = spawn1Stats.creep_counts[role]
+  // //         y += 1
+  // //         Game.spawns.Spawn1.room.visual.text(`${role}: ${count}`, 25, y, {
+  // //           align: "center",
+  // //           opacity: 0.8
+  // //         })
+  // //       }
+  // //     }
+  // //   }
+  // // }
 })
+
+// This gets run on each global reset
+function onGlobalReset(): void {
+  // // if (USE_PROFILER) {
+  // //   profiler.enable()
+  // // }
+  Mem.format()
+  // // OvermindConsole.init()
+  // // VersionMigration.run()
+  Memory.stats.persistent.lastGlobalReset = Game.time
+  // // OvermindConsole.printUpdateMessage()
+}
 
 // Genocide function, need to register it as utility method
 // // Object.values(Game.creeps).forEach(c => c.suicide())
+
+// Run the global reset code
+onGlobalReset()

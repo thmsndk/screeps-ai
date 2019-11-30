@@ -31,6 +31,7 @@ interface RoomObject {
 }
 
 interface RoomPosition {
+  print: any
   neighbors: RoomPosition[]
   isEdge: boolean
   isVisible: boolean

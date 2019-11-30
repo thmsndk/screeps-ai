@@ -1,6 +1,8 @@
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
+    Memory: any
+    age: number
     freya: import("../Freya").Freya
     log: any
     DEFCON: import("../DEFCON").DEFCON
