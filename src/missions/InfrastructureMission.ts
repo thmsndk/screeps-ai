@@ -5,6 +5,8 @@ import { Tasks } from "../task/Tasks"
 import { TaskWithdraw } from "./../task/Tasks/TaskWithdraw"
 import { Mission, derefCreeps } from "./Mission"
 import { RuneRequirement } from "Freya"
+import { ErrorMapper } from "utils/ErrorMapper"
+import { profile } from "_lib/Profiler"
 
 interface InfraStructureMissionConstructor {
   room: Room | string
@@ -12,6 +14,7 @@ interface InfraStructureMissionConstructor {
 }
 
 // Tslint:disable-next-line: max-classes-per-file
+@profile
 export class InfraStructureMission extends Mission {
   private room?: Room
 
@@ -148,62 +151,68 @@ export class InfraStructureMission extends Mission {
   }
 
   public run(): void {
-    const builders = this.memory.creeps.builders.reduce<Creep[]>(derefCreeps, [])
+    try {
+      const builders = this.memory.creeps.builders.reduce<Creep[]>(derefCreeps, [])
 
-    this.distributeTasks(builders)
+      this.distributeTasks(builders)
 
-    Object.values(builders).forEach(creep => {
-      if (creep.carry.energy === 0) {
-        // Const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
-        // Chain dropped resources in a close quarter
-        //
+      Object.values(builders).forEach(creep => {
+        if (creep.carry.energy === 0) {
+          // Const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
+          // Chain dropped resources in a close quarter
+          //
 
-        // If (resource) {
-        //   If (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
-        //     Creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
-        //   }
-        // } else {
-        const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-          filter: structure => {
-            switch (structure.structureType) {
-              case STRUCTURE_CONTAINER:
-                const container = structure as StructureContainer
+          // If (resource) {
+          //   If (resource && creep.pickup(resource) === ERR_NOT_IN_RANGE) {
+          //     Creep.moveTo(resource, { visualizePathStyle: PathStyle.Hauling })
+          //   }
+          // } else {
+          const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+            filter: structure => {
+              switch (structure.structureType) {
+                case STRUCTURE_CONTAINER:
+                  const container = structure as StructureContainer
 
-                return _.sum(container.store) >= creep.carryCapacity
-              case STRUCTURE_EXTENSION:
-                const extension = structure as StructureExtension
+                  return _.sum(container.store) >= creep.carryCapacity
+                case STRUCTURE_EXTENSION:
+                  const extension = structure as StructureExtension
 
-                return extension.energy >= creep.carryCapacity
-              case STRUCTURE_SPAWN:
-                const spawn = structure as StructureSpawn
+                  return extension.energy >= creep.carryCapacity
+                case STRUCTURE_SPAWN:
+                  const spawn = structure as StructureSpawn
 
-                return spawn.energy >= creep.carryCapacity
-              case STRUCTURE_TOWER:
-                const tower = structure as StructureTower
+                  return spawn.energy >= creep.carryCapacity
+                case STRUCTURE_TOWER:
+                  const tower = structure as StructureTower
 
-                return tower.energy >= creep.carryCapacity
-              case STRUCTURE_STORAGE:
-                const storage = structure as StructureStorage
+                  return tower.energy >= creep.carryCapacity
+                case STRUCTURE_STORAGE:
+                  const storage = structure as StructureStorage
 
-                return storage.store[RESOURCE_ENERGY] < storage.storeCapacity
+                  return storage.store[RESOURCE_ENERGY] < storage.storeCapacity
+              }
+
+              return false
             }
+          }) as StructureContainer | StructureExtension | StructureSpawn | StructureTower | StructureStorage
 
-            return false
-          }
-        }) as StructureContainer | StructureExtension | StructureSpawn | StructureTower | StructureStorage
+          if (target) {
+            const withdraw = Tasks.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy)
 
-        if (target) {
-          const withdraw = Tasks.withdraw(target, RESOURCE_ENERGY, creep.carryCapacity - creep.carry.energy)
-
-          if (creep.task && creep.task.name !== TaskWithdraw.taskName) {
-            creep.task = Tasks.chain([withdraw, creep.task])
-          } else if (withdraw) {
-            creep.task = withdraw
+            if (creep.task && creep.task.name !== TaskWithdraw.taskName) {
+              creep.task = Tasks.chain([withdraw, creep.task])
+            } else if (withdraw) {
+              creep.task = withdraw
+            }
           }
         }
-      }
 
-      creep.run()
-    })
+        creep.run()
+      })
+    } catch (error) {
+      console.log(
+        `<span style='color:red'>[InfraStructureMission] ${_.escape(ErrorMapper.sourceMappedStackTrace(error))}</span>`
+      )
+    }
   }
 }
