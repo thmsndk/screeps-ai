@@ -24,7 +24,13 @@ const swc: Config = {
   rooms: [["W8N3", 31, 16]]
 }
 
-const config = swc
+const splus2: Config = {
+  ...baseConfig,
+  server: "s+2",
+  rooms: [["W11S3", 38, 13]]
+}
+
+const config = splus2
 const BRANCH = "Yggdrasil"
 // Const BRANCH='default'
 
