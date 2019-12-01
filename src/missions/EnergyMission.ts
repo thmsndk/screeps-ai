@@ -4,6 +4,7 @@ import { RuneRequirement, RunePowers } from "Freya"
 import { Mission, derefCreeps } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { deref } from "task/utilities/utilities"
+import { log } from "_lib/Overmind/console/log"
 
 enum HaulingMode {
   collecting,
@@ -72,13 +73,17 @@ export class EnergyMission extends Mission {
     const maxRunePowerLookup = Math.min(600, roomToCheckCapacity?.energyCapacityAvailable ?? 300)
     let minerRequirementLookup = minerRunePowers[300]
     for (const key in minerRunePowers) {
-      const energyCapacityRequirement = (key as any) as number
-      if (minerRequirementLookup.hasOwnProperty(energyCapacityRequirement)) {
+      const energyCapacityRequirement = Number(key)
+
+      if (minerRunePowers.hasOwnProperty(energyCapacityRequirement)) {
+        // // log.debug(`${energyCapacityRequirement} <= ${maxRunePowerLookup}`)
         if (energyCapacityRequirement <= maxRunePowerLookup) {
           minerRequirementLookup = minerRunePowers[energyCapacityRequirement]
+          // // log.debug(`${JSON.stringify(minerRequirementLookup)}`)
         }
       }
     }
+
     const neededMiners =
       Math.min(minerRequirementLookup.needed, this.roomMemory.miningPositions ?? this.sourceCount) * this.sourceCount
     const miners = {

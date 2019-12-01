@@ -58,7 +58,7 @@ const counsil = new Elders(roomPlanner, roomScanner, freya, infrastructure)
 export const infraStructureMissions: Dictionary<InfraStructureMission> = {}
 
 export const hatcheries: Dictionary<Hatchery> = {}
-log.setLogLevel(LogLevels.INFO)
+// // log.setLogLevel(LogLevels.INFO)
 
 console.log("finished initializing globals")
 // https://github.com/bencbartlett/creep-tasks
