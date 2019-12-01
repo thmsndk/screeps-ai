@@ -97,3 +97,39 @@ Roadmap:
             We need to determine how long we are in recoverymode.
         ☐ We appear to be spawning too many units?
             Spawned 3 harvesters, when there was only room for 2 harvesters
+
+
+
+notes after swc:
+    ☐ body scaling
+    ☐ remote building
+        ☐ need to build container after first batch of extensions?
+        ☐ need to do the math on repair creeps vs towers, might be wasting too much energy repairing with towers, atleast initially
+        ☐ don't spawn builders if there is no construction sites / available plan
+        ☐ need to visualize spawn queue, perhaps in grafana
+        ☐ need to visualize creep "roles" & mission assignment
+        e.g. a list of missions? could dump info out in console at an interval
+        ☐ keeps spamming adding to layer 0 ???
+        ☐ mission icon to render above creep, creep say could say role?
+
+
+-- notes for dashboard
+    User.$Network.$Server
+
+    asPercent(movingAverage(screeps.$User.cpu.getUsed, 5), #B)
+    asPercent(movingAverage(screeps.$User.$Network.$Server.cpu.getUsed, 5), #B)
+
+    priorities
+
+
+
+    alias(scale(movingAverage(perSecond(keepLastValue(screeps.$User.$Network.$Server.gcl.progress, 100)), 10), 86400), 'GCL / 24hr')
+
+    alias(scale(movingAverage(perSecond(keepLastValue(screeps.$User.$Network.$Server.gcl.progress, 100)), 500), 86400), 'GCL / 24hr (avg)')
+
+    alias(diffSeries(screeps.$User.gcl.progressTotal, screeps.$User.$Network.$Server.gcl.progress), 'Remaining until next level')
+
+    ---- RCL
+
+    aliasByNode(scale(movingAverage(perSecond(keepLastValue(screeps.$User.$Network.$Server.colonies.$colonies.rcl.progress)), 200), 86400), 5)
+    aliasByNode(screeps.$User.$Network.$Server.colonies.$colonies.rcl.level, 5)
