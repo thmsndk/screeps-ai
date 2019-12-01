@@ -22,6 +22,7 @@ import { Infrastructure } from "RoomPlanner/Infrastructure"
 import { InfrastructureMemory } from "RoomPlanner/InfrastructureMemory"
 import { Stats } from "_lib/Overmind/stats"
 import { Mem } from "_lib/Overmind/Memory"
+import { log, LogLevels } from "_lib/Overmind/console/log"
 
 // Import "./_lib/client-abuse/injectBirthday.js"
 
@@ -57,6 +58,7 @@ const counsil = new Elders(roomPlanner, roomScanner, freya, infrastructure)
 export const infraStructureMissions: Dictionary<InfraStructureMission> = {}
 
 export const hatcheries: Dictionary<Hatchery> = {}
+log.setLogLevel(LogLevels.INFO)
 
 console.log("finished initializing globals")
 // https://github.com/bencbartlett/creep-tasks

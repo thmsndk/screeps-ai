@@ -91,10 +91,14 @@ export class InfraStructureMission extends Mission {
       // Get first unfinshed position and make sure it has a constructionsite
       // Should probably be sorted by priority
       const position = layer.Positions.find(p => !p.finished)
+      if (!position) {
+        log.debug(`layer ${index} has no unfished cSites in plan`)
+      }
 
       if (room && position) {
         // By checking room we are kinda preventing constructions sites from rooms without vision to be built
         // Scan if construction exists on position
+        // // log.debug(`layer ${index} verifying ${position.StructureType}`)
 
         const roomPosition = derefRoomPosition({ ...position.pos, roomName: layer.roomName })
 
@@ -104,11 +108,12 @@ export class InfraStructureMission extends Mission {
         if (plannedStructure) {
           position.structure = plannedStructure
           // TODO: we now need to "break" and find a new position, this solution means that it waits an additional tick to find the position
-          log.info("structure was finished building" + JSON.stringify(position.pos))
+          log.info(`${position.StructureType} was finished building as ${roomPosition.print}`)
           break
         }
 
         if (!position.constructionSite) {
+          log.debug(`layer ${index} ${position.StructureType} has no cSite at ${roomPosition.print}`)
           const constructionSites = room.lookForAt(LOOK_CONSTRUCTION_SITES, roomPosition)
           const constructionSite = constructionSites.find(c => c.structureType === position.StructureType)
           if (constructionSite) {
@@ -119,6 +124,8 @@ export class InfraStructureMission extends Mission {
               log.warning(
                 `[${position.pos.roomName} ${position.pos.x}, ${position.pos.y}] plan cSite: ${newConstructionSiteResult}`
               )
+            } else {
+              log.info(`layer ${index} ${position.StructureType} new cSite at ${roomPosition.print}`)
             }
 
             // Assign creeps to move to target
