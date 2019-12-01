@@ -7,6 +7,7 @@ import { Mission, derefCreeps } from "./Mission"
 import { RuneRequirement } from "Freya"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { profile } from "_lib/Profiler"
+import { log } from "_lib/Overmind/console/log"
 
 interface InfraStructureMissionConstructor {
   room: Room | string
@@ -103,7 +104,7 @@ export class InfraStructureMission extends Mission {
         if (plannedStructure) {
           position.structure = plannedStructure
           // TODO: we now need to "break" and find a new position, this solution means that it waits an additional tick to find the position
-          console.log("structure was finished building" + JSON.stringify(position.pos))
+          log.info("structure was finished building" + JSON.stringify(position.pos))
           break
         }
 
@@ -115,7 +116,7 @@ export class InfraStructureMission extends Mission {
           } else {
             const newConstructionSiteResult = room.createConstructionSite(roomPosition, position.StructureType)
             if (newConstructionSiteResult !== OK) {
-              console.log(
+              log.warning(
                 `[${position.pos.roomName} ${position.pos.x}, ${position.pos.y}] plan cSite: ${newConstructionSiteResult}`
               )
             }

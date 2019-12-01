@@ -1,6 +1,7 @@
 import { InfraStructurePositionMemory } from "./InfraStructurePositionMemory"
 import { InfraStructureLayerMemory } from "./InfraStructureLayerMemory"
 import { InfraStructurePosition } from "./InfraStructurePosition"
+import { log } from "_lib/Overmind/console/log"
 // Tslint:disable-next-line: max-classes-per-file
 export class InfrastructureLayer {
   private memory: InfraStructureLayerMemory
@@ -35,7 +36,9 @@ export class InfrastructureLayer {
       }
     }
 
-    if (this.Positions.some(p => p.pos.x === x && p.pos.y === y)) {
+    if (this.Positions.some(p => p.pos.x === x && p.pos.y === y && p.StructureType === structureType)) {
+      log.warning(`${structureType} already in plan for layer, skipping ${structureType}`)
+
       return
     }
 

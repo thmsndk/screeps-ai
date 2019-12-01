@@ -1,4 +1,5 @@
 import { RuneRequirement } from "Freya"
+import { log } from "_lib/Overmind/console/log"
 
 export const derefCreeps = (result: Creep[], creepName: string, index: number, creepNames: string[]): Creep[] => {
   const creep = Game.creeps[creepName] /* TODO: switch to deref */
@@ -13,7 +14,7 @@ export const derefCreeps = (result: Creep[], creepName: string, index: number, c
     const queued = global.freya.queued(creepName)
     // // console.log(`${creepName} queued?${JSON.stringify(queued)}`)
     if (!queued) {
-      console.log(`${creepName} has no prayer`)
+      log.warning(`${creepName} has no prayer`)
       creepNames.splice(creepNames.indexOf(creepName), 1)
     }
   }

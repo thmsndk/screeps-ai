@@ -10,6 +10,7 @@ import { UpgradeControllerMission } from "missions/UpgradeControllerMission"
 import { calculateAverageEnergy } from "calculateAverageEnergy"
 import { TargetCache } from "task/utilities/caching"
 import { TowerMission } from "missions/TowerMission"
+import { log } from "_lib/Overmind/console/log"
 
 export class Elders {
   private checkSettle = true
@@ -69,7 +70,8 @@ export class Elders {
             const plan = this.infrastructure.findInfrastructure(site.id as string)
             // TODO: there seem to be an issue finding existing cSites in the plan
             if (!plan || Object.keys(plan).length <= 0) {
-              console.log("adding to layer 0")
+              log.info(`"adding ${site.id} to layer 0:`)
+              // // console.log(JSON.stringify(plan))
               this.infrastructure.addConstructionSite(0, site)
             }
           })
