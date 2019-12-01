@@ -106,19 +106,20 @@ export class TowerMission extends Mission {
 
             if (hauler.memory.mode === HaulingMode.collecting) {
               // Find energy to haul
-              const target = tower.pos.findClosestByRange<StructureContainer>(FIND_STRUCTURES, {
+              const target = tower.pos.findClosestByRange<StructureContainer | StructureStorage>(FIND_STRUCTURES, {
                 filter: structure => {
                   switch (structure.structureType) {
                     case STRUCTURE_CONTAINER:
                       const container = structure as StructureContainer
-                      const amount = _.sum(container.store)
+                      const amount = container.store.getUsedCapacity(RESOURCE_ENERGY)
 
                       return amount > 0
                     case STRUCTURE_STORAGE:
                       const storage = structure as StructureStorage
 
-                      return true // Storage.store[RESOURCE_ENERGY] < storage.storeCapacity
-                    // && storage.room.energyAvailable === storage.room.energyCapacityAvailable
+                      return storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+                    // // storage.store[RESOURCE_ENERGY] < storage.storeCapacity
+                    // // && storage.room.energyAvailable === storage.room.energyCapacityAvailable
                   }
 
                   return false
