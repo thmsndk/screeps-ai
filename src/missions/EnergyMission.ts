@@ -63,7 +63,13 @@ export class EnergyMission extends Mission {
       600: { needed: 1, powers: { [WORK]: 5, [CARRY]: 1, [MOVE]: 1 } }
     }
 
-    const maxRunePowerLookup = Math.min(600, this.room?.energyCapacityAvailable ?? 300)
+    // Remote missions should be checking home room for capacity, not their minig room,
+    // TODO: this lookup should be done once per tick per home room
+    const roomToCheckCapacity = this.roomMemory.outpost
+      ? Game.rooms[Game.creeps[this.memory.creeps.miners[0]]?.memory?.home]
+      : this.room
+
+    const maxRunePowerLookup = Math.min(600, roomToCheckCapacity?.energyCapacityAvailable ?? 300)
     let minerRequirementLookup = minerRunePowers[300]
     for (const key in minerRunePowers) {
       const energyCapacityRequirement = (key as any) as number

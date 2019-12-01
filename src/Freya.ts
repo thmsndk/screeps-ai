@@ -142,7 +142,7 @@ export class Freya {
         runePowers: requirement.runePowers,
         mission: requirement.mission
       }
-      log.info(`   ${name} queued`)
+      log.info(`   ${name} queued ${JSON.stringify(requirement.runePowers)}`)
       this.requests.queue(prayer)
       // TODO: could persist to memory, but does it really matter?
     }
