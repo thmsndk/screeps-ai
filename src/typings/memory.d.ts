@@ -14,11 +14,13 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  claim?: boolean
   reserve?: boolean
   outpost?: boolean
   village?: boolean
   sources?: import("lodash").Dictionary<ISourceMemory>
 
+  claimmission: IMissionMemory
   reservemission: IMissionMemory
   towermission: IMissionMemory
   upgradecontrollermission: IMissionMemory

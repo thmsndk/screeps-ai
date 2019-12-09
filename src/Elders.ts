@@ -213,6 +213,19 @@ export class Elders {
 
           roomMemory.reserve = flag.color === COLOR_GREEN
         }
+
+        if (flag.name.startsWith("claim")) {
+          let roomMemory = Memory.rooms[flag.pos.roomName]
+          if (!roomMemory) {
+            Memory.rooms[flag.pos.roomName] = roomMemory = {} as any
+          }
+
+          if (!roomMemory.claim && flag.color === COLOR_WHITE) {
+            flag.setColor(COLOR_GREEN)
+          }
+
+          roomMemory.claim = flag.color === COLOR_GREEN
+        }
       }
     }
   }

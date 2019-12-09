@@ -8,28 +8,30 @@ export type claimTargetType = StructureController
 
 export class TaskClaim extends Task {
   public static taskName = "claim"
+
   public target!: claimTargetType
 
-  constructor(target: claimTargetType, options = {} as TaskOptions) {
+  public constructor(target: claimTargetType, options = {} as TaskOptions) {
     super(TaskClaim.taskName, target, options)
     // Settings
   }
 
-  public isValidTask() {
+  public isValidTask(): boolean {
     return this.creep.getActiveBodyparts(CLAIM) > 0
   }
 
-  public isValidTarget() {
+  public isValidTarget(): boolean {
     return this.target != null && (!this.target.room || !this.target.owner)
   }
 
-  public work() {
+  public work(): ScreepsReturnCode {
     return this.creep.claimController(this.target)
   }
 }
 
-const registerClaim = (memory: TaskMemory) => {
+const registerClaim = (memory: TaskMemory): TaskClaim => {
   const target = deref(memory._target.ref)
+
   return new TaskClaim(target as claimTargetType)
 }
 register(registerClaim)
