@@ -88,10 +88,13 @@ export class UpgradeControllerMission extends Mission {
       const upgraders = this.memory.creeps.upgraders.reduce<Creep[]>(derefCreeps, [])
       const idleupgraders = upgraders.filter(creep => creep.isIdle)
 
+      // TODO: get container dedicated to upgrade
+
       // TODO: Assign tasks
       // Iterate each idle upgrader and assign it energy collection task or upgrade controller task
       idleupgraders.forEach(creep => {
         if (creep.store.getFreeCapacity() === 0) {
+          // TODO: this prevents remote upgrading...
           if (!this.room || !this.room.controller) {
             return
           }
@@ -102,6 +105,14 @@ export class UpgradeControllerMission extends Mission {
           // Find energy
           if (!this.room || !this.room.controller) {
             return
+          }
+
+          if (this.room.storage) {
+            if (this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity(RESOURCE_ENERGY)) {
+              creep.task = Tasks.withdraw(this.room.storage)
+
+              return
+            }
           }
 
           // TODO: should probably check assigned upgrade container for energy before theese fallbacks
@@ -118,7 +129,7 @@ export class UpgradeControllerMission extends Mission {
                   case STRUCTURE_CONTAINER:
                     const container = structure as StructureContainer
 
-                    return container.store[RESOURCE_ENERGY] >= creep.carryCapacity
+                    return container.store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity(RESOURCE_ENERGY)
                   // Case STRUCTURE_EXTENSION:
                   //   Const extension = structure as StructureExtension
                   //   Return extension.energy >= creep.carryCapacity
