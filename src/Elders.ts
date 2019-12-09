@@ -11,7 +11,10 @@ import { calculateAverageEnergy } from "calculateAverageEnergy"
 import { TargetCache } from "task/utilities/caching"
 import { TowerMission } from "missions/TowerMission"
 import { log } from "_lib/Overmind/console/log"
+import { profile } from "_lib/Profiler"
+import { ReserveMission } from "missions/ReserveMission"
 
+@profile
 export class Elders {
   private checkSettle = true
 
@@ -101,14 +104,26 @@ export class Elders {
     for (const roomName in Memory.rooms) {
       if (Memory.rooms.hasOwnProperty(roomName)) {
         const roomMemory = Memory.rooms[roomName]
+        const room = Game.rooms[roomName]
         if (roomMemory.outpost) {
           // TODO: do we want an energy mission or a remote energy mission?
           // What is special about a remote energy mission other than having to traverse rooms and the dropoff being another place?
           // Nothing really? we still wish to send miners based on what "tier" the mission is at.
           // But how does it determine it's tier, when it is a remote room? it knows the room memory is an outpost, we could pass that on.
-          missions.push(new EnergyMission(Game.rooms[roomName] || roomName))
+          missions.push(new EnergyMission(room || roomName))
           //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
+          // What is the tier between an outpost where we do not claim the controller, and one where we do? do we call that a settlement?
+          // When do we reserve the controller, do we always do that for an outpost? what decides that? it restocks energy there so we could time it in such a way that energy is refilled when it expires.
         }
+
+        if (roomMemory.reserve) {
+          missions.push(new ReserveMission(room || roomName))
+        }
+
+        // TODO: The logic that determines to set the claim property needs to take GCL into account.
+        // // if(roomMemory.claim){
+        // //   missions.push(new ClaimMission(Game.rooms[roomName] || roomName))
+        // // }
       }
     }
 
@@ -172,6 +187,7 @@ export class Elders {
     for (const flagName in Game.flags) {
       if (Game.flags.hasOwnProperty(flagName)) {
         const flag = Game.flags[flagName]
+        // TODO: extract to flag parser?
         if (flag.name.startsWith("remote") || flag.name.startsWith("outpost")) {
           let roomMemory = Memory.rooms[flag.pos.roomName]
           if (!roomMemory) {
@@ -183,6 +199,19 @@ export class Elders {
           }
 
           roomMemory.outpost = flag.color === COLOR_GREEN
+        }
+
+        if (flag.name.startsWith("reserve")) {
+          let roomMemory = Memory.rooms[flag.pos.roomName]
+          if (!roomMemory) {
+            Memory.rooms[flag.pos.roomName] = roomMemory = {} as any
+          }
+
+          if (!roomMemory.reserve && flag.color === COLOR_WHITE) {
+            flag.setColor(COLOR_GREEN)
+          }
+
+          roomMemory.reserve = flag.color === COLOR_GREEN
         }
       }
     }

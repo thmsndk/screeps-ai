@@ -1,5 +1,6 @@
 import { RuneRequirement } from "Freya"
 import { log } from "_lib/Overmind/console/log"
+import { Tasks } from "task"
 
 export const derefCreeps = (result: Creep[], creepName: string, index: number, creepNames: string[]): Creep[] => {
   const creep = Game.creeps[creepName] /* TODO: switch to deref */
@@ -57,6 +58,28 @@ export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
           return true
         }
       }
+    }
+
+    return false
+  }
+
+  public goToHome(creep: Creep): boolean {
+    if (creep.pos.roomName !== creep.memory.home && creep.memory.home /* In case of amnesia */) {
+      // // console.log(`${creep.name} => dropoff: ${creep.memory.home}`)
+      creep.task = Tasks.goToRoom(creep.memory.home)
+
+      return true
+    }
+
+    return false
+  }
+
+  public goToRoom(creep: Creep, roomName: string): boolean {
+    if (creep.pos.roomName !== roomName) {
+      // // console.log(`${creep.name} => goal: ${this.roomName}`)
+      creep.task = Tasks.goToRoom(roomName)
+
+      return true
     }
 
     return false

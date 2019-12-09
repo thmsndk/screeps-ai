@@ -109,7 +109,7 @@ notes after swc:
         ☐ need to visualize spawn queue, perhaps in grafana
         ☐ need to visualize creep "roles" & mission assignment
         e.g. a list of missions? could dump info out in console at an interval
-        ☐ keeps spamming adding to layer 0 ???
+        ✔ keeps spamming adding to layer 0 ??? @done(19-12-09 19:14)
         ☐ mission icon to render above creep, creep say could say role?
 
 

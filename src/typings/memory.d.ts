@@ -14,10 +14,14 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  reserve?: boolean
+  outpost?: boolean
+  village?: boolean
+  sources?: import("lodash").Dictionary<ISourceMemory>
+
+  reservemission: IMissionMemory
   towermission: IMissionMemory
   upgradecontrollermission: IMissionMemory
-  outpost: boolean
-  sources?: import("lodash").Dictionary<ISourceMemory>
   miningPositions?: number
   energymission?: IEnergyMission
   DEFCON?: import("../DEFCON").IMemoryDefcon
@@ -27,7 +31,6 @@ interface RoomMemory {
   infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory
   infrastructureMission?: IMissionMemory
   runPlanner?: boolean
-  village?: boolean
 }
 
 interface FlagMemory {

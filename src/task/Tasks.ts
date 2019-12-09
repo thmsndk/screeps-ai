@@ -13,7 +13,7 @@ import { buildTargetType, TaskBuild } from "./Tasks/TaskBuild"
 import { pickupTargetType, TaskPickup } from "./Tasks/TaskPickup"
 // // import { rangedAttackTargetType, TaskRangedAttack } from "./Tasks/task_rangedAttack"
 // // import { repairTargetType, TaskRepair } from "./Tasks/task_repair"
-// // import { reserveTargetType, TaskReserve } from "./Tasks/task_reserve"
+import { reserveTargetType, TaskReserve } from "./Tasks/TaskReserve"
 // // import { signControllerTargetType, TaskSignController } from "./Tasks/task_signController"
 import { transferTargetType, TransferTask } from "./Tasks/TransferTask"
 
@@ -125,9 +125,9 @@ export class Tasks {
   // // 	return new TaskRepair(target, options);
   // // }
 
-  // // static reserve(target: reserveTargetType, options = {} as TaskOptions): TaskReserve {
-  // // 	return new TaskReserve(target, options);
-  // // }
+  public static reserve(target: reserveTargetType, options = {} as TaskOptions): TaskReserve {
+    return new TaskReserve(target, options)
+  }
 
   // // static signController(target: signControllerTargetType, signature: string,
   // // 					  options = {} as TaskOptions): TaskSignController {

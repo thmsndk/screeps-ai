@@ -76,14 +76,14 @@ export class EnergyMission extends Mission {
       const energyCapacityRequirement = Number(key)
 
       if (minerRunePowers.hasOwnProperty(energyCapacityRequirement)) {
-        // // log.debug(`${energyCapacityRequirement} <= ${maxRunePowerLookup}`)
+        log.debug(`${energyCapacityRequirement} <= ${maxRunePowerLookup}`)
         if (energyCapacityRequirement <= maxRunePowerLookup) {
           minerRequirementLookup = minerRunePowers[energyCapacityRequirement]
-          // // log.debug(`${JSON.stringify(minerRequirementLookup)}`)
+          log.debug(`${JSON.stringify(minerRequirementLookup)}`)
         }
       }
     }
-
+    // TODO: TTL of creeps, to prespawn
     const neededMiners =
       Math.min(minerRequirementLookup.needed, this.roomMemory.miningPositions ?? this.sourceCount) * this.sourceCount
     const miners = {
