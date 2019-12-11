@@ -59,10 +59,19 @@ interface Memory {
   infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory
 }
 
+declare const HARVEST_MEM_USAGE = "u"
+declare const HARVEST_MEM_DOWNTIME = "d"
+declare const SOURCE_MEM_ENERGY_PER_TICK = "e"
+
 interface ISourceMemory {
   containerId?: Id<StructureContainer>
   miningPositions: IPosition[]
   distanceToSpawn: number
+  // For stats
+  // Const HARVEST_MEM_PATHING = "P"
+  [HARVEST_MEM_USAGE]: number
+  [HARVEST_MEM_DOWNTIME]: number
+  [SOURCE_MEM_ENERGY_PER_TICK]: number
 }
 
 interface IEnergyMission extends IMissionMemory {}

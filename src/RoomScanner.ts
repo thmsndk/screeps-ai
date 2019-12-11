@@ -127,7 +127,10 @@ export class RoomScanner {
         }
         sourceMemory = {
           distanceToSpawn,
-          miningPositions: []
+          miningPositions: [],
+          [HARVEST_MEM_USAGE]: 0,
+          [HARVEST_MEM_DOWNTIME]: 0,
+          [SOURCE_MEM_ENERGY_PER_TICK]: source.energyCapacity / ENERGY_REGEN_TIME
         } as ISourceMemory
         room.memory.sources[source.id as string] = sourceMemory
       }
