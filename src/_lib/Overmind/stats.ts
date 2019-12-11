@@ -75,7 +75,7 @@ export class Stats {
         if (room) {
           const miningSites = Stats.updateMiningSitesStats(room) // We want to do this each tick, should probably be in the energy mission "stats" collection method
 
-          if (Game.time % LOG_STATS_INTERVAL === 0) {
+          if (Game.time % LOG_STATS_INTERVAL !== 0) {
             continue
           }
 
