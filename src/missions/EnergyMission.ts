@@ -65,12 +65,20 @@ export class EnergyMission extends Mission {
     }
 
     // Remote missions should be checking home room for capacity, not their minig room,
-    // TODO: this lookup should be done once per tick per home room
+    // TODO: this lookup should be done once per tick per home room, and what about requesting a spawn from another village than home?
     const roomToCheckCapacity = this.roomMemory.outpost
       ? Game.rooms[Game.creeps[this.memory.creeps.miners[0]]?.memory?.home]
       : this.room
 
-    const maxRunePowerLookup = Math.min(600, roomToCheckCapacity?.energyCapacityAvailable ?? 300)
+    // TODO: should do this in a "hydrate" method, so we don't do it both in requirements and in run
+    const actualMiners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
+    const availableEnergy = roomToCheckCapacity?.energyAvailable ?? 300
+
+    const capacityAvailable =
+      actualMiners.length === 0 && availableEnergy <= 300 ? 300 : roomToCheckCapacity?.energyCapacityAvailable ?? 300
+
+    const maxRunePowerLookup = Math.min(600, capacityAvailable)
+
     let minerRequirementLookup = minerRunePowers[300]
     for (const key in minerRunePowers) {
       const energyCapacityRequirement = Number(key)

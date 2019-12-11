@@ -56,8 +56,8 @@
       "\t}",
       "",
       "\tpublic getRequirements(): RuneRequirement[] {",
-	  "\tconst requirements = []",
-	  "\tconst neededWorkers = 1"
+      "\tconst requirements = []",
+      "\tconst neededWorkers = 1",
       "",
       "\tconst ${2:creepRune} = {",
       "\t  rune: \"${2:creepRune}\",",
