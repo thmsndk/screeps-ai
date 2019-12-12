@@ -70,12 +70,13 @@ export class EnergyMission extends Mission {
       ? Game.rooms[Game.creeps[this.memory.creeps.miners[0]]?.memory?.home]
       : this.room
 
-    // TODO: should do this in a "hydrate" method, so we don't do it both in requirements and in run
+    // TODO: should do this in a "hydrate" method, so we don't do it both in requirements and in run, and this is only really needed for villages to bootstrap 'em
     const actualMiners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
     const availableEnergy = roomToCheckCapacity?.energyAvailable ?? 300
 
-    const capacityAvailable =
-      actualMiners.length === 0 && availableEnergy <= 300 ? 300 : roomToCheckCapacity?.energyCapacityAvailable ?? 300
+    const capacityAvailable = actualMiners.length === 0 ? 300 : roomToCheckCapacity?.energyCapacityAvailable ?? 300
+
+    log.debug(`${availableEnergy} ${capacityAvailable}`) // Need to be able to toggle log level per module
 
     const maxRunePowerLookup = Math.min(600, capacityAvailable)
 
