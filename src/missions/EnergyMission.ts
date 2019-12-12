@@ -157,6 +157,17 @@ export class EnergyMission extends Mission {
       // // }
 
       const sources = this.roomMemory.sources || { dummyForceMiningScout: "" }
+      type runes = "miners" | "haulers" // Could use this with generics for memory to descripe the types of creeps?
+      type EnergyMissionCreeps = {
+        [key in runes]: Creep[]
+      }
+      interface PotentialSource {
+        source: Source | null
+        targetedBy: EnergyMissionCreeps
+        miningPositions: number
+      }
+
+      const potentialSources: PotentialSource[] = []
 
       for (const sourceId in sources) {
         // Sort sources by range from spawn, give  closer spawns higher priority
@@ -164,11 +175,26 @@ export class EnergyMission extends Mission {
           const targetedBy = _.groupBy(
             _.map(Game.TargetCache.targets[sourceId], name => Game.creeps[name]),
             "memory.rune"
-          )
+          ) as EnergyMissionCreeps
 
           const source = Game.getObjectById<Source>(sourceId)
-
           const sourceScan = this.roomMemory?.sources ? this.roomMemory.sources[sourceId] : ({} as ISourceMemory)
+
+          const potentialSource = {
+            source,
+            targetedBy,
+            miningPositions: Object.keys(sourceScan.miningPositions).length
+          }
+
+          if (!potentialSource.targetedBy.miners) {
+            potentialSource.targetedBy.miners = []
+          }
+
+          if (!potentialSource.targetedBy.haulers) {
+            potentialSource.targetedBy.haulers = []
+          }
+
+          potentialSources.push(potentialSource)
 
           if (!sourceScan.containerId || !deref(sourceScan.containerId as string)) {
             sourceScan.containerId = source?.pos.findInRange<StructureContainer>(FIND_STRUCTURES, 2, {
@@ -184,28 +210,69 @@ export class EnergyMission extends Mission {
               }
             })[0]?.id
           }
-
-          if (!targetedBy.miners || targetedBy.miners.length < Object.keys(sourceScan.miningPositions).length) {
-            const miner = idleMiners.pop() // TODO: We should pick the closest creep not just any idle creep
-            // Miner logic
-            if (miner) {
-              this.assignMinerTasks(source, miner, haulers)
-            }
-          }
-
-          // TargetBy should always be 0? a hauler never targets the source with a task?
-          if (!targetedBy.haulers || targetedBy.haulers.length === 0) {
-            const hauler = idleHaulers.pop()
-
-            if (hauler) {
-              this.assignHaulTask(source, hauler)
-            }
-          }
         }
       }
 
+      // // log.info(`${idleMiners.length} needs a harvest job`)
+      idleMiners.forEach(miner => {
+        let target: PotentialSource | null = null
+
+        for (const potentialSource of potentialSources) {
+          if (potentialSource.source?.energy === 0 && potentialSource.source?.ticksToRegeneration > 15) {
+            continue
+          }
+
+          if (potentialSource.miningPositions === potentialSource.targetedBy.miners.length) {
+            continue
+          }
+
+          if (!target) {
+            target = potentialSource
+          }
+
+          if (target.targetedBy.miners.length < potentialSource.targetedBy.miners.length) {
+            continue
+          }
+
+          // // log.info(`${target.targetedBy.miners?.length} < ${potentialSource.targetedBy.miners?.length}`)
+          target = potentialSource
+        }
+
+        if (target) {
+          target.targetedBy.miners.push(miner)
+
+          this.assignMinerTasks(target.source, miner, haulers)
+        }
+      })
+
+      idleHaulers.forEach(hauler => {
+        let target: PotentialSource | null = null
+        // TODO: dedicated source haulers should really target the source, or perhaps the container? this solution might end up sending alternating haulers to one source letting the other rot.
+        for (const potentialSource of potentialSources) {
+          if (!target) {
+            target = potentialSource
+          }
+
+          if (target.targetedBy.haulers?.length < potentialSource.targetedBy.haulers?.length) {
+            continue
+          }
+
+          target = potentialSource
+        }
+        if (target) {
+          target.targetedBy.haulers.push(hauler)
+          this.assignHaulTask(target.source, hauler)
+        }
+      })
+
       // Run miners
-      miners.forEach(creep => creep.run())
+      miners.forEach(creep => {
+        const result = creep.run()
+        if (result === ERR_NO_PATH) {
+          // TODO: scan for idle creeps near source, move 'em, perhaps "park" is an option for idle creeps?
+          log.warning(`${creep.name} is stuck getting to source near ${creep.pos.print}`)
+        }
+      })
 
       // Run haulers
       haulers.forEach(creep => creep.run())

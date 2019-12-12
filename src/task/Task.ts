@@ -4,7 +4,7 @@ import { deref, derefRoomPosition } from "./utilities/utilities"
 export interface targetType {
   ref: string
   pos: RoomPosition
-} // overwrite this variable in derived classes to specify more precise typing
+} // Overwrite this variable in derived classes to specify more precise typing
 
 /* An abstract class for encapsulating creep actions. This generalizes the concept of "do action X to thing Y until
  * condition Z is met" and saves a lot of convoluted and duplicated code in creep logic. A Task object contains
@@ -14,23 +14,34 @@ export interface targetType {
 export abstract class Task implements ITask {
   public static taskName: string
 
-  public name: string // Name of the task type, e.g. 'upgrade'
+  public name: string
+
+  // Name of the task type, e.g. 'upgrade'
   public _creep: {
     // Data for the creep the task is assigned to"
     name: string // Name of the creep
   }
+
   public _target: {
     // Data for the target the task is directed to:
     ref: string // Target id or name
     _pos: PositionMemory // Target position's coordinates in case vision is lost
   }
-  public _parent?: TaskMemory | null // The parent of this task, if any. Task is changed to parent upon completion
+
+  public _parent?: TaskMemory | null
+
+  // The parent of this task, if any. Task is changed to parent upon completion
   public tick: number
-  public settings: TaskSettings // Settings for a given type of task; shouldn't be modified on an instance-basis
-  public options?: TaskOptions // Options for a specific instance of a task
+
+  public settings: TaskSettings
+
+  // Settings for a given type of task; shouldn't be modified on an instance-basis
+  public options?: TaskOptions
+
+  // Options for a specific instance of a task
   public data?: TaskData // Data pertaining to a given instance of a task
 
-  constructor(taskName: string, target: targetType, options = {} as TaskOptions) {
+  public constructor(taskName: string, target: targetType, options = {} as TaskOptions) {
     // Parameters for the task
     this.name = taskName
     this._creep = {
@@ -56,9 +67,9 @@ export abstract class Task implements ITask {
 
     this._parent = null
     this.settings = {
-      targetRange: 1, // range at which you can perform action
-      workOffRoad: false, // whether work() should be performed off road
-      oneShot: false // remove this task once work() returns OK, regardless of validity
+      targetRange: 1, // Range at which you can perform action
+      workOffRoad: false, // Whether work() should be performed off road
+      oneShot: false // Remove this task once work() returns OK, regardless of validity
     }
     _.defaults(options, {
       blind: false,
@@ -67,11 +78,11 @@ export abstract class Task implements ITask {
     this.tick = Game.time
     this.options = options
     this.data = {
-      //   quiet: true
+      //   Quiet: true
     }
   }
 
-  get memory(): TaskMemory {
+  public get memory(): TaskMemory {
     return {
       name: this.name,
       _creep: this._creep,
@@ -83,7 +94,7 @@ export abstract class Task implements ITask {
     }
   }
 
-  set memory(memory: TaskMemory) {
+  public set memory(memory: TaskMemory) {
     // Don't write to this.name; used in task switcher
     this._creep = memory._creep
     this._target = memory._target
@@ -94,35 +105,36 @@ export abstract class Task implements ITask {
   }
 
   // Getter/setter for task.creep
-  get creep(): Creep {
+  public get creep(): Creep {
     // Get task's own creep by its name
     return Game.creeps[this._creep.name]
   }
 
-  set creep(creep: Creep) {
+  public set creep(creep: Creep) {
     this._creep.name = creep.name
   }
 
   // Dereferences the target
-  get target(): RoomObject | null {
+  public get target(): RoomObject | null {
     return deref(this._target.ref)
   }
 
   // Dereferences the saved target position; useful for situations where you might lose vision
-  get targetPos(): RoomPosition {
-    // refresh if you have visibility of the target
+  public get targetPos(): RoomPosition {
+    // Refresh if you have visibility of the target
     if (this.target) {
       this._target._pos = this.target.pos
     }
+
     return derefRoomPosition(this._target._pos)
   }
 
   // Getter/setter for task parent
-  get parent(): ITask | null {
+  public get parent(): ITask | null {
     return this._parent ? deseralize(this._parent) : null
   }
 
-  set parent(parentTask: ITask | null) {
+  public set parent(parentTask: ITask | null) {
     this._parent = parentTask ? parentTask.memory : null
     // If the task is already assigned to a creep, update their memory
     if (this.creep) {
@@ -131,35 +143,38 @@ export abstract class Task implements ITask {
   }
 
   // Return a list of [this, this.parent, this.parent.parent, ...] as tasks
-  get manifest(): ITask[] {
+  public get manifest(): ITask[] {
     const manifest: ITask[] = [this]
     let parent = this.parent
     while (parent) {
       manifest.push(parent)
       parent = parent.parent
     }
+
     return manifest
   }
 
   // Return a list of [this.target, this.parent.target, ...] without fully instantiating the list of tasks
-  get targetManifest(): Array<RoomObject | null> {
+  public get targetManifest(): (RoomObject | null)[] {
     const targetRefs: string[] = [this._target.ref]
     let parent = this._parent
     while (parent) {
       targetRefs.push(parent._target.ref)
       parent = parent._parent
     }
+
     return _.map(targetRefs, ref => deref(ref))
   }
 
   // Return a list of [this.target, this.parent.target, ...] without fully instantiating the list of tasks
-  get targetPosManifest(): RoomPosition[] {
+  public get targetPosManifest(): RoomPosition[] {
     const targetPositions: PositionMemory[] = [this._target._pos]
     let parent = this._parent
     while (parent) {
       targetPositions.push(parent._target._pos)
       parent = parent._parent
     }
+
     return _.map(targetPositions, protoPos => derefRoomPosition(protoPos))
   }
 
@@ -169,6 +184,7 @@ export abstract class Task implements ITask {
     if (this.creep) {
       this.creep.task = newTask
     }
+
     return newTask
   }
 
@@ -196,31 +212,34 @@ export abstract class Task implements ITask {
     } else {
       // Switch to parent task if there is one
       this.finish()
+
       return this.parent ? this.parent.isValid() : false
     }
   }
 
-  public moveToTarget(range = this.settings.targetRange): number {
+  public moveToTarget(range = this.settings.targetRange): ScreepsReturnCode {
     if (this.options && this.options.moveOptions && !this.options.moveOptions.range) {
       this.options.moveOptions.range = range
     }
+
     return this.creep.moveTo(this.targetPos, this.options ? this.options.moveOptions : undefined)
-    // return this.creep.travelTo(this.targetPos, this.options.moveOptions); // <- switch if you use Traveler
+    // Return this.creep.travelTo(this.targetPos, this.options.moveOptions); // <- switch if you use Traveler
   }
 
   /* Moves to the next position on the agenda if specified - call this in some tasks after work() is completed */
   public moveToNextPos(): number | undefined {
     if (this.options && this.options.nextPos) {
       const nextPos = derefRoomPosition(this.options.nextPos)
+
       return this.creep.moveTo(nextPos)
-      // return this.creep.travelTo(nextPos); // <- switch if you use Traveler
+      // Return this.creep.travelTo(nextPos); // <- switch if you use Traveler
     }
 
     return undefined
   }
 
   // Return expected number of ticks until creep arrives at its first destination; this requires Traveler to work!
-  get eta(): number | undefined {
+  public get eta(): number | undefined {
     if (this.creep && (this.creep.memory as any)._trav) {
       return (this.creep.memory as any)._trav.path.length
     }
@@ -229,16 +248,17 @@ export abstract class Task implements ITask {
   }
 
   // Execute this task each tick. Returns nothing unless work is done.
-  public run(): number | undefined {
+  public run(): number /* ScreepsReturnCode*/ | undefined {
     if (this.creep.pos.inRangeTo(this.targetPos, this.settings.targetRange) && !this.creep.pos.isEdge) {
-      //   if (this.settings.workOffRoad) {
+      //   If (this.settings.workOffRoad) {
       //     // Move to somewhere nearby that isn't on a road
-      //     this.parkCreep(this.creep, this.targetPos, true)
+      //     This.parkCreep(this.creep, this.targetPos, true)
       //   }
       const result = this.work()
       if (this.settings.oneShot && result === OK) {
         this.finish()
       }
+
       return result
     } else {
       return this.moveToTarget()
@@ -246,37 +266,37 @@ export abstract class Task implements ITask {
   }
 
   //   /* Bundled form of Zerg.park(); adapted from BonzAI codebase*/
-  //   protected parkCreep(creep: Creep, pos: RoomPosition = creep.pos, maintainDistance = false): number {
-  //     let road = _.find(creep.pos.lookFor(LOOK_STRUCTURES), s => s.structureType == STRUCTURE_ROAD)
-  //     if (!road) return OK
+  //   Protected parkCreep(creep: Creep, pos: RoomPosition = creep.pos, maintainDistance = false): number {
+  //     Let road = _.find(creep.pos.lookFor(LOOK_STRUCTURES), s => s.structureType == STRUCTURE_ROAD)
+  //     If (!road) return OK
 
-  //     let positions = _.sortBy(creep.pos.availableNeighbors(), (p: RoomPosition) => p.getRangeTo(pos))
-  //     if (maintainDistance) {
-  //       let currentRange = creep.pos.getRangeTo(pos)
-  //       positions = _.filter(positions, (p: RoomPosition) => p.getRangeTo(pos) <= currentRange)
+  //     Let positions = _.sortBy(creep.pos.availableNeighbors(), (p: RoomPosition) => p.getRangeTo(pos))
+  //     If (maintainDistance) {
+  //       Let currentRange = creep.pos.getRangeTo(pos)
+  //       Positions = _.filter(positions, (p: RoomPosition) => p.getRangeTo(pos) <= currentRange)
   //     }
 
-  //     let swampPosition
-  //     for (let position of positions) {
-  //       if (_.find(position.lookFor(LOOK_STRUCTURES), s => s.structureType == STRUCTURE_ROAD)) continue
-  //       let terrain = position.lookFor(LOOK_TERRAIN)[0]
-  //       if (terrain === "swamp") {
-  //         swampPosition = position
+  //     Let swampPosition
+  //     For (let position of positions) {
+  //       If (_.find(position.lookFor(LOOK_STRUCTURES), s => s.structureType == STRUCTURE_ROAD)) continue
+  //       Let terrain = position.lookFor(LOOK_TERRAIN)[0]
+  //       If (terrain === "swamp") {
+  //         SwampPosition = position
   //       } else {
-  //         return creep.move(creep.pos.getDirectionTo(position))
+  //         Return creep.move(creep.pos.getDirectionTo(position))
   //       }
   //     }
 
-  //     if (swampPosition) {
-  //       return creep.move(creep.pos.getDirectionTo(swampPosition))
+  //     If (swampPosition) {
+  //       Return creep.move(creep.pos.getDirectionTo(swampPosition))
   //     }
 
-  //     return creep.moveTo(pos)
+  //     Return creep.moveTo(pos)
   //     // return creep.travelTo(pos); // <-- Switch if you use Traveler
   //   }
 
   // Task to perform when at the target
-  public abstract work(): number
+  public abstract work(): number // ScreepsReturnCode
 
   // Finalize the task and switch to parent task (or null if there is none)
   public finish(): void {
