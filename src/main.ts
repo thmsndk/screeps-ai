@@ -76,6 +76,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     console.log(`New code uploaded ${__BUILD_TIME__} (${__REVISION__})`)
   }
 
+  // Memory operations: load and clean memory, suspend operation as needed -------------------------------------------
+  Mem.load() // Load previous parsed memory if present
+  if (!Mem.shouldRun()) {
+    return
+  } // Suspend operation if necessary
+
+  Mem.clean() // Clean memory contents
+
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
@@ -83,13 +91,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
       // Console.log("Clearing non-existing creep memory:", name)
     }
   }
-
-  // Memory operations: load and clean memory, suspend operation as needed -------------------------------------------
-  Mem.load() // Load previous parsed memory if present
-  if (!Mem.shouldRun()) {
-    return
-  } // Suspend operation if necessary
-  Mem.clean() // Clean memory contents
 
   infrastructure.hydrate()
 
