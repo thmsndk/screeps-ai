@@ -1,7 +1,7 @@
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
 import { RuneRequirement, RunePowers } from "Freya"
-import { Mission, derefCreeps } from "./Mission"
+import { Mission, derefCreeps, haulerTieredRunePowers } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 
 enum HaulingMode {
@@ -10,7 +10,7 @@ enum HaulingMode {
 }
 
 /**
- * Game.market.deal(orderId, amount, [yourRoomName])
+ * Game.market.deal("5df4cd6e1c514b139eb808d0", amount, "E19S38") // 2m credits order W12S39, range 32
  */
 
 @profile
@@ -47,31 +47,6 @@ export class TerminalHaulingMission extends Mission {
   public getRequirements(): RuneRequirement[] {
     const requirements = []
     const neededWorkers = this.room?.terminal ? 1 : 0
-
-    const haulerTieredRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
-      300: { needed: 1, powers: { [CARRY]: 3, [MOVE]: 3 } },
-      400: { needed: 1, powers: { [CARRY]: 4, [MOVE]: 4 } },
-      500: { needed: 1, powers: { [CARRY]: 5, [MOVE]: 5 } },
-      600: { needed: 1, powers: { [CARRY]: 6, [MOVE]: 6 } },
-      700: { needed: 1, powers: { [CARRY]: 7, [MOVE]: 7 } },
-      800: { needed: 1, powers: { [CARRY]: 8, [MOVE]: 8 } },
-      900: { needed: 1, powers: { [CARRY]: 9, [MOVE]: 9 } },
-      1000: { needed: 1, powers: { [CARRY]: 10, [MOVE]: 10 } },
-      1100: { needed: 1, powers: { [CARRY]: 11, [MOVE]: 11 } },
-      1200: { needed: 1, powers: { [CARRY]: 12, [MOVE]: 12 } },
-      1300: { needed: 1, powers: { [CARRY]: 13, [MOVE]: 13 } },
-      1400: { needed: 1, powers: { [CARRY]: 14, [MOVE]: 14 } },
-      1500: { needed: 1, powers: { [CARRY]: 15, [MOVE]: 15 } },
-      1600: { needed: 1, powers: { [CARRY]: 16, [MOVE]: 16 } },
-      1700: { needed: 1, powers: { [CARRY]: 18, [MOVE]: 18 } },
-      1800: { needed: 1, powers: { [CARRY]: 19, [MOVE]: 19 } },
-      1900: { needed: 1, powers: { [CARRY]: 20, [MOVE]: 20 } },
-      2000: { needed: 1, powers: { [CARRY]: 21, [MOVE]: 21 } },
-      2100: { needed: 1, powers: { [CARRY]: 22, [MOVE]: 22 } },
-      2200: { needed: 1, powers: { [CARRY]: 23, [MOVE]: 23 } },
-      2300: { needed: 1, powers: { [CARRY]: 24, [MOVE]: 24 } },
-      2400: { needed: 1, powers: { [CARRY]: 25, [MOVE]: 25 } }
-    }
 
     const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
 

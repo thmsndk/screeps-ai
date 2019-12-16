@@ -1,4 +1,4 @@
-import { RuneRequirement } from "Freya"
+import { RuneRequirement, RunePowers } from "Freya"
 import { log } from "_lib/Overmind/console/log"
 import { Tasks } from "task"
 
@@ -106,4 +106,30 @@ export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
 
     return requirementLookup
   }
+}
+
+export const haulerTieredRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
+  300: { needed: 1, powers: { [CARRY]: 3, [MOVE]: 3 } },
+  400: { needed: 1, powers: { [CARRY]: 4, [MOVE]: 4 } },
+  500: { needed: 1, powers: { [CARRY]: 5, [MOVE]: 5 } },
+  600: { needed: 1, powers: { [CARRY]: 6, [MOVE]: 6 } },
+  700: { needed: 1, powers: { [CARRY]: 7, [MOVE]: 7 } },
+  800: { needed: 1, powers: { [CARRY]: 8, [MOVE]: 8 } },
+  900: { needed: 1, powers: { [CARRY]: 9, [MOVE]: 9 } },
+  1000: { needed: 1, powers: { [CARRY]: 10, [MOVE]: 10 } },
+  1100: { needed: 1, powers: { [CARRY]: 11, [MOVE]: 11 } },
+  1200: { needed: 1, powers: { [CARRY]: 12, [MOVE]: 12 } },
+  1300: { needed: 1, powers: { [CARRY]: 13, [MOVE]: 13 } },
+  1400: { needed: 1, powers: { [CARRY]: 14, [MOVE]: 14 } },
+  1500: { needed: 1, powers: { [CARRY]: 15, [MOVE]: 15 } },
+  1600: { needed: 1, powers: { [CARRY]: 16, [MOVE]: 16 } },
+  1700: { needed: 1, powers: { [CARRY]: 17, [MOVE]: 17 } },
+  1800: { needed: 1, powers: { [CARRY]: 18, [MOVE]: 18 } },
+  1900: { needed: 1, powers: { [CARRY]: 19, [MOVE]: 19 } },
+  2000: { needed: 1, powers: { [CARRY]: 20, [MOVE]: 20 } },
+  2100: { needed: 1, powers: { [CARRY]: 21, [MOVE]: 21 } },
+  2200: { needed: 1, powers: { [CARRY]: 22, [MOVE]: 22 } },
+  2300: { needed: 1, powers: { [CARRY]: 23, [MOVE]: 23 } },
+  2400: { needed: 1, powers: { [CARRY]: 24, [MOVE]: 24 } },
+  2500: { needed: 1, powers: { [CARRY]: 25, [MOVE]: 25 } }
 }

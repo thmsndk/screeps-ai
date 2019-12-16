@@ -1,7 +1,7 @@
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
 import { RuneRequirement, RunePowers } from "Freya"
-import { Mission, derefCreeps } from "./Mission"
+import { Mission, derefCreeps, haulerTieredRunePowers } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { deref } from "task/utilities/utilities"
 import { log } from "_lib/Overmind/console/log"
@@ -109,11 +109,13 @@ export class EnergyMission extends Mission {
       requirements.push(miners)
     }
 
+    const haulerRequirementLookup = this.getMaxTierRunePowers(300, 2400, capacityAvailable, haulerTieredRunePowers)
+
     const haulers = {
       rune: "haulers",
       count: this.sourceCount * 2 - (this.memory.creeps.haulers.length || 0),
       // 300 energy
-      runePowers: { [CARRY]: 3, [MOVE]: 3 },
+      runePowers: haulerRequirementLookup.powers,
       priority: this.roomMemory.village ? 5 : 2,
       mission: this.memory.id
     }
