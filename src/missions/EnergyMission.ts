@@ -78,20 +78,8 @@ export class EnergyMission extends Mission {
 
     log.debug(`${availableEnergy} ${capacityAvailable}`) // Need to be able to toggle log level per module
 
-    const maxRunePowerLookup = Math.min(600, capacityAvailable)
+    const minerRequirementLookup = this.getMaxTierRunePowers(300, 600, capacityAvailable, minerRunePowers)
 
-    let minerRequirementLookup = minerRunePowers[300]
-    for (const key in minerRunePowers) {
-      const energyCapacityRequirement = Number(key)
-
-      if (minerRunePowers.hasOwnProperty(energyCapacityRequirement)) {
-        log.debug(`${energyCapacityRequirement} <= ${maxRunePowerLookup}`)
-        if (energyCapacityRequirement <= maxRunePowerLookup) {
-          minerRequirementLookup = minerRunePowers[energyCapacityRequirement]
-          log.debug(`${JSON.stringify(minerRequirementLookup)}`)
-        }
-      }
-    }
     // TODO: TTL of creeps, to prespawn
     const neededMiners =
       Math.min(minerRequirementLookup.needed, this.roomMemory.miningPositions ?? this.sourceCount) * this.sourceCount

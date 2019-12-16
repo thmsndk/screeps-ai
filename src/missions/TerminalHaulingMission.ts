@@ -45,7 +45,11 @@ export class TerminalHaulingMission extends Mission {
   }
 
   public getRequirements(): RuneRequirement[] {
-    const requirements = []
+    const requirements = [] as RuneRequirement[]
+    if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+      return requirements
+    }
+
     const neededWorkers = this.room?.terminal ? 1 : 0
 
     const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
@@ -115,7 +119,11 @@ export class TerminalHaulingMission extends Mission {
       }
     } else {
       if (this.room?.storage) {
-        creep.task = Tasks.withdraw(this.room.storage)
+        if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
+          creep.task = Tasks.withdraw(this.room.storage)
+        } else {
+          creep.task = Tasks.transfer(this.room.storage)
+        }
 
         return
       }
