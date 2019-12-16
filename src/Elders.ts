@@ -13,6 +13,7 @@ import { TowerMission } from "missions/TowerMission"
 import { log } from "_lib/Overmind/console/log"
 import { profile } from "_lib/Profiler"
 import { ReserveMission } from "missions/ReserveMission"
+import { TerminalHaulingMission } from "missions/TerminalHaulingMission"
 
 @profile
 export class Elders {
@@ -96,6 +97,10 @@ export class Elders {
           missions.push(new UpgradeControllerMission(room))
 
           missions.push(new TowerMission(room))
+
+          if (room.terminal) {
+            missions.push(new TerminalHaulingMission(room))
+          }
         }
       }
     }

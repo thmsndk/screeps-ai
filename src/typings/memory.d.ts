@@ -20,6 +20,7 @@ interface RoomMemory {
   village?: boolean
   sources?: import("lodash").Dictionary<ISourceMemory>
 
+  terminalhaulingmission?: IMissionMemory
   claimmission: IMissionMemory
   reservemission: IMissionMemory
   towermission: IMissionMemory
