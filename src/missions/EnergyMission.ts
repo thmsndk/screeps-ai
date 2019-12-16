@@ -437,16 +437,27 @@ export class EnergyMission extends Mission {
         // //   }
         // // })
 
-        if (sourceContainer) {
+        if (sourceContainer && sourceContainer.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
           creep.task = Tasks.withdraw(sourceContainer)
+
+          return
         }
 
-        const resource = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
-        if (resource.length > 0) {
-          creep.task = Tasks.pickup(resource[0])
+        const resources = source.pos.findInRange(FIND_DROPPED_RESOURCES, 2)
+        if (resources.length > 0) {
+          const pickUpTasks = resources.map(r => Tasks.pickup(r))
+          creep.task = Tasks.chain(pickUpTasks)
+
+          return
         }
 
-        return
+        const resourcesInRoom = source.pos.findInRange(FIND_DROPPED_RESOURCES, 25)
+        if (resourcesInRoom.length > 0) {
+          const pickUpTasks = resourcesInRoom.map(r => Tasks.pickup(r))
+          creep.task = Tasks.chain(pickUpTasks)
+
+          return
+        }
       }
 
       if (this.goToGoal(creep)) {
