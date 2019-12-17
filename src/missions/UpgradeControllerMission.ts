@@ -48,34 +48,35 @@ export class UpgradeControllerMission extends Mission {
     const creeps = this.memory.creeps.upgraders.reduce<Creep[]>(derefCreeps, [])
     this.assignedCreeps = creeps.length
 
-    const averageEnergyUsage =
-      creeps.reduce(
-        (energyUsage, creep) =>
-          energyUsage +
-          creep.body.filter(part => part.type === WORK).length +
-          CARRY_CAPACITY * creep.body.filter(part => part.type === CARRY).length,
-        0
-      ) / this.assignedCreeps
-    const averageEnergy = this.roomMemory.averageEnergy?.average ?? 0
-    // // console.log("averageEnergyUsage:" + averageEnergyUsage)
-    // // console.log("averageEnergy:" + averageEnergy)
-    this.maxCreeps = Math.min(
-      Math.floor(averageEnergy / (averageEnergyUsage || averageEnergy)),
-      this.room?.controller?.level === 8 ? 1 : 10 // TODO: persist controller level
-    )
-    // // console.log(this.maxCreeps)
-
-    const neededWorkers = this.maxCreeps
+    // // const averageEnergyUsage =
+    // //   creeps.reduce(
+    // //     (energyUsage, creep) =>
+    // //       energyUsage +
+    // //       creep.body.filter(part => part.type === WORK).length +
+    // //       CARRY_CAPACITY * creep.body.filter(part => part.type === CARRY).length,
+    // //     0
+    // //   ) / this.assignedCreeps
+    // // const averageEnergy = this.roomMemory.averageEnergy?.average ?? 0
+    // // // // console.log("averageEnergyUsage:" + averageEnergyUsage)
+    // // // // console.log("averageEnergy:" + averageEnergy)
+    // // this.maxCreeps = Math.min(
+    // //   Math.floor(averageEnergy / (averageEnergyUsage || averageEnergy)),
+    // //   this.room?.controller?.level === 8 ? 1 : 10 // TODO: persist controller level
+    // // )
+    // // // // console.log(this.maxCreeps)
 
     const minerRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
-      300: { needed: this.maxCreeps, powers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 } },
-      400: { needed: this.maxCreeps, powers: { [WORK]: 2, [CARRY]: 3, [MOVE]: 1 } },
-      500: { needed: this.maxCreeps, powers: { [WORK]: 2, [CARRY]: 5, [MOVE]: 1 } },
-      600: { needed: this.maxCreeps, powers: { [WORK]: 3, [CARRY]: 5, [MOVE]: 1 } },
-      700: { needed: this.maxCreeps, powers: { [WORK]: 4, [CARRY]: 5, [MOVE]: 1 } }
+      300: { needed: 10, powers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 } },
+      400: { needed: 10, powers: { [WORK]: 2, [CARRY]: 3, [MOVE]: 1 } },
+      500: { needed: 10, powers: { [WORK]: 2, [CARRY]: 5, [MOVE]: 1 } },
+      600: { needed: 10, powers: { [WORK]: 3, [CARRY]: 5, [MOVE]: 1 } },
+      700: { needed: 8, powers: { [WORK]: 4, [CARRY]: 5, [MOVE]: 1 } }
     }
     const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
     const minerRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, minerRunePowers)
+
+    const neededWorkers = this.room?.controller?.level === 8 ? 1 : minerRequirementLookup.needed
+    this.maxCreeps = neededWorkers
 
     const upgraders = {
       rune: "upgraders",
