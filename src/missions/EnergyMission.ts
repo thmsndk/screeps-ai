@@ -51,7 +51,7 @@ export class EnergyMission extends Mission {
   }
 
   public getRequirements(): RuneRequirement[] {
-    const requirements = []
+    const requirements = [] as RuneRequirement[]
 
     // TODO: early RCL, we want to spawn more miners to get more energy
     // TODO: calculate  potential energy income based on mining positions.
@@ -74,9 +74,27 @@ export class EnergyMission extends Mission {
     const actualMiners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
     const availableEnergy = roomToCheckCapacity?.energyAvailable ?? 300
 
-    const capacityAvailable = actualMiners.length === 0 ? 300 : roomToCheckCapacity?.energyCapacityAvailable ?? 300
+    if (actualMiners.length === 0 && availableEnergy < 400 && this.memory.creeps.miners.length === 0) {
+      // 0 miners, request a single bootstrap miner
+      const bootstrapMiners = {
+        rune: "miners",
+        count: 1,
+        // 300 energy
+        runePowers: minerRunePowers[300].powers,
+        priority: this.roomMemory.village ? 10 : 5,
+        mission: this.memory.id
+      }
 
-    log.debug(`${availableEnergy} ${capacityAvailable}`) // Need to be able to toggle log level per module
+      requirements.push(bootstrapMiners)
+
+      return requirements
+    }
+
+    const capacityAvailable = roomToCheckCapacity?.energyCapacityAvailable ?? 300
+
+    // // if (this.roomMemory.outpost) {
+    // //   log.debug(`${availableEnergy} ${capacityAvailable}`) // Need to be able to toggle log level per module
+    // // }
 
     const minerRequirementLookup = this.getMaxTierRunePowers(300, 600, capacityAvailable, minerRunePowers)
 
@@ -97,7 +115,7 @@ export class EnergyMission extends Mission {
       requirements.push(miners)
     }
 
-    const haulerRequirementLookup = this.getMaxTierRunePowers(300, 2400, capacityAvailable, haulerTieredRunePowers)
+    const haulerRequirementLookup = this.getMaxTierRunePowers(300, 1000, capacityAvailable, haulerTieredRunePowers)
 
     const haulers = {
       rune: "haulers",
@@ -136,6 +154,14 @@ export class EnergyMission extends Mission {
       const idleMiners = miners.filter(creep => creep.isIdle)
       const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
       const idleHaulers = haulers.filter(creep => creep.isIdle)
+
+      // // if (Game.time % 10000) {
+      // //   log.info(`======= ${this.memory.id} ${this.roomName} ========`)
+      // //   log.info(`== miners: ${this.memory.creeps.miners.length} `)
+      // //   miners.forEach(miner => log.info(`${miner.name} ${miner.body.length}`))
+      // //   log.info(`== haulers: ${this.memory.creeps.haulers.length} `)
+      // //   haulers.forEach(hauler => log.info(`${hauler.name} ${hauler.body.length}`))
+      // // }
 
       // Cleanup old creeps where prayer is gone
       // TODO: this removes the last queued creep and queues a new one, it was an attempt at fixing sim, and remove old creeps from missions, when we spawn the last creep, we then reset the assigned creep....
@@ -260,12 +286,25 @@ export class EnergyMission extends Mission {
         const result = creep.run()
         if (result === ERR_NO_PATH) {
           // TODO: scan for idle creeps near source, move 'em, perhaps "park" is an option for idle creeps?
-          log.warning(`${creep.name} is stuck getting to source near ${creep.pos.print}`)
+          // // log.warning(`${creep.name} is stuck getting to source near ${creep.pos.print}`)
         }
       })
 
       // Run haulers
-      haulers.forEach(creep => creep.run())
+      haulers.forEach(creep => {
+        const result = creep.run()
+        if (result === ERR_NO_PATH) {
+          // TODO: scan for idle creeps near source, move 'em, perhaps "park" is an option for idle creeps?
+          // // log.warning(`${creep.name} is stuck near ${creep.pos.print}`)
+          const closestBlockingCreeps = creep.pos.findInRange(FIND_MY_CREEPS, 1)
+          if (closestBlockingCreeps.length > 0) {
+            const closestBlockingCreep = closestBlockingCreeps[0]
+            creep.moveTo(closestBlockingCreep.pos)
+            closestBlockingCreep.moveTo(creep.pos)
+            // Log.warning(`${creep.pos.print} swapping position with ${closestBlockingCreep.pos.print}`)
+          }
+        }
+      })
 
       return
     } catch (error) {
