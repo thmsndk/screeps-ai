@@ -61,7 +61,8 @@ export class EnergyMission extends Mission {
       300: { needed: 3, powers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 } },
       400: { needed: 2, powers: { [WORK]: 3, [CARRY]: 1, [MOVE]: 1 } },
       500: { needed: 2, powers: { [WORK]: 4, [CARRY]: 1, [MOVE]: 1 } },
-      600: { needed: 1, powers: { [WORK]: 5, [CARRY]: 1, [MOVE]: 1 } }
+      600: { needed: 1, powers: { [WORK]: 5, [CARRY]: 1, [MOVE]: 1 } },
+      700: { needed: 1, powers: { [WORK]: 6, [CARRY]: 1, [MOVE]: 1 } }
     }
 
     // Remote missions should be checking home room for capacity, not their minig room,
@@ -74,7 +75,12 @@ export class EnergyMission extends Mission {
     const actualMiners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
     const availableEnergy = roomToCheckCapacity?.energyAvailable ?? 300
 
-    if (actualMiners.length === 0 && availableEnergy < 400 && this.memory.creeps.miners.length === 0) {
+    if (
+      this.roomMemory.village &&
+      actualMiners.length === 0 &&
+      availableEnergy < 400 &&
+      this.memory.creeps.miners.length === 0
+    ) {
       // 0 miners, request a single bootstrap miner
       const bootstrapMiners = {
         rune: "miners",
@@ -96,11 +102,14 @@ export class EnergyMission extends Mission {
     // //   log.debug(`${availableEnergy} ${capacityAvailable}`) // Need to be able to toggle log level per module
     // // }
 
-    const minerRequirementLookup = this.getMaxTierRunePowers(300, 600, capacityAvailable, minerRunePowers)
+    const minerRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, minerRunePowers)
 
     // TODO: TTL of creeps, to prespawn
     const neededMiners =
-      Math.min(minerRequirementLookup.needed, this.roomMemory.miningPositions ?? this.sourceCount) * this.sourceCount
+      Math.min(
+        minerRequirementLookup.needed,
+        (this.roomMemory.miningPositions ?? this.sourceCount) / this.sourceCount
+      ) * this.sourceCount
     const miners = {
       rune: "miners",
       count: neededMiners - (this.memory.creeps.miners.length || 0),

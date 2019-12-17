@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { profile } from "_lib/Profiler"
+import { HARVEST_MEM_USAGE, HARVEST_MEM_DOWNTIME, SOURCE_MEM_ENERGY_PER_TICK } from "_lib/Overmind/stats"
 
 export class Position implements IPosition {
   public x: number

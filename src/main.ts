@@ -1,5 +1,7 @@
 import "./_lib/RoomVisual/RoomVisual"
 import "./task/prototypes"
+import { Task } from "./task/Task"
+import { Stats } from "_lib/Overmind/stats" // Important that it is here
 import { Freya } from "./Freya"
 import { Elders } from "./Elders"
 import { RoomPlanner } from "RoomPlanner"
@@ -17,10 +19,8 @@ import DEFCON, { DEFCONLEVEL } from "./DEFCON"
 import { Hatchery } from "./Hatchery"
 import { EnergyMission } from "./missions/EnergyMission"
 import { RoomScanner } from "./RoomScanner"
-import { Task } from "./task/Task"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
 import { InfrastructureMemory } from "RoomPlanner/InfrastructureMemory"
-import { Stats } from "_lib/Overmind/stats"
 import { Mem } from "_lib/Overmind/Memory"
 import { log, LogLevels } from "_lib/Overmind/console/log"
 

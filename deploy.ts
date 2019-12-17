@@ -30,7 +30,7 @@ const splus2: Config = {
   rooms: [["W11S3", 38, 13]]
 }
 
-const config = splus2
+const config = pserver
 const BRANCH = "Yggdrasil"
 // Const BRANCH='default'
 

@@ -70,6 +70,7 @@ interface ISourceMemory {
   distanceToSpawn: number
   // For stats
   // Const HARVEST_MEM_PATHING = "P"
+
   [HARVEST_MEM_USAGE]: number
   [HARVEST_MEM_DOWNTIME]: number
   [SOURCE_MEM_ENERGY_PER_TICK]: number

@@ -7,10 +7,10 @@ import { deref } from "task/utilities/utilities"
  * Operational statistics, stored in Memory.stats, will be updated every (this many) ticks
  */
 export const LOG_STATS_INTERVAL = 8
-const HARVEST_MEM_PATHING = "P"
-const HARVEST_MEM_USAGE = "u"
-const HARVEST_MEM_DOWNTIME = "d"
-const SOURCE_MEM_ENERGY_PER_TICK = "e"
+export const HARVEST_MEM_PATHING = "P"
+export const HARVEST_MEM_USAGE = "u"
+export const HARVEST_MEM_DOWNTIME = "d"
+export const SOURCE_MEM_ENERGY_PER_TICK = "e"
 
 @profile
 export class Stats {
