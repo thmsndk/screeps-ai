@@ -1,6 +1,6 @@
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
-import { RuneRequirement } from "Freya"
+import { RuneRequirement, RunePowers } from "Freya"
 import { Mission, derefCreeps } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 
@@ -67,11 +67,21 @@ export class UpgradeControllerMission extends Mission {
 
     const neededWorkers = this.maxCreeps
 
+    const minerRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
+      300: { needed: this.maxCreeps, powers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 } },
+      400: { needed: this.maxCreeps, powers: { [WORK]: 2, [CARRY]: 3, [MOVE]: 1 } },
+      500: { needed: this.maxCreeps, powers: { [WORK]: 2, [CARRY]: 5, [MOVE]: 1 } },
+      600: { needed: this.maxCreeps, powers: { [WORK]: 3, [CARRY]: 5, [MOVE]: 1 } },
+      700: { needed: this.maxCreeps, powers: { [WORK]: 4, [CARRY]: 5, [MOVE]: 1 } }
+    }
+    const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
+    const minerRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, minerRunePowers)
+
     const upgraders = {
       rune: "upgraders",
       count: neededWorkers - (this.memory.creeps.upgraders.length || 0),
       // 300 energy
-      runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
+      runePowers: minerRequirementLookup.powers,
       priority: 1,
       mission: this.memory.id
     }
