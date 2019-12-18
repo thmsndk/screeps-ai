@@ -205,12 +205,15 @@ export class EnergyMission extends Mission {
           ) as EnergyMissionCreeps
 
           const source = Game.getObjectById<Source>(sourceId)
-          const sourceScan = this.roomMemory?.sources ? this.roomMemory.sources[sourceId] : ({} as ISourceMemory)
+          const sourceScan = this.roomMemory?.sources
+            ? this.roomMemory.sources[sourceId]
+            : null ?? ({} as ISourceMemory)
 
+          const miningPositions = sourceScan.miningPositions ? Object.keys(sourceScan.miningPositions) : []
           const potentialSource = {
             source,
             targetedBy,
-            miningPositions: Object.keys(sourceScan.miningPositions).length
+            miningPositions: miningPositions.length
           }
 
           if (!potentialSource.targetedBy.miners) {
