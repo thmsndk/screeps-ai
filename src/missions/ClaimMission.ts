@@ -3,6 +3,7 @@ import { profile } from "_lib/Profiler"
 import { RuneRequirement } from "Freya"
 import { Mission, derefCreeps } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
+import { log } from "_lib/Overmind/console/log"
 @profile
 export class ClaimMission extends Mission {
   private room?: Room
@@ -11,17 +12,17 @@ export class ClaimMission extends Mission {
 
   private roomMemory: RoomMemory
 
-    public constructor(room: Room | string) {
-        const roomMemory = typeof room === "string" ? Memory.rooms[room] : room.memory
-        const roomName = typeof room === "string" ? room : room.name
-        if (!roomMemory.claimmission) {
-            roomMemory.claimmission = {
-                id: "",
-                creeps: {
-                // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
-                    claimers: [],
-            }
+  public constructor(room: Room | string) {
+    const roomMemory = typeof room === "string" ? Memory.rooms[room] : room.memory
+    const roomName = typeof room === "string" ? room : room.name
+    if (!roomMemory.claimmission) {
+      roomMemory.claimmission = {
+        id: "",
+        creeps: {
+          // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
+          claimers: []
         }
+      }
     }
 
     super(roomMemory.claimmission)
@@ -30,11 +31,11 @@ export class ClaimMission extends Mission {
     this.roomName = roomName
 
     if (room instanceof Room) {
-        this.room = room
-        }
+      this.room = room
     }
+  }
 
-    public getRequirements(): RuneRequirement[] {
+  public getRequirements(): RuneRequirement[] {
     const requirements = []
     const neededWorkers = 1
 
@@ -56,30 +57,51 @@ export class ClaimMission extends Mission {
 
   public run(): void {
     try {
-        const claimers = this.memory.creeps.claimers.reduce<Creep[]>(derefCreeps, [])
-        const idleclaimers = claimers.filter(creep => creep.isIdle)
+      const claimers = this.memory.creeps.claimers.reduce<Creep[]>(derefCreeps, [])
+      const idleclaimers = claimers.filter(creep => creep.isIdle)
 
-        // TODO: Assign tasks
-        const claimer = idleclaimers.pop() // TODO: We should pick the closest creep not just any idle creep
+      // TODO: Assign tasks
+      const claimer = idleclaimers.pop() // TODO: We should pick the closest creep not just any idle creep
+
+      const controller = this.room?.controller
+      if (controller) {
+        const neutralController = !controller.my && controller.level === 0
 
         if (claimer) {
-            if (!this.goToRoom(claimer, this.roomName)) {
-              const controller = this.room?.controller
-              if (controller) {
-                if (!claimer.task) {
-                    claimer.task = Tasks.claim(controller)
-                }
-              }
+          if (!this.goToRoom(claimer, this.roomName)) {
+            // // log.info(`neutral: ${neutralController} level: ${controller.level}`)
+            if (!claimer.task && neutralController) {
+              claimer.task = Tasks.claim(controller)
             }
           }
+        }
 
-        // Run claimers
-        claimers.forEach(creep => creep.run())
-        return
+        if (!neutralController && controller.my && !this.roomMemory.settlement && !this.roomMemory.village) {
+          this.roomMemory.settlement = true
+          this.roomMemory.claim = false
+        }
+        if (this.roomMemory.claim && controller.my) {
+          this.roomMemory.claim = false
+          const claimFlags = this.room?.find(FIND_FLAGS, { filter: flag => flag.name.startsWith("claim") })
+          if (claimFlags) {
+            claimFlags.forEach(flag => flag.remove())
+          }
+        }
+      }
+
+      // Run claimers
+      claimers.forEach(creep => {
+        const result = creep.run()
+        // // if (result === ERR_NO_PATH) {
+        // // log.warning(`${creep.name} run result ${result}`)
+        // // }
+      })
+
+      return
     } catch (error) {
-        console.log(
+      console.log(
         `<span style='color:red'>[ClaimMission] ${_.escape(ErrorMapper.sourceMappedStackTrace(error))}</span>`
-        )
+      )
     }
-    }
+  }
 }

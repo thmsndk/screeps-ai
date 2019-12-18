@@ -17,6 +17,7 @@ interface RoomMemory {
   claim?: boolean
   reserve?: boolean
   outpost?: boolean
+  settlement?: boolean
   village?: boolean
   sources?: import("lodash").Dictionary<ISourceMemory>
 

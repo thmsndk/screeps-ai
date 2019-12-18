@@ -14,6 +14,7 @@ import { log } from "_lib/Overmind/console/log"
 import { profile } from "_lib/Profiler"
 import { ReserveMission } from "missions/ReserveMission"
 import { TerminalHaulingMission } from "missions/TerminalHaulingMission"
+import { ClaimMission } from "missions/ClaimMission"
 
 @profile
 export class Elders {
@@ -126,9 +127,9 @@ export class Elders {
         }
 
         // TODO: The logic that determines to set the claim property needs to take GCL into account.
-        // // if(roomMemory.claim){
-        // //   missions.push(new ClaimMission(Game.rooms[roomName] || roomName))
-        // // }
+        if (roomMemory.claim) {
+          missions.push(new ClaimMission(Game.rooms[roomName] || roomName))
+        }
       }
     }
 
