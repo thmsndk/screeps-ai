@@ -4,6 +4,7 @@ import { TargetCache } from "./utilities/caching"
 // Creep prototypes ===============================================================================================
 
 Object.defineProperty(Creep.prototype, "task", {
+  configurable: true,
   get(): ITask | null {
     if (!this._task) {
       const memoryTask = this.memory.task
@@ -32,11 +33,13 @@ Creep.prototype.run = function(): number | void {
 
 Object.defineProperties(Creep.prototype, {
   hasValidTask: {
+    configurable: true,
     get() {
       return this.task && this.task.isValid()
     }
   },
   isIdle: {
+    configurable: true,
     get() {
       return !this.hasValidTask
     }
@@ -46,12 +49,14 @@ Object.defineProperties(Creep.prototype, {
 // RoomObject prototypes ===============================================================================================
 
 Object.defineProperty(RoomObject.prototype, "ref", {
+  configurable: true,
   get() {
     return this.id || this.name || ""
   }
 })
 
 Object.defineProperty(RoomObject.prototype, "targetedBy", {
+  configurable: true,
   get() {
     // Check that target cache has been initialized - you can move this to execute once per tick if you want
     TargetCache.assert()
@@ -82,6 +87,7 @@ Object.defineProperty(RoomPosition.prototype, "print", {
 })
 
 Object.defineProperty(RoomPosition.prototype, "isEdge", {
+  configurable: true,
   // If the position is at the edge of a room
   get() {
     return this.x === 0 || this.x === 49 || this.y === 0 || this.y === 49
@@ -97,6 +103,7 @@ Object.defineProperty(RoomPosition.prototype, "isVisible", {
 })
 
 Object.defineProperty(RoomPosition.prototype, "neighbors", {
+  configurable: true,
   get() {
     const adjPos: RoomPosition[] = []
     for (const dx of [-1, 0, 1]) {
