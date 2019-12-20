@@ -129,10 +129,11 @@ export class InfraStructureMission extends Mission {
               log.info(`layer ${index} ${position.StructureType} new cSite at ${roomPosition.print}`)
             }
 
-            // Assign creeps to move to target
+            // Assign creeps to move get energy and move to target
             if (position && position.constructionSite) {
               idleCreeps.forEach(creep => {
                 creep.task = Tasks.goTo(roomPosition, { moveOptions: { range: 3 } })
+                this.acquireEnergy(creep)
               })
 
               break
