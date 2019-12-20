@@ -77,12 +77,18 @@ export class ClaimMission extends Mission {
         }
 
         if (!neutralController && controller.my && !this.roomMemory.settlement && !this.roomMemory.village) {
+          this.roomMemory.runPlanner = true
           this.roomMemory.settlement = true
+          this.roomMemory.outpost = false
           this.roomMemory.claim = false
         }
         if (this.roomMemory.claim && controller.my) {
           this.roomMemory.claim = false
-          const claimFlags = this.room?.find(FIND_FLAGS, { filter: flag => flag.name.startsWith("claim") })
+          const claimFlags = this.room?.find(FIND_FLAGS, {
+            filter: flag =>
+              flag.name.startsWith("claim") || flag.name.startsWith("remote") || flag.name.startsWith("reserve")
+          })
+
           if (claimFlags) {
             claimFlags.forEach(flag => flag.remove())
           }

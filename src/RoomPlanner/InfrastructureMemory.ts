@@ -1,6 +1,6 @@
 import { InfraStructureLayerMemory } from "./InfraStructureLayerMemory"
 export interface InfrastructureMemory {
-  layers: InfraStructureLayerMemory[]
+  layers: { [roomName: string]: InfraStructureLayerMemory[] }
   startTick?: number
   finishTick?: number
 }

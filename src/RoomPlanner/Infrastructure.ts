@@ -10,30 +10,52 @@ interface InfraStructureConstructor {
 }
 
 export class Infrastructure {
-  public Layers: InfrastructureLayer[]
+  public Layers: { [roomName: string]: InfrastructureLayer[] }
 
   private memory: InfrastructureMemory // TODO: should it be a property that fetches memory from the memory object?
 
   public constructor(parameters?: InfraStructureConstructor) {
     this.hydrate()
 
-    const layers = [] as InfrastructureLayer[]
+    const layers = {} as { [roomName: string]: InfrastructureLayer[] }
 
     if (!Memory.infrastructure) {
-      Memory.infrastructure = { layers: [] }
+      Memory.infrastructure = { layers: {} }
     }
 
     this.memory = Memory.infrastructure
     if (parameters?.memory?.layers) {
-      parameters.memory.layers.forEach(layer => {
-        layers.push(new InfrastructureLayer(layer.roomName, layer))
-      })
+      for (const roomName in parameters.memory.layers) {
+        if (parameters.memory.layers.hasOwnProperty(roomName)) {
+          const roomLayers = parameters.memory.layers[roomName]
+          if (!layers[roomName]) {
+            layers[roomName] = [] as InfrastructureLayer[]
+          }
+          if (roomLayers) {
+            roomLayers.forEach(layer => {
+              layers[layer.roomName].push(new InfrastructureLayer(layer.roomName, layer))
+            })
+          }
+        }
+      }
     }
 
+    // Parse existing memory
     if (this.memory?.layers) {
-      this.memory.layers.forEach(layer => {
-        layers.push(new InfrastructureLayer(layer.roomName, layer))
-      })
+      // // this.memory.layers.forEach(layer => {
+      // //   layers.push(new InfrastructureLayer(layer.roomName, layer))
+      // // })
+      for (const roomName in this.memory.layers) {
+        if (this.memory.layers.hasOwnProperty(roomName)) {
+          const roomLayers = this.memory.layers[roomName]
+          if (!layers[roomName]) {
+            layers[roomName] = [] as InfrastructureLayer[]
+          }
+          roomLayers.forEach(layer => {
+            layers[layer.roomName].push(new InfrastructureLayer(layer.roomName, layer))
+          })
+        }
+      }
     }
 
     this.Layers = layers
@@ -50,44 +72,60 @@ export class Infrastructure {
       if (!memory) {
         memory = { roomName, positions: [] as InfraStructurePositionMemory[] }
       }
-      this.memory.layers.push(memory)
+
+      if (!this.memory.layers[roomName]) {
+        this.memory.layers[roomName] = []
+      }
+
+      this.memory.layers[roomName].push(memory)
     }
-    this.Layers.push(new InfrastructureLayer(roomName, memory as InfraStructureLayerMemory))
+
+    if (!this.Layers[roomName]) {
+      this.Layers[roomName] = []
+    }
+
+    this.Layers[roomName].push(new InfrastructureLayer(roomName, memory as InfraStructureLayerMemory))
   }
 
-  public AddPosition(layerIndex: number, structureType: BuildableStructureConstant, x: number, y: number): void {
-    this.Layers[layerIndex].AddPosition(structureType, x, y)
+  public AddPosition(
+    roomName: string,
+    layerIndex: number,
+    structureType: BuildableStructureConstant,
+    x: number,
+    y: number
+  ): void {
+    this.Layers[roomName][layerIndex].AddPosition(structureType, x, y)
   }
 
   public addConstructionSite(layerIndex: number, constructionSite: ConstructionSite<BuildableStructureConstant>): void {
-    this.Layers[layerIndex].addConstructionSite(constructionSite)
+    this.Layers[constructionSite.pos.roomName][layerIndex].addConstructionSite(constructionSite)
   }
 
-  // TODO: merge findInfrastructure with some sort of overload
-  public findBuildableInfrastructure(
-    structureType: BuildableStructureConstant
-  ): Dictionary<FindInfrastructureResult[]> {
-    const results = {} as Dictionary<FindInfrastructureResult[]>
-    this.Layers.forEach((layer, index) => {
-      const positions = layer.Positions.filter(p => p.StructureType === structureType)
-      if (positions && positions.length > 0) {
-        if (!results[index]) {
-          results[index] = []
-        }
+  // // // TODO: merge findInfrastructure with some sort of overload
+  // // public findBuildableInfrastructure(
+  // //   structureType: BuildableStructureConstant
+  // // ): Dictionary<FindInfrastructureResult[]> {
+  // //   const results = {} as Dictionary<FindInfrastructureResult[]>
+  // //   this.Layers.forEach((layer, index) => {
+  // //     const positions = layer.Positions.filter(p => p.StructureType === structureType)
+  // //     if (positions && positions.length > 0) {
+  // //       if (!results[index]) {
+  // //         results[index] = []
+  // //       }
 
-        positions.forEach(position => {
-          results[index].push({ roomName: layer.roomName, pos: position.pos })
-        })
-      }
-    })
+  // //       positions.forEach(position => {
+  // //         results[index].push({ roomName: layer.roomName, pos: position.pos })
+  // //       })
+  // //     }
+  // //   })
 
-    return results
-  }
+  // //   return results
+  // // }
 
-  public findInfrastructure(constructionSiteId: string): Dictionary<FindInfrastructureResult> {
+  public findInfrastructure(constructionSite: ConstructionSite): Dictionary<FindInfrastructureResult> {
     const results = {} as Dictionary<FindInfrastructureResult>
-    this.Layers.forEach((layer, index) => {
-      const position = layer.Positions.find(p => p.id === constructionSiteId)
+    this.Layers[constructionSite.pos.roomName].forEach((layer, index) => {
+      const position = layer.Positions.find(p => p.id === constructionSite.id)
       if (position) {
         results[index] = { roomName: layer.roomName, pos: position.pos }
       }
@@ -98,26 +136,33 @@ export class Infrastructure {
 
   public visualize(): void {
     // Should probably limit to room?
-    let extensionCount = 0
-    this.Layers.forEach((layer, index) => {
-      const room = Game.rooms[layer.roomName]
-      if (room) {
-        layer.Positions.forEach(position => {
-          if (position.StructureType === STRUCTURE_EXTENSION) {
-            extensionCount++
-          }
-          // Console.log("=== Extension " + extensionCount)
-          // Console.log(JSON.stringify(position))
-          if (!position.finished) {
-            room.visual.structure(position.pos.x, position.pos.y, position.StructureType, { opacity: 0.25 })
-            // TODO: color by RCL level
-            if (position.StructureType === STRUCTURE_EXTENSION) {
-              room.visual.text(extensionCount.toString(), position.pos.x, position.pos.y + 0.25, { opacity: 0.25 })
-            }
+
+    for (const roomName in this.Layers) {
+      if (this.Layers.hasOwnProperty(roomName)) {
+        const roomLayers = this.Layers[roomName]
+        const room = Game.rooms[roomName]
+
+        let extensionCount = 0
+        roomLayers.forEach((layer, index) => {
+          if (room) {
+            layer.Positions.forEach(position => {
+              if (position.StructureType === STRUCTURE_EXTENSION) {
+                extensionCount++
+              }
+              // Console.log("=== Extension " + extensionCount)
+              // Console.log(JSON.stringify(position))
+              if (!position.finished) {
+                room.visual.structure(position.pos.x, position.pos.y, position.StructureType, { opacity: 0.25 })
+                // TODO: color by RCL level
+                if (position.StructureType === STRUCTURE_EXTENSION) {
+                  room.visual.text(extensionCount.toString(), position.pos.x, position.pos.y + 0.25, { opacity: 0.25 })
+                }
+              }
+            })
           }
         })
       }
-    })
+    }
   }
 }
 

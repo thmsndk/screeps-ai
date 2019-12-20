@@ -54,33 +54,7 @@ export class Elders {
         // Gather intell
         this.scanner.scan(room)
 
-        if (room.memory.runPlanner) {
-          this.roomPlanner.plan(room.name, 8 /* Room.controller.level + 1*/)
-          room.memory.runPlanner = false
-        }
-
-        this.infrastructure.visualize()
-
-        const infrastructureMission = new InfraStructureMission({
-          room,
-          infrastructure: this.infrastructure
-        })
-        missions.push(infrastructureMission)
-
-        // Add manual cSites
-        if (this.roomPlanner.lastRun !== Game.time) {
-          const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES)
-          constructionSites.forEach(site => {
-            // Plan was just run, the cSite does not exist in this tick
-            const plan = this.infrastructure.findInfrastructure(site.id as string)
-            // TODO: there seem to be an issue finding existing cSites in the plan
-            if (!plan || Object.keys(plan).length <= 0) {
-              log.info(`"adding ${site.id} to layer 0:`)
-              // // console.log(JSON.stringify(plan))
-              this.infrastructure.addConstructionSite(0, site)
-            }
-          })
-        }
+        missions.push(this.infrastructureMission(room))
 
         if (room.memory.village) {
           const energyMission = new EnergyMission(room)
@@ -111,15 +85,14 @@ export class Elders {
       if (Memory.rooms.hasOwnProperty(roomName)) {
         const roomMemory = Memory.rooms[roomName]
         const room = Game.rooms[roomName]
-        if (roomMemory.outpost) {
-          // TODO: do we want an energy mission or a remote energy mission?
-          // What is special about a remote energy mission other than having to traverse rooms and the dropoff being another place?
-          // Nothing really? we still wish to send miners based on what "tier" the mission is at.
-          // But how does it determine it's tier, when it is a remote room? it knows the room memory is an outpost, we could pass that on.
+
+        // TODO: what about rooms  connecting rooms, how do we build and maintain roads there?
+        if (roomMemory.outpost || roomMemory.settlement) {
           missions.push(new EnergyMission(room || roomName))
-          //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
-          // What is the tier between an outpost where we do not claim the controller, and one where we do? do we call that a settlement?
-          // When do we reserve the controller, do we always do that for an outpost? what decides that? it restocks energy there so we could time it in such a way that energy is refilled when it expires.
+          missions.push(this.infrastructureMission(room || roomName))
+          if (roomMemory.settlement) {
+            missions.push(new UpgradeControllerMission(room || roomName))
+          }
         }
 
         if (roomMemory.reserve) {
@@ -127,6 +100,9 @@ export class Elders {
         }
 
         // TODO: The logic that determines to set the claim property needs to take GCL into account.
+        //    Convert outpost to village? (construct spawn) - this is a somewhat strategic decision in regards to reinforcement and how far we can extend ourselves
+        // What is the tier between an outpost where we do not claim the controller, and one where we do? do we call that a settlement?
+        // When do we reserve the controller, do we always do that for an outpost? what decides that? it restocks energy there so we could time it in such a way that energy is refilled when it expires.
         if (roomMemory.claim) {
           missions.push(new ClaimMission(Game.rooms[roomName] || roomName))
         }
@@ -136,7 +112,41 @@ export class Elders {
     //    Allocate creeps to missions or request creep suitible for mission
     this.assignMissionCreeps(missions)
 
+    this.infrastructure.visualize()
+
     return missions
+  }
+
+  private infrastructureMission(roomOrName: Room | string): InfraStructureMission {
+    // // const roomName = typeof roomOrName === "string" ? roomOrName : roomOrName.name
+    const room = roomOrName instanceof Room ? roomOrName : null
+
+    const infrastructureMission = new InfraStructureMission({
+      room: roomOrName,
+      infrastructure: this.infrastructure
+    })
+
+    // Add manual cSites
+    if (room && this.roomPlanner.lastRun !== Game.time) {
+      if (room.memory.runPlanner) {
+        this.roomPlanner.plan(room.name, 8 /* Room.controller.level + 1*/)
+        room.memory.runPlanner = false
+      }
+
+      const constructionSites = room.find(FIND_MY_CONSTRUCTION_SITES)
+      constructionSites.forEach(site => {
+        // Plan was just run, the cSite does not exist in this tick
+        const plan = this.infrastructure.findInfrastructure(site)
+        // TODO: there seem to be an issue finding existing cSites in the plan
+        if (!plan || Object.keys(plan).length <= 0) {
+          log.info(`"adding ${site.id} to layer 0:`)
+          // // console.log(JSON.stringify(plan))
+          this.infrastructure.addConstructionSite(0, site)
+        }
+      })
+    }
+
+    return infrastructureMission
   }
 
   private assignMissionCreeps(missions: Mission<IMissionMemory>[]): void {

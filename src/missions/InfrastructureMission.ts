@@ -79,8 +79,9 @@ export class InfraStructureMission extends Mission {
     const idleCreeps = builders.filter(creep => creep.isIdle)
 
     // We should probably have a PriortyQueue of construction sites
-    for (let index = 0; index < this.infrastructure.Layers.length; index++) {
-      const layer = this.infrastructure.Layers[index]
+    const layers = this.infrastructure.Layers[this.roomName] ?? []
+    for (let index = 0; index < layers.length; index++) {
+      const layer = layers[index]
       // Validate if layer is valid
       const room = Game.rooms[layer.roomName]
 
