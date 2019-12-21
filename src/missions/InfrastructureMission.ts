@@ -52,7 +52,11 @@ export class InfraStructureMission extends Mission {
   public getRequirements(): RuneRequirement[] {
     const requirements = []
     const constructionSites = this.room?.find(FIND_MY_CONSTRUCTION_SITES)
-    const neededWorkers = constructionSites?.length ?? 0 > 0 ? 2 : 0 // Currently a naive approach making us have 2 workers
+    let neededWorkers = constructionSites?.length ?? 0 > 0 ? 2 : 0 // Currently a naive approach making us have 2 workers
+
+    if (this.roomMemory.settlement && neededWorkers > 0) {
+      neededWorkers *= 5
+    }
 
     const builderRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
       300: { needed: 3, powers: { [WORK]: 1, [CARRY]: 3, [MOVE]: 1 } },
