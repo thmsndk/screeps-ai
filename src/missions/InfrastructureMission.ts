@@ -4,7 +4,7 @@ import { derefRoomPosition } from "task/utilities/utilities"
 import { Tasks } from "../task/Tasks"
 import { TaskWithdraw } from "./../task/Tasks/TaskWithdraw"
 import { Mission, derefCreeps } from "./Mission"
-import { RuneRequirement } from "Freya"
+import { RuneRequirement, RunePowers } from "Freya"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { profile } from "_lib/Profiler"
 import { log } from "_lib/Overmind/console/log"
@@ -54,11 +54,34 @@ export class InfraStructureMission extends Mission {
     const constructionSites = this.room?.find(FIND_MY_CONSTRUCTION_SITES)
     const neededWorkers = constructionSites?.length ?? 0 > 0 ? 2 : 0 // Currently a naive approach making us have 2 workers
 
+    const builderRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
+      300: { needed: 3, powers: { [WORK]: 1, [CARRY]: 3, [MOVE]: 1 } },
+      400: { needed: 2, powers: { [WORK]: 2, [CARRY]: 4, [MOVE]: 1 } },
+      500: { needed: 2, powers: { [WORK]: 3, [CARRY]: 5, [MOVE]: 1 } },
+      600: { needed: 1, powers: { [WORK]: 4, [CARRY]: 6, [MOVE]: 1 } },
+      700: { needed: 1, powers: { [WORK]: 5, [CARRY]: 7, [MOVE]: 1 } }
+    }
+    // TODO: ask freya for potential capacity (loop spawn rooms and get energy. persist average in a cache and access that?)
+
+    let capacityAvailable = 300
+    for (const spawnId in Game.spawns) {
+      if (Game.spawns.hasOwnProperty(spawnId)) {
+        const spawn = Game.spawns[spawnId]
+        capacityAvailable =
+          spawn.room.energyCapacityAvailable > capacityAvailable
+            ? spawn.room.energyCapacityAvailable
+            : capacityAvailable
+      }
+    }
+    const builderRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, builderRunePowers)
+
+    // TODO: how do we know the state of the entire clan? e.g. do we got another village to support a settlement?, how do we determine the capacity we want to request?
+    // If we define a valid range, but then freya needs a lookup table to determine if the spawn can sustain that request
     const builders = {
       rune: "builders",
       count: neededWorkers - (this.memory.creeps.builders.length || 0),
       // 300 energy
-      runePowers: { [WORK]: 1, [CARRY]: 3, [MOVE]: 1 },
+      runePowers: builderRequirementLookup.powers,
       priority: 1,
       mission: this.memory.id
     }

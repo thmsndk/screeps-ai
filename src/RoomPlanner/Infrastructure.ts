@@ -4,6 +4,7 @@ import { InfrastructureLayer } from "./InfrastructureLayer"
 import { InfraStructureLayerMemory } from "./InfraStructureLayerMemory"
 import { InfrastructureMemory } from "./InfrastructureMemory"
 import { InfraStructurePositionMemory } from "./InfraStructurePositionMemory"
+import { log } from "_lib/Overmind/console/log"
 
 interface InfraStructureConstructor {
   memory?: InfrastructureMemory

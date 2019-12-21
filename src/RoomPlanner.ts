@@ -77,7 +77,7 @@ export class RoomPlanner {
         } else {
           radiatePosition = new RoomPosition(25, 25, roomName)
         }
-
+        // TODO: spawnname?
         this.infrastructure.AddPosition(roomName, 1, STRUCTURE_SPAWN, radiatePosition.x, radiatePosition.y)
       }
     }

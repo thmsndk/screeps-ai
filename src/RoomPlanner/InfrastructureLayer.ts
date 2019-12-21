@@ -37,7 +37,7 @@ export class InfrastructureLayer {
     }
 
     if (this.Positions.some(p => p.pos.x === x && p.pos.y === y && p.StructureType === structureType)) {
-      log.warning(`${structureType} already in plan for layer, skipping ${structureType}`)
+      log.warning(`${structureType} already in plan for layer, skipping ${constructionSite?.pos.print}`)
 
       return
     }
