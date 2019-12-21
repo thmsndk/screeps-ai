@@ -245,6 +245,8 @@ export class EnergyMission extends Mission {
 
       // // log.info(`${idleMiners.length} needs a harvest job`)
       idleMiners.forEach(miner => {
+        this.relocateCreepHome(this.roomName, this.roomMemory, miner)
+
         let target: PotentialSource | null = null
 
         for (const potentialSource of potentialSources) {
@@ -276,6 +278,8 @@ export class EnergyMission extends Mission {
       })
 
       idleHaulers.forEach(hauler => {
+        this.relocateCreepHome(this.roomName, this.roomMemory, hauler)
+
         let target: PotentialSource | null = null
         // TODO: dedicated source haulers should really target the source, or perhaps the container? this solution might end up sending alternating haulers to one source letting the other rot.
         for (const potentialSource of potentialSources) {

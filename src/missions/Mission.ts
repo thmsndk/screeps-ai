@@ -106,6 +106,12 @@ export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
 
     return requirementLookup
   }
+
+  public relocateCreepHome(roomName: string, roomMemory: RoomMemory, creep: Creep): void {
+    if ((roomMemory.settlement || roomMemory.village) && creep.memory.home !== roomName) {
+      creep.memory.home = roomName
+    }
+  }
 }
 
 export const haulerTieredRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
