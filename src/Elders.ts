@@ -92,7 +92,11 @@ export class Elders {
           missions.push(this.infrastructureMission(room || roomName))
           if (roomMemory.settlement) {
             missions.push(new UpgradeControllerMission(room || roomName))
-            if (roomName && Object.values(Game.spawns).some(s => s.pos.roomName === roomName)) {
+            if (
+              room &&
+              room.energyCapacityAvailable >= EXTENSION_ENERGY_CAPACITY[1] * 5 + 300 &&
+              Object.values(Game.spawns).some(s => s.pos.roomName === roomName)
+            ) {
               roomMemory.settlement = false
               roomMemory.village = true
             }
