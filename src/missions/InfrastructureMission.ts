@@ -147,7 +147,10 @@ export class InfraStructureMission extends Mission {
           if (constructionSite) {
             position.constructionSite = constructionSite
           } else {
-            const newConstructionSiteResult = room.createConstructionSite(roomPosition, position.StructureType)
+            const newConstructionSiteResult =
+              position.StructureType === STRUCTURE_SPAWN
+                ? room.createConstructionSite(roomPosition, position.StructureType, position.name)
+                : room.createConstructionSite(roomPosition, position.StructureType)
             if (newConstructionSiteResult !== OK) {
               log.warning(
                 `[${position.pos.roomName} ${position.pos.x}, ${position.pos.y}] plan cSite: ${newConstructionSiteResult}`

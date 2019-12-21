@@ -27,10 +27,11 @@ export class InfrastructureLayer {
     x: number,
     y: number,
     memory?: InfraStructurePositionMemory,
-    constructionSite?: ConstructionSite
+    constructionSite?: ConstructionSite,
+    name?: string
   ): void {
     if (!memory) {
-      memory = { structureType, x, y }
+      memory = { structureType, x, y, name }
       if (constructionSite) {
         memory.id = constructionSite.id as string
       }

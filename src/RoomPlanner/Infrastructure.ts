@@ -93,9 +93,10 @@ export class Infrastructure {
     layerIndex: number,
     structureType: BuildableStructureConstant,
     x: number,
-    y: number
+    y: number,
+    name?: string
   ): void {
-    this.Layers[roomName][layerIndex].AddPosition(structureType, x, y)
+    this.Layers[roomName][layerIndex].AddPosition(structureType, x, y, undefined, undefined, name)
   }
 
   public addConstructionSite(layerIndex: number, constructionSite: ConstructionSite<BuildableStructureConstant>): void {

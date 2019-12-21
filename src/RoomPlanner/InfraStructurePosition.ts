@@ -55,4 +55,8 @@ export class InfraStructurePosition {
   public get finished(): boolean {
     return this.memory.id && this._structure ? true : false
   }
+
+  public get name(): string {
+    return this.memory.name ?? ""
+  }
 }

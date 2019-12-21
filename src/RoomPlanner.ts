@@ -1,6 +1,25 @@
 import { Position } from "./RoomScanner"
 import { getPositions } from "RoomScanner"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
+
+// https://en.wikipedia.org/wiki/Yggdrasil
+const spawnNames = [
+  "Yggdrasil",
+  "Urðarbrunnr", // Root
+  "Hvergelmir", // Root
+  "Mímisbrunnr", // Root
+  // Nine worlds
+  "Ásgarðr",
+  "Vanaheimr",
+  "Álfheimr",
+  "Miðgarðr",
+  "Jötunheimr",
+  "Múspellsheimr",
+  "Svartálfaheimr",
+  "Niflheimr",
+  "Niðavellir"
+]
+
 export class RoomPlanner {
   private infrastructure: Infrastructure
 
@@ -31,6 +50,7 @@ export class RoomPlanner {
     // Terminal = RCL 6
 
     // TODO: method to clear a layer?
+    const spawns = Object.keys(Game.spawns).length
 
     let radiatePosition = null
     for (const spawnName in Game.spawns) {
@@ -77,8 +97,15 @@ export class RoomPlanner {
         } else {
           radiatePosition = new RoomPosition(25, 25, roomName)
         }
-        // TODO: spawnname?
-        this.infrastructure.AddPosition(roomName, 1, STRUCTURE_SPAWN, radiatePosition.x, radiatePosition.y)
+
+        this.infrastructure.AddPosition(
+          roomName,
+          1,
+          STRUCTURE_SPAWN,
+          radiatePosition.x,
+          radiatePosition.y,
+          spawnNames[spawns]
+        )
       }
     }
 
