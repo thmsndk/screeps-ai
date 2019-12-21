@@ -59,7 +59,7 @@ export class TowerMission extends Mission {
       count: neededWorkers - (this.memory.creeps.haulers.length || 0),
       // 300 energy
       runePowers: { [CARRY]: 3, [MOVE]: 3 },
-      priority: 1,
+      priority: 2,
       mission: this.memory.id
     }
 

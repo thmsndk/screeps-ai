@@ -84,7 +84,7 @@ export class EnergyMission extends Mission {
         count: 1,
         // 300 energy
         runePowers: minerRunePowers[300].powers,
-        priority: this.roomMemory.village ? 10 : 5,
+        priority: this.roomMemory.village ? 666 : 5,
         mission: this.memory.id
       }
 
