@@ -213,6 +213,10 @@ export class InfraStructureMission extends Mission {
   }
 
   private acquireEnergy(creep: Creep): void {
+    if (this.roomMemory.settlement && this.goToRoom(creep, this.roomName)) {
+      return
+    }
+
     if (creep.carry.energy === 0) {
       // Const resource = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES)
       // Chain dropped resources in a close quarter
