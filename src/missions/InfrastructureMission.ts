@@ -163,7 +163,9 @@ export class InfraStructureMission extends Mission {
             if (position && position.constructionSite) {
               idleCreeps.forEach(creep => {
                 creep.task = Tasks.goTo(roomPosition, { moveOptions: { range: 3 } })
-                this.acquireEnergy(creep)
+                if (this.roomMemory.village) {
+                  this.acquireEnergy(creep)
+                }
               })
 
               break

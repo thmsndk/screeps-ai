@@ -11,6 +11,13 @@ enum HaulingMode {
 
 /**
  * Game.market.deal("5df4cd6e1c514b139eb808d0", amount, "E19S38") // 2m credits order W12S39, range 32
+ * Game.market.createOrder({
+    type: ORDER_SELL,
+    resourceType: RESOURCE_ENERGY,
+    price: 0.024,
+    totalAmount: 100000,
+    roomName: "E19S38"
+})
  */
 
 @profile
