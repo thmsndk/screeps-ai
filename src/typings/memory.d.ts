@@ -14,6 +14,7 @@ interface CreepMemory {
 }
 
 interface RoomMemory {
+  bootstrap?: { enabled: boolean; tick: number }
   claim?: boolean
   reserve?: boolean
   outpost?: boolean

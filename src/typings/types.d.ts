@@ -1,7 +1,6 @@
 // `global` extension samples
 declare namespace NodeJS {
   interface Global {
-    bootstrapping: boolean
     Memory: any
     age: number
     freya: import("../Freya").Freya

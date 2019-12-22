@@ -75,9 +75,14 @@ export class EnergyMission extends Mission {
     const actualMiners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
     const availableEnergy = roomToCheckCapacity?.energyAvailable ?? 300
 
-    if (this.roomMemory.village && actualMiners.length === 0 && availableEnergy < 700 && !global.bootstrapping) {
+    if (
+      this.roomMemory.village &&
+      actualMiners.length === 0 &&
+      availableEnergy < 700 &&
+      !this.roomMemory.bootstrap?.enabled
+    ) {
       log.warning(`${this.roomName} bootstrapping started`)
-      global.bootstrapping = true
+      this.roomMemory.bootstrap = { enabled: true, tick: Game.time }
       // 0 miners, request a single bootstrap miner
       const bootstrapMiners = {
         rune: "miners",
@@ -93,9 +98,13 @@ export class EnergyMission extends Mission {
       return requirements
     }
 
-    if (global.bootstrapping && actualMiners.length > 0) {
+    if (
+      this.roomMemory.bootstrap?.enabled &&
+      actualMiners.length > 0 &&
+      Game.time - this.roomMemory.bootstrap?.tick > 10
+    ) {
       log.warning(`${this.roomName} bootstrapping finished`)
-      global.bootstrapping = false
+      this.roomMemory.bootstrap.enabled = false
     }
 
     const capacityAvailable = roomToCheckCapacity?.energyCapacityAvailable ?? 300
