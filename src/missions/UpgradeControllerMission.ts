@@ -75,8 +75,12 @@ export class UpgradeControllerMission extends Mission {
     const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
     const minerRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, minerRunePowers)
 
-    const neededWorkers = this.room?.controller?.level === 8 ? 1 : minerRequirementLookup.needed
+    let neededWorkers = this.room?.controller?.level === 8 ? 1 : minerRequirementLookup.needed
     this.maxCreeps = neededWorkers
+
+    if (this.roomMemory.settlement) {
+      neededWorkers = 2
+    }
 
     const upgraders = {
       rune: "upgraders",
