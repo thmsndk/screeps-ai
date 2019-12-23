@@ -483,6 +483,25 @@ export class EnergyMission extends Mission {
 
       if (target) {
         creep.task = Tasks.transfer(target)
+
+        return
+      }
+
+      // Find a builder to transfer too
+      const builders = creep.pos.findInRange(FIND_MY_CREEPS, 10, {
+        filter: builder => builder.memory.rune === "builders" && builder.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      })
+
+      if (builders.length > 0) {
+        const transferTasks = builders.map(builder => {
+          const neededAmount = builder.store.getFreeCapacity(RESOURCE_ENERGY)
+
+          return Tasks.transfer(builder, RESOURCE_ENERGY, neededAmount)
+        })
+
+        creep.task = Tasks.chain(transferTasks)
+
+        return
       }
     } else {
       if (source) {
@@ -521,6 +540,13 @@ export class EnergyMission extends Mission {
         if (resourcesInRoom.length > 0) {
           const pickUpTasks = resourcesInRoom.map(r => Tasks.pickup(r))
           creep.task = Tasks.chain(pickUpTasks)
+
+          return
+        }
+
+        // Go stand near the source
+        if (creep.pos.getRangeTo(source.pos) > 5) {
+          creep.task = Tasks.goTo(source, { moveOptions: { range: 3 } })
 
           return
         }

@@ -14,11 +14,11 @@ export class TaskGoToRoom extends Task {
     this.settings.targetRange = 24 // Target is almost always controller flag, so range of 2 is acceptable
   }
 
-  public isValidTask() {
+  public isValidTask(): boolean {
     return !this.creep.pos.inRangeTo(this.targetPos, this.settings.targetRange)
   }
 
-  public isValidTarget() {
+  public isValidTarget(): boolean {
     return true
   }
 
@@ -43,12 +43,12 @@ export class TaskGoToRoom extends Task {
     }
   }
 
-  public work() {
+  public work(): ScreepsReturnCode {
     return OK
   }
 }
 
-const registerGoToRoom = (memory: TaskMemory) => {
+const registerGoToRoom = (memory: TaskMemory): TaskGoToRoom => {
   const target = memory._target._pos.roomName
 
   return new TaskGoToRoom(target as goToRoomTargetType)
