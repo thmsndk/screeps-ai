@@ -504,6 +504,10 @@ export class EnergyMission extends Mission {
         return
       }
     } else {
+      if (this.goToGoal(creep)) {
+        return
+      }
+
       if (source) {
         // Find energy to haul
         // Source container
@@ -544,16 +548,19 @@ export class EnergyMission extends Mission {
           return
         }
 
+        // Do we have storage? fill extensions with energy from that then
+        if (creep.room.storage && creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+          creep.task = Tasks.withdraw(creep.room.storage)
+
+          return
+        }
+
         // Go stand near the source
-        if (creep.pos.getRangeTo(source.pos) > 5) {
+        if (creep.pos.getRangeTo(source.pos) > 6) {
           creep.task = Tasks.goTo(source, { moveOptions: { range: 3 } })
 
           return
         }
-      }
-
-      if (this.goToGoal(creep)) {
-        return
       }
     }
     // TODO: move creeps in the way?
