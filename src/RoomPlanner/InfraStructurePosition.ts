@@ -39,6 +39,15 @@ export class InfraStructurePosition {
     return this.memory.id
   }
 
+  public destroyed(): void {
+    // eslint-disable-next-line id-blacklist
+    this.memory.id = undefined
+    // eslint-disable-next-line id-blacklist
+    this._constructionSite = undefined
+    // eslint-disable-next-line id-blacklist
+    this._structure = undefined
+  }
+
   public get StructureType(): BuildableStructureConstant {
     return this.memory.structureType
   }

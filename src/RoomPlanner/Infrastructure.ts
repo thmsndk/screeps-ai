@@ -5,6 +5,7 @@ import { InfraStructureLayerMemory } from "./InfraStructureLayerMemory"
 import { InfrastructureMemory } from "./InfrastructureMemory"
 import { InfraStructurePositionMemory } from "./InfraStructurePositionMemory"
 import { log } from "_lib/Overmind/console/log"
+import { deref, derefRoomPosition } from "task/utilities/utilities"
 
 // https://en.wikipedia.org/wiki/Yggdrasil
 const spawnNames = [
@@ -83,6 +84,27 @@ export class Infrastructure {
   public hydrate(): void {
     if (Memory.infrastructure) {
       this.memory = Memory.infrastructure
+    }
+
+    if (Game.time % 10 === 0) {
+      for (const roomName in this.Layers) {
+        if (this.Layers.hasOwnProperty(roomName)) {
+          const roomLayers = this.Layers[roomName]
+          roomLayers.forEach((layer, index) => {
+            layer.Positions.forEach(position => {
+              if (position.id) {
+                const roomObject = deref(position.id)
+                if (!roomObject) {
+                  log.warning(
+                    `${derefRoomPosition({ ...position.pos, roomName }).print} was destroyed/removed, clearing`
+                  )
+                  position.destroyed()
+                }
+              }
+            })
+          })
+        }
+      }
     }
   }
 
