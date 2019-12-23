@@ -55,18 +55,23 @@ export class InfraStructureMission extends Mission {
     let neededWorkers = constructionSites?.length ?? 0 > 0 ? 2 : 0 // Currently a naive approach making us have 2 workers
 
     if (this.roomMemory.settlement && neededWorkers > 0) {
-      neededWorkers *= 5
+      neededWorkers *= 2 // This depends a lot on available capacity
     }
 
     const builderRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
-      300: { needed: 3, powers: { [WORK]: 1, [CARRY]: 3, [MOVE]: 1 } },
-      400: { needed: 2, powers: { [WORK]: 2, [CARRY]: 4, [MOVE]: 1 } },
-      500: { needed: 2, powers: { [WORK]: 3, [CARRY]: 5, [MOVE]: 1 } },
-      600: { needed: 1, powers: { [WORK]: 4, [CARRY]: 6, [MOVE]: 1 } },
-      700: { needed: 1, powers: { [WORK]: 5, [CARRY]: 7, [MOVE]: 1 } }
+      300: { needed: 1, powers: { [WORK]: 1, [CARRY]: 2, [MOVE]: 2 } },
+      400: { needed: 1, powers: { [WORK]: 1, [CARRY]: 3, [MOVE]: 3 } },
+      500: { needed: 1, powers: { [WORK]: 1, [CARRY]: 5, [MOVE]: 3 } },
+      600: { needed: 1, powers: { [WORK]: 2, [CARRY]: 5, [MOVE]: 3 } },
+      700: { needed: 1, powers: { [WORK]: 3, [CARRY]: 5, [MOVE]: 3 } },
+      800: { needed: 1, powers: { [WORK]: 3, [CARRY]: 6, [MOVE]: 4 } },
+      900: { needed: 1, powers: { [WORK]: 3, [CARRY]: 5, [MOVE]: 3 } },
+      1000: { needed: 1, powers: { [WORK]: 5, [CARRY]: 5, [MOVE]: 5 } },
+      2000: { needed: 1, powers: { [WORK]: 10, [CARRY]: 10, [MOVE]: 10 } },
+      3500: { needed: 1, powers: { [WORK]: 20, [CARRY]: 10, [MOVE]: 20 } }
     }
-    // TODO: ask freya for potential capacity (loop spawn rooms and get energy. persist average in a cache and access that?)
 
+    // TODO: ask freya for potential capacity (loop spawn rooms and get energy. persist average in a cache and access that?) should probably also take travel time into account?
     let capacityAvailable = 300
     for (const spawnId in Game.spawns) {
       if (Game.spawns.hasOwnProperty(spawnId)) {
