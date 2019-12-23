@@ -6,6 +6,24 @@ import { InfrastructureMemory } from "./InfrastructureMemory"
 import { InfraStructurePositionMemory } from "./InfraStructurePositionMemory"
 import { log } from "_lib/Overmind/console/log"
 
+// https://en.wikipedia.org/wiki/Yggdrasil
+const spawnNames = [
+  "Yggdrasil",
+  "Urðarbrunnr", // Root
+  "Hvergelmir", // Root
+  "Mímisbrunnr", // Root
+  // Nine worlds
+  "Ásgarðr",
+  "Vanaheimr",
+  "Álfheimr",
+  "Miðgarðr",
+  "Jötunheimr",
+  "Múspellsheimr",
+  "Svartálfaheimr",
+  "Niflheimr",
+  "Niðavellir"
+]
+
 interface InfraStructureConstructor {
   memory?: InfrastructureMemory
 }
@@ -93,10 +111,9 @@ export class Infrastructure {
     layerIndex: number,
     structureType: BuildableStructureConstant,
     x: number,
-    y: number,
-    name?: string
+    y: number
   ): void {
-    this.Layers[roomName][layerIndex].AddPosition(structureType, x, y, undefined, undefined, name)
+    this.Layers[roomName][layerIndex].AddPosition(structureType, x, y)
   }
 
   public addConstructionSite(layerIndex: number, constructionSite: ConstructionSite<BuildableStructureConstant>): void {
@@ -134,6 +151,20 @@ export class Infrastructure {
     })
 
     return results
+  }
+
+  public getSpawnName(): string | undefined {
+    const existingSpawnNames = Object.keys(Game.spawns)
+    const availableNames = [...spawnNames.filter(name => !existingSpawnNames.includes(name))]
+    // TODO: potential issues if we have multiple spawn cSites, we don't know what name is used unless we cache it.
+    const spawnConstructionSites = Object.values(Game.constructionSites).filter(
+      site => site.structureType === STRUCTURE_SPAWN
+    )
+
+    const spawnName = availableNames.slice(spawnConstructionSites.length - 1, spawnConstructionSites.length)
+
+    // eslint-disable-next-line id-blacklist
+    return spawnName.length === 1 ? spawnName[0] : undefined
   }
 
   public visualize(): void {

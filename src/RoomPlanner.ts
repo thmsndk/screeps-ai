@@ -2,24 +2,6 @@ import { Position } from "./RoomScanner"
 import { getPositions } from "RoomScanner"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
 
-// https://en.wikipedia.org/wiki/Yggdrasil
-const spawnNames = [
-  "Yggdrasil",
-  "Urðarbrunnr", // Root
-  "Hvergelmir", // Root
-  "Mímisbrunnr", // Root
-  // Nine worlds
-  "Ásgarðr",
-  "Vanaheimr",
-  "Álfheimr",
-  "Miðgarðr",
-  "Jötunheimr",
-  "Múspellsheimr",
-  "Svartálfaheimr",
-  "Niflheimr",
-  "Niðavellir"
-]
-
 export class RoomPlanner {
   private infrastructure: Infrastructure
 
@@ -98,14 +80,7 @@ export class RoomPlanner {
           radiatePosition = new RoomPosition(25, 25, roomName)
         }
 
-        this.infrastructure.AddPosition(
-          roomName,
-          1,
-          STRUCTURE_SPAWN,
-          radiatePosition.x,
-          radiatePosition.y,
-          spawnNames[spawns]
-        )
+        this.infrastructure.AddPosition(roomName, 1, STRUCTURE_SPAWN, radiatePosition.x, radiatePosition.y)
       }
     }
 

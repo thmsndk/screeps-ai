@@ -3,5 +3,4 @@ export interface InfraStructurePositionMemory {
   x: number
   y: number
   id?: string
-  name?: string
 }

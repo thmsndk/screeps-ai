@@ -149,12 +149,18 @@ export class InfraStructureMission extends Mission {
           } else {
             const newConstructionSiteResult =
               position.StructureType === STRUCTURE_SPAWN
-                ? room.createConstructionSite(roomPosition, position.StructureType, position.name)
+                ? // // ? room.createConstructionSite(roomPosition, position.StructureType, position.name) // this is broken :/ potentially cause the spawnName was already in use
+                  // // roomPosition.createConstructionSite(position.StructureType, position.name) // this is broken :/ ^^ see above
+                  room.createConstructionSite(
+                    roomPosition.x,
+                    roomPosition.y,
+                    position.StructureType,
+                    this.infrastructure.getSpawnName()
+                  )
                 : room.createConstructionSite(roomPosition, position.StructureType)
             if (newConstructionSiteResult !== OK) {
-              log.warning(
-                `[${position.pos.roomName} ${position.pos.x}, ${position.pos.y}] plan cSite: ${newConstructionSiteResult}`
-              )
+              // // log.warning(`name:${position.name} type: ${position.StructureType} pos: ${roomPosition.print}`)
+              log.warning(`${roomPosition.print} plan cSite: ${newConstructionSiteResult}`)
             } else {
               log.info(`layer ${index} ${position.StructureType} new cSite at ${roomPosition.print}`)
             }
