@@ -109,6 +109,25 @@ export class Freya {
     }, {} as { [index: string]: boolean })
   }
 
+  public print(): void {
+    // TODO: group by preferred village
+    const villages = _.groupBy(this.preferedVillage)
+    for (const village in villages) {
+      if (villages.hasOwnProperty(village)) {
+        const preferredVillage = villages[village]
+        const requests = this.requests[village]
+        if (requests) {
+          log.info(`===================================`)
+          log.info(`${village} ${requests.length} prayers => ${preferredVillage.join(",")}`)
+          const prayers = requests.peek(requests.length)
+          prayers.forEach(prayer =>
+            log.info(`${prayer.missionRoom} ${prayer.name} ${JSON.stringify(prayer.runePowers)}`)
+          )
+        }
+      }
+    }
+  }
+
   public run(): void {
     this.hydrate()
 
