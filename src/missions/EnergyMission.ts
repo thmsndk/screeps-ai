@@ -74,19 +74,21 @@ export class EnergyMission extends Mission {
     // TODO: should do this in a "hydrate" method, so we don't do it both in requirements and in run, and this is only really needed for villages to bootstrap 'em
     const actualMiners = this.memory.creeps.miners.reduce<Creep[]>(derefCreeps, [])
     const availableEnergy = roomToCheckCapacity?.energyAvailable ?? 300
+    const capacityAvailable = roomToCheckCapacity?.energyCapacityAvailable ?? 300
 
-    if (
+    const enableBootstrapPhase =
       this.roomMemory.village &&
       actualMiners.length === 0 &&
       availableEnergy < 700 &&
       !this.roomMemory.bootstrap?.enabled
-    ) {
+
+    if (enableBootstrapPhase) {
       log.warning(`${this.roomName} bootstrapping started`)
       this.roomMemory.bootstrap = { enabled: true, tick: Game.time }
       // 0 miners, request a single bootstrap miner
       const bootstrapMiners = {
         rune: "miners",
-        count: 1,
+        count: this.sourceCount,
         // 300 energy
         runePowers: minerRunePowers[300].powers,
         priority: this.roomMemory.village ? 666 : 5,
@@ -95,9 +97,73 @@ export class EnergyMission extends Mission {
       }
 
       requirements.push(bootstrapMiners)
-
-      return requirements
     }
+
+    // // if (this.roomMemory.outpost) {
+    // //   log.debug(`${availableEnergy} ${capacityAvailable}`) // Need to be able to toggle log level per module
+    // // }
+
+    if (!this.roomMemory.bootstrap?.enabled) {
+      const minerRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, minerRunePowers)
+
+      // TODO: TTL of creeps, to prespawn
+      const neededMiners =
+        Math.min(
+          minerRequirementLookup.needed,
+          (this.roomMemory.miningPositions ?? this.sourceCount) / this.sourceCount
+        ) * this.sourceCount
+      const miners = {
+        rune: "miners",
+        count: neededMiners - (this.memory.creeps.miners.length || 0),
+        // 300 energy
+        runePowers: minerRequirementLookup.powers,
+        priority: this.roomMemory.village ? 10 : 5,
+        mission: this.memory.id,
+        missionRoom: this.roomName
+      }
+
+      if (miners.count > 0) {
+        // // console.log(`[EnergyMission]: miners ${miners.count} ${this.sourceCount} ${this.memory.creeps.miners.length} `)
+        requirements.push(miners)
+      }
+    }
+
+    if (enableBootstrapPhase) {
+      // 0 miners, request a single bootstrap miner
+      const bootstrapHaulers = {
+        rune: "haulers",
+        count: this.sourceCount,
+        // 300 energy
+        runePowers: haulerTieredRunePowers[300].powers,
+        priority: 555,
+        mission: this.memory.id,
+        missionRoom: this.roomName
+      }
+
+      requirements.push(bootstrapHaulers)
+    }
+
+    if (!this.roomMemory.bootstrap?.enabled) {
+      const haulerRequirementLookup = this.getMaxTierRunePowers(300, 1000, capacityAvailable, haulerTieredRunePowers)
+
+      const haulers = {
+        rune: "haulers",
+        count: this.sourceCount * 2 - (this.memory.creeps.haulers.length || 0),
+        // 300 energy
+        runePowers: haulerRequirementLookup.powers,
+        priority: this.roomMemory.village ? 5 : 2,
+        mission: this.memory.id,
+        missionRoom: this.roomName
+      }
+
+      if (haulers.count > 0) {
+        // // console.log(`[EnergyMission]: haulers ${haulers.count} ${this.sourceCount} ${this.memory.creeps.haulers.length} `)
+        requirements.push(haulers)
+      }
+    }
+    // Do we want a dedicated hauler per source?
+    // I guess it all depends on some sort of math?
+    // Also, how do we change the spawn priority of them? and is it important?
 
     if (
       this.roomMemory.bootstrap?.enabled &&
@@ -107,56 +173,6 @@ export class EnergyMission extends Mission {
       log.warning(`${this.roomName} bootstrapping finished`)
       this.roomMemory.bootstrap.enabled = false
     }
-
-    const capacityAvailable = roomToCheckCapacity?.energyCapacityAvailable ?? 300
-
-    // // if (this.roomMemory.outpost) {
-    // //   log.debug(`${availableEnergy} ${capacityAvailable}`) // Need to be able to toggle log level per module
-    // // }
-
-    const minerRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, minerRunePowers)
-
-    // TODO: TTL of creeps, to prespawn
-    const neededMiners =
-      Math.min(
-        minerRequirementLookup.needed,
-        (this.roomMemory.miningPositions ?? this.sourceCount) / this.sourceCount
-      ) * this.sourceCount
-    const miners = {
-      rune: "miners",
-      count: neededMiners - (this.memory.creeps.miners.length || 0),
-      // 300 energy
-      runePowers: minerRequirementLookup.powers,
-      priority: this.roomMemory.village ? 10 : 5,
-      mission: this.memory.id,
-      missionRoom: this.roomName
-    }
-
-    if (miners.count > 0) {
-      // // console.log(`[EnergyMission]: miners ${miners.count} ${this.sourceCount} ${this.memory.creeps.miners.length} `)
-      requirements.push(miners)
-    }
-
-    const haulerRequirementLookup = this.getMaxTierRunePowers(300, 1000, capacityAvailable, haulerTieredRunePowers)
-
-    const haulers = {
-      rune: "haulers",
-      count: this.sourceCount * 2 - (this.memory.creeps.haulers.length || 0),
-      // 300 energy
-      runePowers: haulerRequirementLookup.powers,
-      priority: this.roomMemory.village ? 5 : 2,
-      mission: this.memory.id,
-      missionRoom: this.roomName
-    }
-
-    if (haulers.count > 0) {
-      // // console.log(`[EnergyMission]: haulers ${haulers.count} ${this.sourceCount} ${this.memory.creeps.haulers.length} `)
-      requirements.push(haulers)
-    }
-
-    // Do we want a dedicated hauler per source?
-    // I guess it all depends on some sort of math?
-    // Also, how do we change the spawn priority of them? and is it important?
 
     return requirements
   }
@@ -560,7 +576,7 @@ export class EnergyMission extends Mission {
 
         // Go stand near the source
         if (creep.pos.getRangeTo(source.pos) > 6) {
-          creep.task = Tasks.goTo(source, { moveOptions: { range: 3 } })
+          creep.task = Tasks.goTo(source, { moveOptions: { range: 2 } })
 
           return
         }
