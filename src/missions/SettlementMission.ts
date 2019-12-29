@@ -77,7 +77,8 @@ export class SettlementMission extends Mission {
       // 300 energy https://screeps.arcath.net/creep-designer/?share=1#2#0#0#0#0#0#1
       runePowers: { [WORK]: 2, [CARRY]: 1, [MOVE]: 1 },
       priority: 1, // TODO: change priorty perhaps it should be a tab-step?
-      mission: this.memory.id
+      mission: this.memory.id,
+      missionRoom: this.roomName
     }
 
     if (settlers.count > 0) {

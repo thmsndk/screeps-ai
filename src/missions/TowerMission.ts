@@ -60,7 +60,8 @@ export class TowerMission extends Mission {
       // 300 energy
       runePowers: { [CARRY]: 3, [MOVE]: 3 },
       priority: 2,
-      mission: this.memory.id
+      mission: this.memory.id,
+      missionRoom: this.roomName
     }
 
     if (haulers.count > 0) {

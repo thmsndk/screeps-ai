@@ -50,7 +50,7 @@ export class InfraStructureMission extends Mission {
   }
 
   public getRequirements(): RuneRequirement[] {
-    const requirements = []
+    const requirements = [] as RuneRequirement[]
     const constructionSites = this.room?.find(FIND_MY_CONSTRUCTION_SITES)
     let neededWorkers = constructionSites?.length ?? 0 > 0 ? 2 : 0 // Currently a naive approach making us have 2 workers
 
@@ -92,7 +92,8 @@ export class InfraStructureMission extends Mission {
       // 300 energy
       runePowers: builderRequirementLookup.powers,
       priority: 1,
-      mission: this.memory.id
+      mission: this.memory.id,
+      missionRoom: this.roomName
     }
 
     if (builders.count > 0) {

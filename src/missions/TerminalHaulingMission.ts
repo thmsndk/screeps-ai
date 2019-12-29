@@ -11,6 +11,7 @@ enum HaulingMode {
 
 /**
  * Game.market.deal("5df4cd6e1c514b139eb808d0", amount, "E19S38") // 2m credits order W12S39, range 32
+ * Game.market.calcTransactionCost(184608, 'W41N21', 'E19S38');
  * Game.market.createOrder({
     type: ORDER_SELL,
     resourceType: RESOURCE_ENERGY,
@@ -69,7 +70,8 @@ export class TerminalHaulingMission extends Mission {
       // 300 energy
       runePowers: requirementLookup.powers,
       priority: 1, // TODO: change priorty perhaps it should be a tab-step?
-      mission: this.memory.id
+      mission: this.memory.id,
+      missionRoom: this.roomName
     }
 
     if (haulers.count > 0) {

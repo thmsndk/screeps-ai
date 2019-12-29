@@ -1,5 +1,6 @@
 import PriorityQueue from "_lib/PriorityQueue/PriorityQueue"
 import { log } from "_lib/Overmind/console/log"
+import { derefRoomPosition } from "task/utilities/utilities"
 
 // Function bodyCost(body: BodyPartConstant[]) {
 //   Return body.reduce((cost, part) => {
@@ -24,6 +25,7 @@ export interface RuneRequirement extends Priority {
   runePowers: RunePowers
   count: number
   mission: string
+  missionRoom: string
 }
 
 export type RunePowers = { [key in BodyPartConstant]?: number }
@@ -62,17 +64,20 @@ function calculateBodyCost(body: BodyPartConstant[]): number {
 const comparePriority = (a: Priority, b: Priority): number => b.priority - a.priority
 
 export class Freya {
-  private requests: PriorityQueue<MemoryPrayer>
+  private requests: { [roomName: string]: PriorityQueue<MemoryPrayer> }
+
+  private spawns!: { [roomName: string]: StructureSpawn[] }
+
+  private preferedVillage: { [roomName: string]: string }
 
   public constructor() {
-    this.requests = new PriorityQueue<MemoryPrayer>({
-      comparator: comparePriority
-      // InitialValues: []
-    })
+    this.requests = {}
+    this.hydrate()
+    this.preferedVillage = {}
   }
 
   public get prayers(): number {
-    return this.requests.length
+    return Object.values(this.requests).reduce((total, queue) => total + queue.length, 0)
   }
 
   public queued(creepName: string): boolean
@@ -80,7 +85,14 @@ export class Freya {
   public queued(creepNames: string[]): { [index: string]: boolean }
 
   public queued(creepName: string | string[]): boolean | { [index: string]: boolean } {
-    const allPrayers = this.requests.length ? this.requests.peek(this.requests.length) : []
+    // Const allPrayers = this.requests.length ? this.requests.peek(this.requests.length) : []
+    const allPrayers = Object.values(this.requests).reduce<MemoryPrayer[]>((result, queue) => {
+      if (queue.length > 0) {
+        result.push(...queue.peek(queue.length))
+      }
+
+      return result
+    }, [])
 
     if (typeof creepName === "string") {
       return allPrayers.some(prayer => prayer.name === creepName)
@@ -98,35 +110,46 @@ export class Freya {
   }
 
   public run(): void {
+    this.hydrate()
+
+    // All spawning parts is a multiple of 3, have to verify this, but it should be enough to run this logic Game.time % 3 === 0
+
     if (this.prayers > 0) {
       // // console.log(`[Freya]: ${this.prayers} prayers`)
     }
 
     // TODO: something smart in regards to selecting spawn
-    for (const spawnName in Game.spawns) {
-      if (Game.spawns.hasOwnProperty(spawnName)) {
-        const spawn = Game.spawns[spawnName]
+    for (const village in this.spawns) {
+      if (this.spawns.hasOwnProperty(village)) {
+        const spawns = this.spawns[village]
+        const requests = this.requests[village]
 
-        const spawning = !!spawn.spawning
-        // // console.log(`spawn queue length: ${this.requests.length}`)
-        if (!spawning && this.requests.length > 0 /* && population < maxPopulation*/) {
-          const next = this.requests.dequeue()
-          if (next && !this.spawn(spawn, next)) {
-            this.requests.queue(next)
-          }
+        if (requests && requests.length) {
+          spawns.forEach(spawn => {
+            const spawning = !!spawn.spawning
+            // // console.log(`spawn queue length: ${this.requests.length}`)
+            if (!spawning && requests.length > 0 /* && population < maxPopulation*/) {
+              const next = requests.dequeue()
+              if (next && !this.spawn(spawn, next)) {
+                requests.queue(next)
+              }
+            }
+          })
         }
-
-        // TODO: RoomVisual?
       }
     }
   }
 
-  // TODO: a prayer should have a target / target position, so freya can decide where to summon the unit.
+  private hydrate(): void {
+    // Hydrate and group spawns by room
+    this.spawns = _.groupBy(Game.spawns, "room.name")
+  }
+
   // TODO: multiple prayers on the same tick causes name clases.
   public pray(requirement: RuneRequirement): { [index: string]: string[] } {
     const names = {} as { [index: string]: string[] }
     const prayerBatch = this.prayers + 1
-    log.info(`[Freya]: ${requirement.rune} ${requirement.count}`)
+    log.info(`[Freya]: ${requirement.missionRoom} / ${requirement.mission} ${requirement.rune} ${requirement.count}`)
     for (let index = 0; index < requirement.count; index++) {
       const name = `${requirement.rune} ${prayerBatch} ${index} ${Game.time}`
 
@@ -140,14 +163,58 @@ export class Freya {
         priority: requirement.priority,
         rune: requirement.rune,
         runePowers: requirement.runePowers,
-        mission: requirement.mission
+        mission: requirement.mission,
+        missionRoom: requirement.missionRoom
       }
-      log.info(`   ${name} queued ${JSON.stringify(requirement.runePowers)}`)
-      this.requests.queue(prayer)
+
+      this.queue(prayer)
+      log.info(
+        `   ${this.preferedVillage[prayer.missionRoom]} ${name} queued ${JSON.stringify(requirement.runePowers)}`
+      )
       // TODO: could persist to memory, but does it really matter?
     }
 
     return names
+  }
+
+  private queue(prayer: MemoryPrayer): void {
+    let preferedSpawn = this.preferedVillage[prayer.missionRoom]
+
+    if (!preferedSpawn) {
+      log.warning(`    ${prayer.missionRoom} no preferred spawn found `)
+      const villages = this.spawns
+      let distance = 100 // TODO: supply in prayer?
+      for (const roomName in villages) {
+        if (villages.hasOwnProperty(roomName)) {
+          if (roomName === prayer.missionRoom) {
+            log.info(`    ${roomName} set as prefered spawn`)
+            preferedSpawn = roomName
+            break
+          }
+
+          const potentialDistance = Game.map.getRoomLinearDistance(prayer.missionRoom, roomName)
+          log.info(`    ${roomName} distance ${potentialDistance} to ${prayer.missionRoom}`)
+          if (potentialDistance < distance) {
+            distance = potentialDistance
+            preferedSpawn = roomName
+            log.info(`    ${roomName} set as prefered spawn distance ${distance}`)
+          }
+        }
+      }
+
+      this.preferedVillage[prayer.missionRoom] = preferedSpawn
+    }
+
+    let requests = this.requests[preferedSpawn]
+    if (!requests) {
+      log.info(`    ${preferedSpawn} queue initialized `)
+      requests = this.requests[preferedSpawn] = new PriorityQueue<MemoryPrayer>({
+        comparator: comparePriority
+        // InitialValues: []
+      })
+    }
+
+    requests.queue(prayer)
   }
 
   private spawn(spawn: StructureSpawn, prayer: MemoryPrayer): boolean {
@@ -170,11 +237,11 @@ export class Freya {
       } as SpawnOptions)
 
       if (result === OK) {
-        log.info("Prayer answered: " + creepName + " " + bodyCost)
+        log.info(`${spawn.pos.print} Prayer answered: ${creepName} ${bodyCost}`)
 
         return true
       } else {
-        log.info(`[Freya]: ${result}`)
+        log.info(`[Freya]: ${spawn.pos.print} ${result}`)
       }
     }
 
@@ -216,6 +283,7 @@ interface Priority {
   priority: number
 }
 interface MemoryPrayer extends Priority {
+  missionRoom: string
   mission: string
   runePowers: RunePowers
   rune: string

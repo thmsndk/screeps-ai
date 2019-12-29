@@ -90,7 +90,8 @@ export class EnergyMission extends Mission {
         // 300 energy
         runePowers: minerRunePowers[300].powers,
         priority: this.roomMemory.village ? 666 : 5,
-        mission: this.memory.id
+        mission: this.memory.id,
+        missionRoom: this.roomName
       }
 
       requirements.push(bootstrapMiners)
@@ -127,7 +128,8 @@ export class EnergyMission extends Mission {
       // 300 energy
       runePowers: minerRequirementLookup.powers,
       priority: this.roomMemory.village ? 10 : 5,
-      mission: this.memory.id
+      mission: this.memory.id,
+      missionRoom: this.roomName
     }
 
     if (miners.count > 0) {
@@ -143,7 +145,8 @@ export class EnergyMission extends Mission {
       // 300 energy
       runePowers: haulerRequirementLookup.powers,
       priority: this.roomMemory.village ? 5 : 2,
-      mission: this.memory.id
+      mission: this.memory.id,
+      missionRoom: this.roomName
     }
 
     if (haulers.count > 0) {

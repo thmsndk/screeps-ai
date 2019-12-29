@@ -45,7 +45,8 @@ export class ClaimMission extends Mission {
       // 650 energy https://screeps.arcath.net/creep-designer/?share=1#0#0#0#0#0#1#0
       runePowers: { [MOVE]: 1, [CLAIM]: 1 },
       priority: 2, // TODO: change priorty perhaps it should be a tab-step?
-      mission: this.memory.id
+      mission: this.memory.id,
+      missionRoom: this.roomName
     }
 
     if (claimers.count > 0) {

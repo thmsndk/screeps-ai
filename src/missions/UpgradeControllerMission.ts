@@ -88,7 +88,8 @@ export class UpgradeControllerMission extends Mission {
       // 300 energy
       runePowers: minerRequirementLookup.powers,
       priority: 1,
-      mission: this.memory.id
+      mission: this.memory.id,
+      missionRoom: this.roomName
     }
 
     if (upgraders.count > 0) {
