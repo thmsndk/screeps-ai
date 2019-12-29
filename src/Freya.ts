@@ -111,12 +111,13 @@ export class Freya {
 
   public print(): void {
     // TODO: group by preferred village
+    log.info(JSON.stringify(this.preferedVillage))
     const villages = _.groupBy(this.preferedVillage)
     for (const village in villages) {
       if (villages.hasOwnProperty(village)) {
         const preferredVillage = villages[village]
         const requests = this.requests[village]
-        if (requests) {
+        if (requests && requests.length > 0) {
           log.info(`===================================`)
           log.info(`${village} ${requests.length} prayers => ${preferredVillage.join(",")}`)
           const prayers = requests.peek(requests.length)
