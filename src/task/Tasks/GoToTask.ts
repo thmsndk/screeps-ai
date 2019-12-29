@@ -10,9 +10,10 @@ function hasPos(obj: { pos: RoomPosition } | RoomPosition): obj is { pos: RoomPo
 
 export class GoToTask extends Task {
   public static taskName = "goTo"
+
   public target: null
 
-  constructor(target: goToTargetType, options = {} as TaskOptions) {
+  public constructor(target: goToTargetType, options = {} as TaskOptions) {
     if (hasPos(target)) {
       super(GoToTask.taskName, { ref: "", pos: target.pos }, options)
     } else {
@@ -22,11 +23,11 @@ export class GoToTask extends Task {
     this.settings.targetRange = 1
   }
 
-  public isValidTask() {
+  public isValidTask(): boolean {
     return !this.creep.pos.inRangeTo(this.targetPos, this.settings.targetRange)
   }
 
-  public isValidTarget() {
+  public isValidTarget(): boolean {
     return true
   }
 
@@ -46,17 +47,19 @@ export class GoToTask extends Task {
         isValid = this.parent.isValid()
       }
       this.finish()
+
       return isValid
     }
   }
 
-  public work() {
+  public work(): ScreepsReturnCode {
     return OK
   }
 }
 
-const registerGoTo = (memory: TaskMemory) => {
+const registerGoTo = (memory: TaskMemory): GoToTask => {
   const target = derefRoomPosition(memory._target._pos) as goToTargetType
+
   return new GoToTask(target)
 }
 

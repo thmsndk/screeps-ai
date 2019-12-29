@@ -333,6 +333,13 @@ export class EnergyMission extends Mission {
         if (result === ERR_NO_PATH) {
           // TODO: scan for idle creeps near source, move 'em, perhaps "park" is an option for idle creeps?
           // // log.warning(`${creep.name} is stuck getting to source near ${creep.pos.print}`)
+          const closestBlockingCreeps = creep.pos.findInRange(FIND_MY_CREEPS, 1)
+          if (closestBlockingCreeps.length > 0) {
+            const closestBlockingCreep = closestBlockingCreeps[0]
+            creep.moveTo(closestBlockingCreep.pos)
+            closestBlockingCreep.moveTo(creep.pos)
+            // Log.warning(`${creep.pos.print} swapping position with ${closestBlockingCreep.pos.print}`)
+          }
         }
       })
 
@@ -574,6 +581,7 @@ export class EnergyMission extends Mission {
           return
         }
 
+        // This results in all haulers wanting to stand the same place?
         // Go stand near the source
         if (creep.pos.getRangeTo(source.pos) > 6) {
           creep.task = Tasks.goTo(source, { moveOptions: { range: 2 } })
