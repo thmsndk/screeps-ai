@@ -42,7 +42,7 @@ export class HarvestTask extends Task {
 const registerHarvest = (memory: TaskMemory): HarvestTask => {
   const target = deref(memory._target.ref) as harvestTargetType
 
-  return new HarvestTask(target)
+  return new HarvestTask(target, memory.options)
 }
 
 register(registerHarvest)

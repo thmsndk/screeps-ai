@@ -581,7 +581,7 @@ export class EnergyMission extends Mission {
           return
         }
 
-        // This results in all haulers wanting to stand the same place?
+        // This results in all haulers wanting to stand the same place? basicly dancing near the source in a range of 2, task never finishes, thus never bercomes idle
         // Go stand near the source
         if (creep.pos.getRangeTo(source.pos) > 6) {
           creep.task = Tasks.goTo(source, { moveOptions: { range: 2 } })

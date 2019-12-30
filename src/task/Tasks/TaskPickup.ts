@@ -6,6 +6,7 @@ export type pickupTargetType = Resource
 
 export class TaskPickup extends Task {
   public static taskName = "pickup"
+
   public target!: pickupTargetType
 
   public constructor(target: pickupTargetType, options = {} as TaskOptions) {
@@ -28,6 +29,7 @@ export class TaskPickup extends Task {
 
 const registerPickup = (memory: TaskMemory): TaskPickup => {
   const target = deref(memory._target.ref)
-  return new TaskPickup(target as pickupTargetType)
+
+  return new TaskPickup(target as pickupTargetType, memory.options)
 }
 register(registerPickup)

@@ -32,6 +32,6 @@ export class TaskUpgrade extends Task {
 const registerUpgrade = (memory: TaskMemory): TaskUpgrade => {
   const target = deref(memory._target.ref)
 
-  return new TaskUpgrade(target as any)
+  return new TaskUpgrade(target as any, memory.options)
 }
 register(registerUpgrade)

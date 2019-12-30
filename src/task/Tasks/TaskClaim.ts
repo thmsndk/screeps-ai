@@ -32,6 +32,6 @@ export class TaskClaim extends Task {
 const registerClaim = (memory: TaskMemory): TaskClaim => {
   const target = deref(memory._target.ref)
 
-  return new TaskClaim(target as claimTargetType)
+  return new TaskClaim(target as claimTargetType, memory.options)
 }
 register(registerClaim)

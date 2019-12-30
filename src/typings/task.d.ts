@@ -69,7 +69,7 @@ interface TaskOptions {
 
 interface TaskData {
   //   Quiet?: boolean
-  resourceType?: string
+  resourceType?: ResourceConstant
   amount?: number
   signature?: string
   skipEnergy?: boolean

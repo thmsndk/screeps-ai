@@ -16,13 +16,15 @@ export type withdrawTargetType =
 
 export class TaskWithdraw extends Task {
   public static taskName = "withdraw"
+
   public target!: withdrawTargetType
+
   public data!: {
     resourceType: ResourceConstant
     amount: number | undefined
   }
 
-  constructor(
+  public constructor(
     target: withdrawTargetType,
     resourceType: ResourceConstant = RESOURCE_ENERGY,
     amount?: number,
@@ -35,12 +37,13 @@ export class TaskWithdraw extends Task {
     this.data.amount = amount
   }
 
-  public isValidTask() {
+  public isValidTask(): boolean {
     const amount = this.data.amount || 1
+
     return _.sum(this.creep.carry) <= this.creep.carryCapacity - amount
   }
 
-  public isValidTarget() {
+  public isValidTarget(): boolean {
     const amount = this.data.amount || 1
     const target = this.target
     if (target instanceof Tombstone || isStoreStructure(target)) {
@@ -56,16 +59,18 @@ export class TaskWithdraw extends Task {
         return this.data.resourceType === RESOURCE_POWER && target.power >= amount
       }
     }
+
     return false
   }
 
-  public work() {
+  public work(): ScreepsReturnCode {
     return this.creep.withdraw(this.target, this.data.resourceType, this.data.amount)
   }
 }
 
-const registerWithdraw = (memory: TaskMemory) => {
+const registerWithdraw = (memory: TaskMemory): TaskWithdraw => {
   const target = deref(memory._target.ref)
-  return new TaskWithdraw(target as withdrawTargetType)
+
+  return new TaskWithdraw(target as withdrawTargetType, memory.data?.resourceType, memory.data?.amount, memory.options)
 }
 register(registerWithdraw)

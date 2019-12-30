@@ -51,6 +51,6 @@ export class TaskGoToRoom extends Task {
 const registerGoToRoom = (memory: TaskMemory): TaskGoToRoom => {
   const target = memory._target._pos.roomName
 
-  return new TaskGoToRoom(target as goToRoomTargetType)
+  return new TaskGoToRoom(target as goToRoomTargetType, memory.options)
 }
 register(registerGoToRoom)

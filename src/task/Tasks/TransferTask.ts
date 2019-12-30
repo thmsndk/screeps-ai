@@ -14,12 +14,13 @@ export class TransferTask extends Task {
   public static taskName = "transfer"
 
   public target!: transferTargetType
+
   public data!: {
     resourceType: ResourceConstant
     amount: number | undefined
   }
 
-  constructor(
+  public constructor(
     target: transferTargetType,
     resourceType: ResourceConstant = RESOURCE_ENERGY,
     amount?: number,
@@ -32,13 +33,14 @@ export class TransferTask extends Task {
     this.data.amount = amount
   }
 
-  public isValidTask() {
+  public isValidTask(): boolean {
     const amount = this.data.amount || 1
     const resourcesInCarry = this.creep.carry[this.data.resourceType] || 0
+
     return resourcesInCarry >= amount
   }
 
-  public isValidTarget() {
+  public isValidTarget(): boolean {
     const amount = this.data.amount || 1
     const target = this.target
     if (target instanceof Creep) {
@@ -59,6 +61,7 @@ export class TransferTask extends Task {
         return this.data.resourceType === RESOURCE_POWER && target.power <= target.powerCapacity - amount
       }
     }
+
     return false
   }
 
@@ -67,9 +70,10 @@ export class TransferTask extends Task {
   }
 }
 
-const registerTransfer = (memory: TaskMemory) => {
+const registerTransfer = (memory: TaskMemory): TransferTask => {
   const target = deref(memory._target.ref) as transferTargetType
-  return new TransferTask(target)
+
+  return new TransferTask(target, memory.data?.resourceType, memory.data?.amount, memory.options)
 }
 
 register(registerTransfer)
