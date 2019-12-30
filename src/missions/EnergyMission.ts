@@ -451,11 +451,11 @@ export class EnergyMission extends Mission {
   private assignHaulTask(source: Source | null, creep: Creep): void {
     // TODO: do we need to toggle a collection or delivery mode?, should probably check all sources, and not only 1?
     if (!creep.memory.mode || creep.memory.mode === HaulingMode.collecting) {
-      if (creep.store.getFreeCapacity() === 0) {
+      if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
         creep.memory.mode = HaulingMode.delivering
       }
     } else if (creep.memory.mode === HaulingMode.delivering) {
-      if (creep.store.getFreeCapacity() === creep.store.getCapacity()) {
+      if (creep.store.getFreeCapacity(RESOURCE_ENERGY) === creep.store.getCapacity(RESOURCE_ENERGY)) {
         creep.memory.mode = HaulingMode.collecting
       }
     }
