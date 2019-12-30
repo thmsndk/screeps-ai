@@ -200,6 +200,7 @@ export class Freya {
   private queue(prayer: MemoryPrayer): void {
     let preferedSpawn = this.preferedVillage[prayer.missionRoom]
 
+    // TODO: clear the preferred villages at an interval, in case of new spawns, alternatively we should instruct fraya to reconsider upon spawn completion (clear cache)
     if (!preferedSpawn) {
       log.warning(`    ${prayer.missionRoom} no preferred spawn found `)
       const villages = this.spawns

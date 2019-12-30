@@ -72,16 +72,17 @@ export class InfraStructureMission extends Mission {
     }
 
     // TODO: ask freya for potential capacity (loop spawn rooms and get energy. persist average in a cache and access that?) should probably also take travel time into account?
-    let capacityAvailable = 300
-    for (const spawnId in Game.spawns) {
-      if (Game.spawns.hasOwnProperty(spawnId)) {
-        const spawn = Game.spawns[spawnId]
-        capacityAvailable =
-          spawn.room.energyCapacityAvailable > capacityAvailable
-            ? spawn.room.energyCapacityAvailable
-            : capacityAvailable
-      }
-    }
+    const capacityAvailable = 300
+    // TODO: solve issue where spawn has been build and should be used in settlement
+    // // for (const spawnId in Game.spawns) {
+    // //   if (Game.spawns.hasOwnProperty(spawnId)) {
+    // //     const spawn = Game.spawns[spawnId]
+    // //     capacityAvailable =
+    // //       spawn.room.energyCapacityAvailable > capacityAvailable
+    // //         ? spawn.room.energyCapacityAvailable
+    // //         : capacityAvailable
+    // //   }
+    // // }
     const builderRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, builderRunePowers)
 
     // TODO: how do we know the state of the entire clan? e.g. do we got another village to support a settlement?, how do we determine the capacity we want to request?

@@ -341,6 +341,8 @@ export class EnergyMission extends Mission {
             closestBlockingCreep.moveTo(creep.pos)
             // Log.warning(`${creep.pos.print} swapping position with ${closestBlockingCreep.pos.print}`)
           }
+        } else if (result === ERR_NOT_OWNER) {
+          // TODO: Scan for invadercore, put mission on cooldown untill collapse -25 ticks if invadercore, should defcon indicate this?
         }
       })
 
