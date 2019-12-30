@@ -76,6 +76,8 @@ export class TowerMission extends Mission {
       const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
       const idlehaulers = haulers.filter(creep => creep.isIdle)
 
+      // TODO: loop towers, target stuffs, calculate energyusage and assign tasks to idle haulers, currently towers aint doign anything unless they have a tower hauler
+
       // Assign tasks
       idlehaulers.forEach(hauler => {
         const tasks = [] as Task[]

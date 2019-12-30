@@ -468,12 +468,9 @@ export class EnergyMission extends Mission {
       delete creep.memory.target
 
       if (this.goToDropOff(creep)) {
-        if (creep.name === "haulers 13 0 2815757") {
-          log.warning(`goToDropoff`)
-        }
-
         return
       }
+
       // TODO: check source container
       // Find spawn or extensions to deposit
       const target = creep.pos.findClosestByRange<StructureSpawn | StructureExtension | StructureStorage>(
@@ -513,10 +510,6 @@ export class EnergyMission extends Mission {
           }
         }
       )
-      // // Attempt to debug full haulers not finding a delivery target
-      // // if (creep.name === "haulers 13 0 2815757") {
-      // //   log.warning(`target = ${JSON.stringify(target)}`)
-      // // }
 
       if (target) {
         creep.task = Tasks.transfer(target)
