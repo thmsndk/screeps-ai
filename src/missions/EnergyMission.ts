@@ -321,6 +321,7 @@ export class EnergyMission extends Mission {
 
           target = potentialSource
         }
+
         if (target) {
           target.targetedBy.haulers.push(hauler)
           this.assignHaulTask(target.source, hauler)
@@ -464,7 +465,13 @@ export class EnergyMission extends Mission {
     const sourceMemory = sources ? sources[source?.id as string] : null
 
     if (creep.memory.mode === HaulingMode.delivering) {
+      delete creep.memory.target
+
       if (this.goToDropOff(creep)) {
+        if (creep.name === "haulers 13 0 2815757") {
+          log.warning(`goToDropoff`)
+        }
+
         return
       }
       // TODO: check source container
@@ -506,6 +513,10 @@ export class EnergyMission extends Mission {
           }
         }
       )
+      // // Attempt to debug full haulers not finding a delivery target
+      // // if (creep.name === "haulers 13 0 2815757") {
+      // //   log.warning(`target = ${JSON.stringify(target)}`)
+      // // }
 
       if (target) {
         creep.task = Tasks.transfer(target)
@@ -530,6 +541,7 @@ export class EnergyMission extends Mission {
         return
       }
     } else {
+      creep.memory.target = source?.id
       if (this.goToGoal(creep)) {
         return
       }
