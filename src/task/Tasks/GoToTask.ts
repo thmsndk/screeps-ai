@@ -1,6 +1,7 @@
 import { register } from "../utilities/TaskFactory"
 import { Task } from "../Task"
 import { derefRoomPosition } from "task/utilities/utilities"
+import { log } from "_lib/Overmind/console/log"
 
 export type goToTargetType = { pos: RoomPosition } | RoomPosition
 
@@ -20,7 +21,7 @@ export class GoToTask extends Task {
       super(GoToTask.taskName, { ref: "", pos: target }, options)
     }
     // Settings
-    this.settings.targetRange = 1
+    this.settings.targetRange = options.moveOptions?.range ?? 1
   }
 
   public isValidTask(): boolean {
@@ -60,7 +61,7 @@ export class GoToTask extends Task {
 const registerGoTo = (memory: TaskMemory): GoToTask => {
   const target = derefRoomPosition(memory._target._pos) as goToTargetType
 
-  return new GoToTask(target)
+  return new GoToTask(target, memory.options)
 }
 
 register(registerGoTo)
