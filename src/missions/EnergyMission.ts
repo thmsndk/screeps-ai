@@ -516,7 +516,8 @@ export class EnergyMission extends Mission {
                 const container = structure as StructureContainer
 
                 return (
-                  structure.id !== sourceMemory?.containerId &&
+                  (!sources || !_.some(sources, mem => container.id === mem.containerId)) &&
+                  // // structure.id !== sourceMemory?.containerId
                   container.store[RESOURCE_ENERGY] < container.storeCapacity
                 )
             }
