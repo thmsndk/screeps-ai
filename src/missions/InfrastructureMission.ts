@@ -167,7 +167,9 @@ export class InfraStructureMission extends Mission {
                 : room.createConstructionSite(roomPosition, position.StructureType)
             if (newConstructionSiteResult !== OK) {
               // // log.warning(`name:${position.name} type: ${position.StructureType} pos: ${roomPosition.print}`)
-              log.warning(`${roomPosition.print} plan cSite: ${newConstructionSiteResult}`)
+              if (Game.time % 10 === 0) {
+                log.warning(`${roomPosition.print} plan cSite: ${newConstructionSiteResult}`)
+              }
             } else {
               log.info(`layer ${index} ${position.StructureType} new cSite at ${roomPosition.print}`)
             }
