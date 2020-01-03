@@ -1,6 +1,6 @@
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
-import { RuneRequirement, RunePowers } from "Freya"
+import { RuneRequirement, RunePowers, calculateRunePowers } from "Freya"
 import { Mission, derefCreeps, haulerTieredRunePowers } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { deref } from "task/utilities/utilities"
@@ -441,6 +441,19 @@ export class EnergyMission extends Mission {
     } else {
       if (source) {
         creep.task = Tasks.harvest(source) // Harvest task might need options for harvesting while full on energy, e.g. drop-harvesting
+
+        const sources = this.roomMemory?.sources
+        const sourceMemory = sources ? sources[source?.id as string] : null
+
+        const sourceContainer = deref(sourceMemory?.containerId as string) as StructureContainer
+
+        if (sourceContainer) {
+          // Do we potentially have an issue if someone is blocking the position?, we can't have all creeps go to that position either.
+          const runePowers = calculateRunePowers(creep.body.map(body => body.type))
+          const staticMiner = (runePowers && runePowers[WORK]) ?? 0 >= 5
+          // eslint-disable-next-line id-blacklist
+          creep.task.fork(Tasks.goTo(sourceContainer, { moveOptions: { range: staticMiner ? 0 : undefined } }))
+        }
 
         return
       }

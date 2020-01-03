@@ -73,7 +73,7 @@ export class InfraStructureMission extends Mission {
 
     // TODO: ask freya for potential capacity (loop spawn rooms and get energy. persist average in a cache and access that?) should probably also take travel time into account?
     const capacityAvailable = 300
-    // TODO: solve issue where spawn has been build and should be used in settlement
+    // TODO: solve issue where spawn has been build and should be used in settlement, perhaps add a flag indicating to freya she can utilize other spawners.
     // // for (const spawnId in Game.spawns) {
     // //   if (Game.spawns.hasOwnProperty(spawnId)) {
     // //     const spawn = Game.spawns[spawnId]
