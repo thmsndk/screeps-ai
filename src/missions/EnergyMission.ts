@@ -598,7 +598,7 @@ export class EnergyMission extends Mission {
 
         // Do we have storage? fill extensions with energy from that then
         if (
-          creep.room.controller?.my &&
+          creep.room.controller?.my && // TODO: hostile ramparts prevents pulling from storage
           creep.room.storage &&
           creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0
         ) {

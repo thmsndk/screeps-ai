@@ -47,7 +47,7 @@ export class ReserveMission extends Mission {
     }
 
     const roomToCheckCapacity = this.roomMemory.outpost
-      ? Game.rooms[Game.creeps[this.memory.creeps.reservers[0]]?.memory?.home]
+      ? Game.rooms[Game.creeps[this.memory.creeps.reservers[0]]?.memory?.home] // TODO: this wont work if the creep is dead and removed
       : this.room
 
     const capacityAvailable = roomToCheckCapacity?.energyCapacityAvailable ?? 300
