@@ -15,6 +15,7 @@ import { profile } from "_lib/Profiler"
 import { ReserveMission } from "missions/ReserveMission"
 import { TerminalHaulingMission } from "missions/TerminalHaulingMission"
 import { ClaimMission } from "missions/ClaimMission"
+import { DEFCONMission } from "missions/DEFCONMission"
 
 @profile
 export class Elders {
@@ -76,6 +77,8 @@ export class Elders {
           if (room.terminal) {
             missions.push(new TerminalHaulingMission(room))
           }
+
+          // // missions.push(new DEFCONMission(room))
         }
       }
     }

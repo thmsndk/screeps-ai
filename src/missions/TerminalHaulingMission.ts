@@ -11,14 +11,41 @@ enum HaulingMode {
 
 /**
  * Game.market.deal("5df4cd6e1c514b139eb808d0", amount, "E19S38") // 2m credits order W12S39, range 32
- * Game.market.calcTransactionCost(184608, 'W41N21', 'E19S38');
+ * Game.market.calcTransactionCost(150000, 'W4N21', 'E19S38');
  * Game.market.createOrder({
     type: ORDER_SELL,
     resourceType: RESOURCE_ENERGY,
-    price: 0.024,
-    totalAmount: 100000,
+    price: 0.050,
+    totalAmount: 150000,
     roomName: "E19S38"
 })
+
+Game.market.calcTransactionCost(150000, 'W4N21', 'E19S38'); -- 60 rooms away
+129700
+
+Lapitz for energy trades (buying)
+const oCost = Game.market.calcTransactionCost(order.amount, order.roomName, myRoom.name);
+const finalAmount = order.amount-oCost;
+if (finalAmount <= 0)
+{
+    continue;
+}
+const finalPrice = order.price * (order.amount/finalAmount)
+
+api docs
+const amountToBuy = 2000, maxTransferEnergyCost = 500;
+const orders = Game.market.getAllOrders({type: ORDER_SELL, resourceType: RESOURCE_GHODIUM});
+
+for(let i=0; i<orders.length; i++) {
+    const transferEnergyCost = Game.market.calcTransactionCost(
+        amountToBuy, 'W1N1', orders[i].roomName);
+
+    if(transferEnergyCost < maxTransferEnergyCost) {
+        Game.market.deal(orders[i].id, amountToBuy, "W1N1");
+        break;
+    }
+}
+
  */
 
 @profile
