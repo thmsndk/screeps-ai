@@ -497,15 +497,16 @@ export class EnergyMission extends Mission {
               case STRUCTURE_EXTENSION:
                 const extension = structure as StructureExtension
 
-                return extension.energy < extension.energyCapacity
+                return extension.room.controller?.my && extension.energy < extension.energyCapacity
               case STRUCTURE_SPAWN:
                 const spawn = structure as StructureSpawn
 
-                return spawn.energy < spawn.energyCapacity
+                return spawn.room.controller?.my && spawn.energy < spawn.energyCapacity
               case STRUCTURE_STORAGE:
                 const storage = structure as StructureStorage
 
                 return (
+                  storage.room.controller?.my &&
                   storage.store[RESOURCE_ENERGY] < storage.storeCapacity &&
                   creep.room.energyAvailable === creep.room.energyCapacityAvailable
                 )
@@ -596,7 +597,11 @@ export class EnergyMission extends Mission {
         }
 
         // Do we have storage? fill extensions with energy from that then
-        if (creep.room.storage && creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+        if (
+          creep.room.controller?.my &&
+          creep.room.storage &&
+          creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+        ) {
           creep.task = Tasks.withdraw(creep.room.storage)
 
           return
