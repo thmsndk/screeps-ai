@@ -86,7 +86,3 @@ export class DEFCONMission extends Mission {
     }
   }
 }
-const energySpawnFilter = Game.rooms[room].find(FIND_STRUCTURES, {
-  filter: o =>
-    (o.structureType === STRUCTURE_SPAWN || o.structureType === STRUCTURE_EXTENSION) && o.energy != o.energyCapacity
-})
