@@ -3,6 +3,7 @@ import { profile } from "_lib/Profiler"
 import { RuneRequirement, RunePowers } from "Freya"
 import { Mission, derefCreeps } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
+import { log } from "_lib/Overmind/console/log"
 @profile
 export class ReserveMission extends Mission {
   private room?: Room
@@ -46,9 +47,15 @@ export class ReserveMission extends Mission {
       3250: { needed: 1, powers: { [MOVE]: 5, [CLAIM]: 5 } }
     }
 
-    const roomToCheckCapacity = this.roomMemory.outpost
-      ? Game.rooms[Game.creeps[this.memory.creeps.reservers[0]]?.memory?.home] // TODO: this wont work if the creep is dead and removed
-      : this.room
+    // TODO: count total workers, unspawned and spawned, spawned workers should be substracted with less TTL than travel time or something arbritrary
+    // TODO: use an alive creep to get home location, perhaps home location / preferred spawn should be stored in memory
+    const actualReservers = this.memory.creeps.reservers.reduce<Creep[]>(derefCreeps, [])
+    const dyingReservers = actualReservers.reduce(
+      (total, creep) => ((creep.ticksToLive ?? 0) < 25 ? total++ : total),
+      0
+    )
+
+    const roomToCheckCapacity = this.roomMemory.outpost ? Game.rooms[actualReservers[0]?.memory?.home] : this.room
 
     const capacityAvailable = roomToCheckCapacity?.energyCapacityAvailable ?? 300
 
@@ -56,7 +63,7 @@ export class ReserveMission extends Mission {
 
     const reservers = {
       rune: "reservers",
-      count: neededWorkers - (this.memory.creeps.reservers.length || 0),
+      count: neededWorkers - ((this.memory.creeps.reservers.length || 0) - dyingReservers),
       // 650 energy https://screeps.arcath.net/creep-designer/?share=1#0#0#0#0#0#1#0
       runePowers: reserverRequirementLookup.powers, // { [MOVE]: 1, [CLAIM]: 1 },
       priority: 1, // TODO: change priorty perhaps it should be a tab-step?
@@ -65,6 +72,13 @@ export class ReserveMission extends Mission {
     }
 
     if (reservers.count > 0) {
+      log.info(
+        `${this.roomName} => ${roomToCheckCapacity?.name} => ${capacityAvailable} ${JSON.stringify(
+          reserverRequirementLookup
+        )}`
+      )
+      // // 14376173 E18S36 => E19S36 => 1800
+      // // 14376173 E18S37 => E19S38 => 12900
       requirements.push(reservers)
     }
 

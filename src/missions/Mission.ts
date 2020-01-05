@@ -97,12 +97,20 @@ export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
     let requirementLookup = tieredRunePowers[min]
     for (const key in tieredRunePowers) {
       const energyCapacityRequirement = Number(key)
+
       if (tieredRunePowers.hasOwnProperty(energyCapacityRequirement)) {
+        // // if (min === 650) {
+        // //   log.info(`${energyCapacityRequirement} <= ${maxRunePowerLookup}`)
+        // // }
         if (energyCapacityRequirement <= maxRunePowerLookup) {
           requirementLookup = tieredRunePowers[energyCapacityRequirement]
         }
       }
     }
+
+    // // if (min === 650) {
+    // //   log.info(`${JSON.stringify(requirementLookup)}`)
+    // // }
 
     return requirementLookup
   }
