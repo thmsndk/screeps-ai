@@ -1,6 +1,6 @@
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
-import { RuneRequirement } from "Freya"
+import { RuneRequirement, RunePowers } from "Freya"
 import { Mission, derefCreeps } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 @profile
@@ -38,11 +38,27 @@ export class ReserveMission extends Mission {
     const requirements = []
     const neededWorkers = 1
 
+    const reserverRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
+      650: { needed: 1, powers: { [MOVE]: 1, [CLAIM]: 1 } },
+      1300: { needed: 1, powers: { [MOVE]: 2, [CLAIM]: 2 } },
+      1950: { needed: 1, powers: { [MOVE]: 3, [CLAIM]: 3 } },
+      2600: { needed: 1, powers: { [MOVE]: 4, [CLAIM]: 4 } },
+      3250: { needed: 1, powers: { [MOVE]: 5, [CLAIM]: 5 } }
+    }
+
+    const roomToCheckCapacity = this.roomMemory.outpost
+      ? Game.rooms[Game.creeps[this.memory.creeps.reservers[0]]?.memory?.home]
+      : this.room
+
+    const capacityAvailable = roomToCheckCapacity?.energyCapacityAvailable ?? 300
+
+    const reserverRequirementLookup = this.getMaxTierRunePowers(650, 1950, capacityAvailable, reserverRunePowers)
+
     const reservers = {
       rune: "reservers",
       count: neededWorkers - (this.memory.creeps.reservers.length || 0),
       // 650 energy https://screeps.arcath.net/creep-designer/?share=1#0#0#0#0#0#1#0
-      runePowers: { [MOVE]: 1, [CLAIM]: 1 },
+      runePowers: reserverRequirementLookup.powers, // { [MOVE]: 1, [CLAIM]: 1 },
       priority: 1, // TODO: change priorty perhaps it should be a tab-step?
       mission: this.memory.id,
       missionRoom: this.roomName
