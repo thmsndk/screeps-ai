@@ -163,41 +163,43 @@ export class TowerMission extends Mission {
               hauler.task = Tasks.chain(tasks)
             }
           }
-
-          // TODO: run tower logic
-          // Prefer shooting enemies
-          const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-          if (closestHostile) {
-            tower.attack(closestHostile)
-          } else {
-            const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-              // Walls does not appear to be in "FIND_MY_STRUCTURES"
-              filter: (structure: Structure) =>
-                // Console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
-                (structure.hits < structure.hitsMax &&
-                  structure.structureType !== STRUCTURE_WALL &&
-                  structure.structureType !== STRUCTURE_RAMPART) ||
-                structure.hits / structure.hitsMax < 0.0004
-            })
-            if (closestDamagedStructure) {
-              tower.repair(closestDamagedStructure)
-            } else {
-              const closestCreep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
-                // Walls does not appear to be in "FIND_MY_STRUCTURES"
-                filter: (creep: Creep) =>
-                  // Console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
-                  creep.hits < creep.hitsMax
-              })
-              if (closestCreep) {
-                tower.heal(closestCreep)
-              }
-            }
-          }
         })
       })
 
       // Run haulers
       haulers.forEach(creep => creep.run())
+
+      // Run tower logic
+      this.towers.forEach(tower => {
+        // Prefer shooting enemies
+        const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+        if (closestHostile) {
+          tower.attack(closestHostile)
+        } else {
+          const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+            // Walls does not appear to be in "FIND_MY_STRUCTURES"
+            filter: (structure: Structure) =>
+              // Console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
+              (structure.hits < structure.hitsMax &&
+                structure.structureType !== STRUCTURE_WALL &&
+                structure.structureType !== STRUCTURE_RAMPART) ||
+              structure.hits / structure.hitsMax < 0.0004
+          })
+          if (closestDamagedStructure) {
+            tower.repair(closestDamagedStructure)
+          } else {
+            const closestCreep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
+              // Walls does not appear to be in "FIND_MY_STRUCTURES"
+              filter: (creep: Creep) =>
+                // Console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
+                creep.hits < creep.hitsMax
+            })
+            if (closestCreep) {
+              tower.heal(closestCreep)
+            }
+          }
+        }
+      })
 
       return
     } catch (error) {
