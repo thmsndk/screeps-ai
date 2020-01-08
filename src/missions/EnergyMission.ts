@@ -450,9 +450,10 @@ export class EnergyMission extends Mission {
         if (sourceContainer) {
           // Do we potentially have an issue if someone is blocking the position?, we can't have all creeps go to that position either.
           const runePowers = calculateRunePowers(creep.body.map(body => body.type))
-          const staticMiner = (runePowers && runePowers[WORK]) ?? 0 >= 5
-          // eslint-disable-next-line id-blacklist
-          creep.task.fork(Tasks.goTo(sourceContainer, { moveOptions: { range: staticMiner ? 0 : undefined } }))
+          const staticMiner = ((runePowers && runePowers[WORK]) ?? 0) >= 5
+          if (staticMiner) {
+            creep.task.fork(Tasks.goTo(sourceContainer, { moveOptions: { range: 0 } }))
+          }
         }
 
         return
