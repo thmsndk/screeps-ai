@@ -108,6 +108,17 @@ export class UpgradeControllerMission extends Mission {
 
       // TODO: Assign tasks
       // Iterate each idle upgrader and assign it energy collection task or upgrade controller task
+      const upgradeContainer = this.room?.controller?.pos.findInRange<StructureContainer>(FIND_STRUCTURES, 5, {
+        filter: structure => {
+          switch (structure.structureType) {
+            case STRUCTURE_CONTAINER:
+              return true
+          }
+
+          return false
+        }
+      })
+
       idleupgraders.forEach(creep => {
         if (creep.store.getFreeCapacity() === 0) {
           // TODO: this prevents remote upgrading...
@@ -121,6 +132,17 @@ export class UpgradeControllerMission extends Mission {
           // Find energy
           if (!this.room || !this.room.controller) {
             return
+          }
+
+          // Loot from upgrade controller
+          if (upgradeContainer && upgradeContainer.length > 0) {
+            if (
+              upgradeContainer[0].store.getUsedCapacity(RESOURCE_ENERGY) >= creep.store.getCapacity(RESOURCE_ENERGY)
+            ) {
+              creep.task = Tasks.withdraw(upgradeContainer[0])
+
+              return
+            }
           }
 
           if (this.room.storage) {
