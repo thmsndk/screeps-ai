@@ -1,7 +1,7 @@
 import { Tasks } from "task"
 import { profile } from "_lib/Profiler"
 import { RuneRequirement } from "Freya"
-import { Mission, derefCreeps } from "./Mission"
+import { Mission, derefCreeps, haulerTieredRunePowers } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { Task } from "task/Task"
 
@@ -54,11 +54,16 @@ export class TowerMission extends Mission {
 
     // TODO: loop towers, validate energy.
     // TODO: rune power scaling based on available energy.
+
+    const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
+
+    const requirementLookup = this.getMaxTierRunePowers(300, 2400, capacityAvailable, haulerTieredRunePowers)
+
     const haulers = {
       rune: "haulers",
       count: neededWorkers - (this.memory.creeps.haulers.length || 0),
       // 300 energy
-      runePowers: { [CARRY]: 3, [MOVE]: 3 },
+      runePowers: requirementLookup.powers,
       priority: 2,
       mission: this.memory.id,
       missionRoom: this.roomName
