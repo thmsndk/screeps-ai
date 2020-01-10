@@ -178,12 +178,19 @@ export class TowerMission extends Mission {
         } else {
           const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
             // Walls does not appear to be in "FIND_MY_STRUCTURES"
-            filter: (structure: Structure) =>
+            filter: (structure: Structure) => {
+              const energy = this.room?.storage?.store.getUsedCapacity(RESOURCE_ENERGY)
+              const energyCapacity = this.room?.storage?.store.getCapacity(RESOURCE_ENERGY)
+              const repairPercentage = (energy ?? 0) / (energyCapacity ?? 1) > 0.5 ? 0.001 : 0.0004
+
               // Console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
-              (structure.hits < structure.hitsMax &&
-                structure.structureType !== STRUCTURE_WALL &&
-                structure.structureType !== STRUCTURE_RAMPART) ||
-              structure.hits / structure.hitsMax < 0.0004
+              return (
+                (structure.hits < structure.hitsMax &&
+                  structure.structureType !== STRUCTURE_WALL &&
+                  structure.structureType !== STRUCTURE_RAMPART) ||
+                structure.hits / structure.hitsMax < repairPercentage
+              )
+            }
           })
           if (closestDamagedStructure) {
             tower.repair(closestDamagedStructure)
