@@ -151,7 +151,7 @@ export class TowerMission extends Mission {
               const capacity = tower.store.getCapacity(RESOURCE_ENERGY) ?? 0
               // // console.log(`${currentEnergy} / ${capacity} = ${currentEnergy / capacity}`)
 
-              if (currentEnergy / capacity <= 0.8) {
+              if (currentEnergy / capacity <= 0.5) {
                 // TODO: chain tower filling, tasks if we have surplus energy
                 const neededEnergy = tower.store.getFreeCapacity(RESOURCE_ENERGY)
 
