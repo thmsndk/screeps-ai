@@ -8,6 +8,7 @@ export type transferTargetType =
   | StructureLab
   | StructureNuker
   | StructurePowerSpawn
+  | StructureFactory
   | Creep
 
 export class TransferTask extends Task {

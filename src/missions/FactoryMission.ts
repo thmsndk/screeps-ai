@@ -49,7 +49,7 @@ for(let i=0; i<orders.length; i++) {
  */
 
 @profile
-export class TerminalHaulingMission extends Mission {
+export class FactoryMission extends Mission {
   private room?: Room
 
   private roomName: string
@@ -59,8 +59,8 @@ export class TerminalHaulingMission extends Mission {
   public constructor(room: Room | string) {
     const roomMemory = typeof room === "string" ? Memory.rooms[room] : room.memory
     const roomName = typeof room === "string" ? room : room.name
-    if (!roomMemory.terminalhaulingmission) {
-      roomMemory.terminalhaulingmission = {
+    if (!roomMemory.factorymission) {
+      roomMemory.factorymission = {
         id: "",
         creeps: {
           // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
@@ -69,7 +69,7 @@ export class TerminalHaulingMission extends Mission {
       }
     }
 
-    super(roomMemory.terminalhaulingmission)
+    super(roomMemory.factorymission)
 
     this.roomMemory = roomMemory
     this.roomName = roomName
@@ -81,11 +81,16 @@ export class TerminalHaulingMission extends Mission {
 
   public getRequirements(): RuneRequirement[] {
     const requirements = [] as RuneRequirement[]
-    if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+
+    const factory = this.room?.find<StructureFactory>(FIND_MY_STRUCTURES, {
+      filter: { structureType: STRUCTURE_FACTORY}
+    })[0]
+
+    if (!factory || factory?.store?.getFreeCapacity(RESOURCE_ENERGY) === 0) {
       return requirements
     }
 
-    const neededWorkers = this.room?.terminal ? 1 : 0
+    const neededWorkers = factory ? 1 : 0
 
     const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
 
@@ -110,6 +115,10 @@ export class TerminalHaulingMission extends Mission {
 
   public run(): void {
     try {
+      const factory = this.room?.find<StructureFactory>(FIND_MY_STRUCTURES, {
+        filter: { structureType: STRUCTURE_FACTORY}
+      })[0]
+
       const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
       const idlehaulers = haulers.filter(creep => creep.isIdle)
 
@@ -117,21 +126,26 @@ export class TerminalHaulingMission extends Mission {
       const hauler = idlehaulers.pop() // TODO: We should pick the closest creep not just any idle creep
 
       if (hauler) {
-        this.assignHaulTask(hauler)
+        this.assignHaulTask(hauler, factory)
       }
 
       // Run haulers
       haulers.forEach(creep => creep.run())
 
+      // Run Factory
+      if(factory?.cooldown == 0)[
+        factory.produce(RESOURCE_BATTERY)
+      ]
+
       return
     } catch (error) {
       console.log(
-        `<span style='color:red'>[TerminalHaulingMission] ${_.escape(ErrorMapper.sourceMappedStackTrace(error))}</span>`
+        `<span style='color:red'>[FactoryMission] ${_.escape(ErrorMapper.sourceMappedStackTrace(error))}</span>`
       )
     }
   }
 
-  private assignHaulTask(creep: Creep): void {
+  private assignHaulTask(creep: Creep, factory?:StructureFactory): void {
     // TODO: do we need to toggle a collection or delivery mode?, should probably check all sources, and not only 1?
     if (!creep.memory.mode || creep.memory.mode === HaulingMode.collecting) {
       if (creep.store.getFreeCapacity() === 0) {
@@ -148,14 +162,14 @@ export class TerminalHaulingMission extends Mission {
         return
       }
 
-      if (this.room?.terminal) {
-        creep.task = Tasks.transfer(this.room?.terminal)
+      if (factory) {
+        creep.task = Tasks.transfer(factory)
 
         return
       }
     } else {
       if (this.room?.storage) {
-        if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
+        if (factory?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
           creep.task = Tasks.withdraw(this.room.storage)
         } else {
           creep.task = Tasks.transfer(this.room.storage)

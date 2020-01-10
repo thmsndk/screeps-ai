@@ -16,6 +16,7 @@ import { ReserveMission } from "missions/ReserveMission"
 import { TerminalHaulingMission } from "missions/TerminalHaulingMission"
 import { ClaimMission } from "missions/ClaimMission"
 import { DEFCONMission } from "missions/DEFCONMission"
+import { FactoryMission } from "missions/FactoryMission"
 
 @profile
 export class Elders {
@@ -73,6 +74,8 @@ export class Elders {
           missions.push(new UpgradeControllerMission(room))
 
           missions.push(new TowerMission(room))
+
+          missions.push(new FactoryMission(room))
 
           if (room.terminal) {
             missions.push(new TerminalHaulingMission(room))
