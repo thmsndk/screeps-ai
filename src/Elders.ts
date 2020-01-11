@@ -17,6 +17,7 @@ import { TerminalHaulingMission } from "missions/TerminalHaulingMission"
 import { ClaimMission } from "missions/ClaimMission"
 import { DEFCONMission } from "missions/DEFCONMission"
 import { FactoryMission } from "missions/FactoryMission"
+import { Thor } from "Thor"
 
 @profile
 export class Elders {
@@ -30,11 +31,20 @@ export class Elders {
 
   private infrastructure: Infrastructure
 
-  public constructor(planner: RoomPlanner, scanner: RoomScanner, freya: Freya, infrastructure: Infrastructure) {
+  private thor: Thor
+
+  public constructor(
+    planner: RoomPlanner,
+    scanner: RoomScanner,
+    freya: Freya,
+    infrastructure: Infrastructure,
+    thor: Thor
+  ) {
     this.roomPlanner = planner
     this.scanner = scanner // Should this be intel?
     this.freya = freya
     this.infrastructure = infrastructure
+    this.thor = thor
   }
 
   public run(): Mission[] {
@@ -80,8 +90,10 @@ export class Elders {
           if (room.terminal) {
             missions.push(new TerminalHaulingMission(room))
           }
+        }
 
-          // // missions.push(new DEFCONMission(room))
+        if (room.memory.village || room.memory.outpost || room.memory.settlement || room.memory.claim) {
+          missions.push(new DEFCONMission(room, this.thor))
         }
       }
     }

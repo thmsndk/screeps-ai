@@ -94,7 +94,7 @@ export class Stats {
           Stats.log(`colonies.${room.name}.miningSites.energyInPerTick`, energyInPerTick)
           // // Stats.log(`colonies.${this.name}.assets`, this.getAllAssets())
           // Log defensive properties
-          // // Stats.log(`colonies.${this.name}.defcon`, this.defcon)
+          Stats.log(`colonies.${room.name}.defcon`, room.memory.DEFCON)
           const barriers = room.find(FIND_STRUCTURES, {
             filter: structure =>
               structure.structureType === STRUCTURE_RAMPART || structure.structureType === STRUCTURE_WALL

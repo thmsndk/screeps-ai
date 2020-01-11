@@ -18,6 +18,7 @@ import { init } from "./_lib/Profiler"
 import { Hatchery } from "./Hatchery"
 import { RoomScanner } from "./RoomScanner"
 import { Infrastructure } from "RoomPlanner/Infrastructure"
+import { Thor } from "Thor"
 // // import { log, LogLevels } from "_lib/Overmind/console/log"
 
 // Import "./_lib/client-abuse/injectBirthday.js"
@@ -49,7 +50,10 @@ const roomScanner = new RoomScanner()
 const freya = new Freya()
 global.freya = freya
 
-const counsil = new Elders(roomPlanner, roomScanner, freya, infrastructure)
+const thor = new Thor()
+// // global.freya = thor
+
+const counsil = new Elders(roomPlanner, roomScanner, freya, infrastructure, thor)
 
 export const infraStructureMissions: Dictionary<InfraStructureMission> = {}
 

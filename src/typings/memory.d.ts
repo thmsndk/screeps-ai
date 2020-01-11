@@ -32,7 +32,7 @@ interface RoomMemory {
   upgradecontrollermission: IMissionMemory
   miningPositions?: number
   energymission?: IEnergyMission
-  DEFCON?: import("../DEFCON").IMemoryDefcon
+  DEFCON?: import("../Thor").IMemoryDefcon
   // Missions: IMissionMemory[]
   remoteEnergyMission?: IRemoteEnergyMissionMemory
   averageEnergy?: { points: number; average: number; spawn: number }

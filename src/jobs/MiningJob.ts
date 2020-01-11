@@ -1,6 +1,6 @@
 import { emoji } from "_lib/emoji"
 import { profile } from "_lib/Profiler"
-import { DEFCONLEVEL } from "DEFCON"
+import { DEFCONLEVEL } from "Thor"
 import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { CreepMutations } from "./../Hatchery"

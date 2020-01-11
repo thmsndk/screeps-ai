@@ -6,12 +6,12 @@ import { claimTargetType, TaskClaim } from "./Tasks/TaskClaim"
 import { goToTargetType, GoToTask } from "./Tasks/GotoTask"
 import { goToRoomTargetType, TaskGoToRoom } from "./Tasks/TaskGoToRoom"
 import { harvestTargetType, HarvestTask } from "./Tasks/HarvestTask"
-// // import { attackTargetType, TaskAttack } from "./Tasks/task_attack"
+import { attackTargetType, TaskAttack } from "./Tasks/TaskAttack"
 import { buildTargetType, TaskBuild } from "./Tasks/TaskBuild"
-// // import { healTargetType, TaskHeal } from "./Tasks/task_heal"
-// // import { meleeAttackTargetType, TaskMeleeAttack } from "./Tasks/task_meleeAttack"
+import { healTargetType, TaskHeal } from "./Tasks/TaskHeal"
+import { meleeAttackTargetType, TaskMeleeAttack } from "./Tasks/TaskMeleeAttack"
 import { pickupTargetType, TaskPickup } from "./Tasks/TaskPickup"
-// // import { rangedAttackTargetType, TaskRangedAttack } from "./Tasks/task_rangedAttack"
+import { rangedAttackTargetType, TaskRangedAttack } from "./Tasks/TaskRangedAttack"
 // // import { repairTargetType, TaskRepair } from "./Tasks/task_repair"
 import { reserveTargetType, TaskReserve } from "./Tasks/TaskReserve"
 // // import { signControllerTargetType, TaskSignController } from "./Tasks/task_signController"
@@ -51,9 +51,9 @@ export class Tasks {
     return task
   }
 
-  // //   static attack(target: attackTargetType, options = {} as TaskOptions): TaskAttack {
-  // //     return new TaskAttack(target, options)
-  // //   }
+  public static attack(target: attackTargetType, options = {} as TaskOptions): TaskAttack {
+    return new TaskAttack(target, options)
+  }
 
   public static build(target: buildTargetType, options = {} as TaskOptions): TaskBuild {
     return new TaskBuild(target, options)
@@ -105,21 +105,21 @@ export class Tasks {
     return new HarvestTask(target, options)
   }
 
-  // // static heal(target: healTargetType, options = {} as TaskOptions): TaskHeal {
-  // // 	return new TaskHeal(target, options);
-  // // }
+  public static heal(target: healTargetType, options = {} as TaskOptions): TaskHeal {
+    return new TaskHeal(target, options)
+  }
 
-  // // static meleeAttack(target: meleeAttackTargetType, options = {} as TaskOptions): TaskMeleeAttack {
-  // // 	return new TaskMeleeAttack(target, options);
-  // // }
+  public static meleeAttack(target: meleeAttackTargetType, options = {} as TaskOptions): TaskMeleeAttack {
+    return new TaskMeleeAttack(target, options)
+  }
 
   public static pickup(target: pickupTargetType, options = {} as TaskOptions): TaskPickup {
     return new TaskPickup(target, options)
   }
 
-  // // static rangedAttack(target: rangedAttackTargetType, options = {} as TaskOptions): TaskRangedAttack {
-  // // 	return new TaskRangedAttack(target, options);
-  // // }
+  public static rangedAttack(target: rangedAttackTargetType, options = {} as TaskOptions): TaskRangedAttack {
+    return new TaskRangedAttack(target, options)
+  }
 
   // // static repair(target: repairTargetType, options = {} as TaskOptions): TaskRepair {
   // // 	return new TaskRepair(target, options);

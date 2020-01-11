@@ -4,6 +4,7 @@ import { RuneRequirement, RunePowers } from "Freya"
 import { Mission, derefCreeps } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { log } from "_lib/Overmind/console/log"
+import { Thor, DEFCON } from "Thor"
 
 @profile
 export class DEFCONMission extends Mission {
@@ -13,7 +14,9 @@ export class DEFCONMission extends Mission {
 
   private roomMemory: RoomMemory
 
-  public constructor(room: Room | string) {
+  private thor: Thor
+
+  public constructor(room: Room | string, thor: Thor) {
     const roomMemory = typeof room === "string" ? Memory.rooms[room] : room.memory
     const roomName = typeof room === "string" ? room : room.name
     if (!roomMemory.defconmission) {
@@ -28,16 +31,26 @@ export class DEFCONMission extends Mission {
 
     super(roomMemory.defconmission)
 
+    this.thor = thor
     this.roomMemory = roomMemory
     this.roomName = roomName
 
     if (room instanceof Room) {
       this.room = room
+      this.thor.scan(this.room) // TODO: this only works as long as we new up a mission every tick.
     }
   }
 
   public getRequirements(): RuneRequirement[] {
     const requirements = [] as RuneRequirement[]
+
+    // eslint-disable-next-line no-bitwise
+    if (this.roomMemory.DEFCON && this.roomMemory.DEFCON.level & DEFCON.safe) {
+      return requirements
+    }
+
+    // TODO: determine squads needed
+
     const defconRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
       300: { needed: 3, powers: { [RANGED_ATTACK]: 2, [HEAL]: 1, [MOVE]: 1 } },
       400: { needed: 2, powers: { [RANGED_ATTACK]: 3, [HEAL]: 1, [MOVE]: 1 } },
@@ -70,11 +83,19 @@ export class DEFCONMission extends Mission {
       const defcon = this.memory.creeps.defcon.reduce<Creep[]>(derefCreeps, [])
       const idledefcon = defcon.filter(creep => creep.isIdle)
 
-      // TODO: Assign tasks
-      const defconCreep = idledefcon.pop() // TODO: We should pick the closest creep not just any idle creep
+      const attackTasks = this.thor.dangerousHostiles[this.roomName].map(hostile => Tasks.attack(hostile))
 
-      // TODO: attack tasks
-      defcon.forEach(creep => creep.rangedMassAttack())
+      idledefcon.forEach(creep => {
+        if (this.goToRoom(creep, this.roomName)) {
+          return
+        }
+
+        creep.task = Tasks.chain(attackTasks)
+
+        // // TODO: attack tasks
+        // Defcon.forEach(creep => creep.rangedMassAttack())
+      })
+
       // Run defcon
       defcon.forEach(creep => creep.run())
 

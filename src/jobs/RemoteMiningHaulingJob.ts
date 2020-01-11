@@ -6,7 +6,7 @@ import { Dictionary } from "lodash"
 import { Role } from "role/roles"
 import { Job, JobPriority, JobType } from "./Job"
 import { PathStyle } from "./MovementPathStyles"
-import { DEFCONLEVEL } from "DEFCON"
+import { DEFCONLEVEL } from "Thor"
 
 /** The purpose of this job is to haul energy dropped from miners to spawn and extensions
  * could 1 hauler job support more than 1 node? depends on distance & miningspots & attached miners

@@ -5,7 +5,7 @@ declare namespace NodeJS {
     age: number
     freya: import("../Freya").Freya
     log: any
-    DEFCON: import("../DEFCON").DEFCON
+    DEFCON: import("../Thor").Thor
     Profiler: Profiler // Import("./_lib/Profiler/Profiler/typings").Profiler
     injectBirthday: () => void
     // Infrastructure: import("../RoomPlanner/Infrastructure").Infrastructure // TODO: figure out this later
