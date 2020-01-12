@@ -23,6 +23,56 @@ export const derefCreeps = (result: Creep[], creepName: string, index: number, c
   return result
 }
 
+const routeCache: {
+  [startRoomName: string]: {
+    [targetRoomName: string]: {
+      tick: number
+      route: string[] | ERR_NO_PATH
+    }
+  }
+} = {}
+
+const getRoute = (
+  creep: Creep,
+  toRoomName: string
+):
+  | {
+      exit: ExitConstant
+      room: string
+    }[]
+  | ERR_NO_PATH => {
+  // This probably belongs inside the gotoroom task?
+  const from = creep.pos
+
+  let fromCache = routeCache[from.roomName]
+  if (!fromCache) {
+    fromCache = routeCache[from.roomName] = {}
+  }
+
+  // TODO: cache it
+
+  const to = new RoomPosition(25, 25, toRoomName)
+
+  // Use `findRoute` to calculate a high-level plan for this path,
+  // Prioritizing highways and owned rooms
+  const route = Game.map.findRoute(from.roomName, to.roomName, {
+    routeCallback(roomName) {
+      const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName)
+      const westEastCoordinate: number = parsed ? Number(parsed[1]) ?? 0 : 0
+      const northSouthCoordinate: number = parsed ? Number(parsed[2]) ?? 0 : 0
+      const isHighway = westEastCoordinate % 10 === 0 || northSouthCoordinate % 10 === 0
+      const isMyRoom = Game.rooms[roomName] && Game.rooms[roomName].controller && Game.rooms[roomName]?.controller?.my
+      if (isHighway || isMyRoom) {
+        return 1
+      } else {
+        return 2.5
+      }
+    }
+  })
+
+  return route
+}
+
 export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
   private _memory: M
 
@@ -74,10 +124,40 @@ export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
     return false
   }
 
-  public goToRoom(creep: Creep, roomName: string): boolean {
-    if (creep.pos.roomName !== roomName) {
+  public goToRoom(creep: Creep, toRoomName: string): boolean {
+    if (creep.pos.roomName !== toRoomName) {
       // // console.log(`${creep.name} => goal: ${this.roomName}`)
-      creep.task = Tasks.goToRoom(roomName)
+      // // creep.task = Tasks.goToRoom(toRoomName)
+      if (!creep.task) {
+        const route = getRoute(creep, toRoomName)
+
+        if (route !== ERR_NO_PATH) {
+          const goToRoomTasks: ITask[] = []
+
+          route.forEach(function(info) {
+            if (creep.pos.roomName !== info.room) {
+              goToRoomTasks.push(Tasks.goToRoom(info.room))
+            }
+          })
+
+          creep.task = Tasks.chain(goToRoomTasks)
+        }
+
+        // Invoke PathFinder, allowing access only to rooms from `findRoute`
+        // // const ret = PathFinder.search(from, to, {
+        // //   roomCallback(roomName) {
+        // //     if (!allowedRooms[roomName]) {
+        // //       return false
+        // //     }
+
+        // //     return true
+        // //   }
+        // // })
+
+        // // if (!creep.task) {
+        // //   log.info(`${creep.name} has no task ${JSON.stringify(route)}`)
+        // // }
+      }
 
       return true
     }

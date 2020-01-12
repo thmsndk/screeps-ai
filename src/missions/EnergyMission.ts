@@ -371,25 +371,11 @@ export class EnergyMission extends Mission {
   }
 
   private goToDropOff(creep: Creep): boolean {
-    if (creep.pos.roomName !== creep.memory.home && creep.memory.home /* In case of amnesia */) {
-      // // console.log(`${creep.name} => dropoff: ${creep.memory.home}`)
-      creep.task = Tasks.goToRoom(creep.memory.home)
-
-      return true
-    }
-
-    return false
+    return this.goToHome(creep)
   }
 
   private goToGoal(creep: Creep): boolean {
-    if (creep.pos.roomName !== this.roomName) {
-      // // console.log(`${creep.name} => goal: ${this.roomName}`)
-      creep.task = Tasks.goToRoom(this.roomName)
-
-      return true
-    }
-
-    return false
+    return this.goToRoom(creep, this.roomName)
   }
 
   // This mission should live in room memory, what about remove mining missions, do they belong in the village, or the remote outpost?
@@ -439,6 +425,10 @@ export class EnergyMission extends Mission {
         creep.drop(RESOURCE_ENERGY) // TODO: Task
       }
     } else {
+      if (this.goToGoal(creep)) {
+        return
+      }
+
       if (source) {
         creep.task = Tasks.harvest(source) // Harvest task might need options for harvesting while full on energy, e.g. drop-harvesting
 
@@ -456,10 +446,6 @@ export class EnergyMission extends Mission {
           }
         }
 
-        return
-      }
-
-      if (this.goToGoal(creep)) {
         return
       }
     }

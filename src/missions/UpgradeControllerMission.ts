@@ -120,6 +120,10 @@ export class UpgradeControllerMission extends Mission {
       })
 
       idleupgraders.forEach(creep => {
+        if (this.goToRoom(creep, this.roomName)) {
+          return
+        }
+
         if (creep.store.getFreeCapacity() === 0) {
           // TODO: this prevents remote upgrading...
           if (!this.room || !this.room.controller) {

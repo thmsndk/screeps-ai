@@ -179,7 +179,7 @@ export abstract class Task implements ITask {
   }
 
   // Fork the task, assigning a new task to the creep with this task as its parent
-  public fork(newTask: Task): Task {
+  public fork(newTask: ITask): ITask {
     newTask.parent = this
     if (this.creep) {
       this.creep.task = newTask
@@ -300,11 +300,12 @@ export abstract class Task implements ITask {
 
   // Finalize the task and switch to parent task (or null if there is none)
   public finish(): void {
-    this.moveToNextPos()
     if (this.creep) {
+      this.moveToNextPos()
       this.creep.task = this.parent
     } else {
-      console.log(`No creep executing ${this.name}!`)
+      // eslint-disable-next-line no-underscore-dangle
+      console.log(`No creep (${this._creep.name}) executing ${this.name}!`)
     }
   }
 }

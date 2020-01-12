@@ -181,8 +181,11 @@ export class InfraStructureMission extends Mission {
             // Assign creeps to move get energy and move to target
             if (position && position.constructionSite) {
               idleCreeps.forEach(creep => {
-                creep.task = Tasks.goTo(roomPosition, { moveOptions: { range: 3 } })
+                if (this.roomMemory.settlement && !this.goToRoom(creep, this.roomName)) {
+                  creep.task = Tasks.goTo(roomPosition, { moveOptions: { range: 3 } })
+                }
                 if (this.roomMemory.village) {
+                  creep.task = Tasks.goTo(roomPosition, { moveOptions: { range: 3 } })
                   this.acquireEnergy(creep)
                 }
               })
@@ -196,8 +199,10 @@ export class InfraStructureMission extends Mission {
         idleCreeps.forEach(creep => {
           // TODO: implement targetedBy and handle coop tasks, find closest creep, validate work parts, and other shenanigans
           // TODO: when construction site is done, we need to mark it as such with a reference to the structure instead
-          if (position.constructionSite) {
-            creep.task = Tasks.build(position.constructionSite)
+          if (position.constructionSite && !creep.task) {
+            if (!this.goToRoom(creep, this.roomName)) {
+              creep.task = Tasks.build(position.constructionSite)
+            }
           }
         })
 
