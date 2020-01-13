@@ -305,7 +305,8 @@ export abstract class Task implements ITask {
       this.creep.task = this.parent
     } else {
       // eslint-disable-next-line no-underscore-dangle
-      console.log(`No creep (${this._creep.name}) executing ${this.name}!`)
+      console.log(`No creep executing ${this.name}!`)
+      // // throw new Error("no creep?")
     }
   }
 }

@@ -34,13 +34,13 @@ Creep.prototype.run = function(): number | void {
 Object.defineProperties(Creep.prototype, {
   hasValidTask: {
     configurable: true,
-    get() {
+    get(): boolean {
       return this.task && this.task.isValid()
     }
   },
   isIdle: {
     configurable: true,
-    get() {
+    get(): boolean {
       return !this.hasValidTask
     }
   }
