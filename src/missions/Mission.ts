@@ -39,6 +39,7 @@ type RouteResult =
     }[]
   | ERR_NO_PATH
 
+const roomRegex = /^[WE]([0-9]+)[NS]([0-9]+)$/
 const getRoute = (creep: Creep, toRoomName: string): RouteResult => {
   // This probably belongs inside the gotoroom task?
   const from = creep.pos
@@ -48,7 +49,7 @@ const getRoute = (creep: Creep, toRoomName: string): RouteResult => {
     fromCache = routeCache[from.roomName] = {}
   }
 
-  const toCache = fromCache[toRoomName]
+  let toCache = fromCache[toRoomName]
   if (toCache && Game.time - toCache.tick < 500) {
     return toCache.route
   }
@@ -59,11 +60,11 @@ const getRoute = (creep: Creep, toRoomName: string): RouteResult => {
 
   // Use `findRoute` to calculate a high-level plan for this path,
   // Prioritizing highways and owned rooms
-  fromCache[toRoomName] = { tick: Game.time, route: ERR_NO_PATH }
+  toCache = fromCache[toRoomName] = { tick: Game.time, route: ERR_NO_PATH }
 
-  fromCache[toRoomName].route = Game.map.findRoute(from.roomName, to.roomName, {
+  toCache.route = Game.map.findRoute(from.roomName, to.roomName, {
     routeCallback(roomName) {
-      const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName)
+      const parsed = roomRegex.exec(roomName)
       const westEastCoordinate: number = parsed ? Number(parsed[1]) ?? 0 : 0
       const northSouthCoordinate: number = parsed ? Number(parsed[2]) ?? 0 : 0
       const isHighway = westEastCoordinate % 10 === 0 || northSouthCoordinate % 10 === 0
@@ -76,7 +77,7 @@ const getRoute = (creep: Creep, toRoomName: string): RouteResult => {
     }
   })
 
-  return fromCache[toRoomName].route
+  return toCache.route
 }
 
 export abstract class Mission<M extends IMissionMemory = IMissionMemory> {
