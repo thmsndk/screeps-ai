@@ -287,6 +287,8 @@ export class Elders {
 
       if (hasOneOrLessSpawns && roomWithInitialController) {
         // Settle village
+        // Gather intell
+        this.scanner.scan(roomWithInitialController)
         // TODO:  spread planning out over ticks?, should this be a planning request instead?
         roomWithInitialController.memory.village = true // TODO: for supporting private server "auto" spawn in the plan
         this.roomPlanner.plan(roomWithInitialController.name, 8)

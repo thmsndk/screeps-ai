@@ -27,8 +27,11 @@ const swc: Config = {
 const splus2: Config = {
   ...baseConfig,
   server: "s+2",
-  rooms: [["W7S6", 18, 28]]
-  // // spawnName: "auto"
+  rooms: [
+    ["W8S2", 18, 28],
+    ["W7S6", 18, 28]
+  ],
+  spawnName: "auto"
 }
 
 const config = splus2

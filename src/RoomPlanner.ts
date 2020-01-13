@@ -20,6 +20,8 @@ export class RoomPlanner {
         this.infrastructure.AddLayer(roomName)
       }
     }
+    // TODO: when finding positions, ignore exits, too close to sources
+
     // TODO: do we need to define what we are planning for? e.g. Main room, Remote Room
     // Wall = RCL 2
     // Extension = RCL 2
