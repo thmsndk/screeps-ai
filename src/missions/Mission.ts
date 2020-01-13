@@ -49,7 +49,7 @@ const getRoute = (creep: Creep, toRoomName: string): RouteResult => {
   }
 
   const toCache = fromCache[toRoomName]
-  if (toCache && Game.time - toCache.tick < 100) {
+  if (toCache && Game.time - toCache.tick < 500) {
     return toCache.route
   }
 
