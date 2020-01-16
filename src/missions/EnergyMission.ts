@@ -5,7 +5,7 @@ import { Mission, derefCreeps, haulerTieredRunePowers } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { deref } from "task/utilities/utilities"
 import { log } from "_lib/Overmind/console/log"
-
+// TODO: we have an issue with remote miners not navigating when there are no haulers?
 enum HaulingMode {
   collecting,
   delivering
@@ -531,6 +531,23 @@ export class EnergyMission extends Mission {
           const neededAmount = builder.store.getFreeCapacity(RESOURCE_ENERGY)
 
           return Tasks.transfer(builder, RESOURCE_ENERGY, neededAmount)
+        })
+
+        creep.task = Tasks.chain(transferTasks)
+
+        return
+      }
+
+      // Find an upgrader to transfer too
+      const upgraders = creep.pos.findInRange(FIND_MY_CREEPS, 10, {
+        filter: upgrader => upgrader.memory.rune === "upgraders" && upgrader.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      })
+
+      if (upgraders.length > 0) {
+        const transferTasks = upgraders.map(upgrader => {
+          const neededAmount = upgrader.store.getFreeCapacity(RESOURCE_ENERGY)
+
+          return Tasks.transfer(upgrader, RESOURCE_ENERGY, neededAmount)
         })
 
         creep.task = Tasks.chain(transferTasks)
