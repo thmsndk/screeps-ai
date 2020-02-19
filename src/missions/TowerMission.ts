@@ -112,7 +112,13 @@ export class TowerMission extends Mission {
               }
             }
 
-            if (hauler.memory.mode === HaulingMode.collecting) {
+            // Refill towers lower than 50%
+            const currentEnergy = tower.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0
+            // // const capacity = tower.store.getCapacity() ?? 0 // returns null for some reason
+            const capacity = tower.store.getCapacity(RESOURCE_ENERGY) ?? 0
+            const shouldRefillTower = currentEnergy / capacity <= 0.5
+
+            if (hauler.memory.mode === HaulingMode.collecting && shouldRefillTower) {
               // Find energy to haul
               const target = tower.pos.findClosestByRange<StructureContainer | StructureStorage>(FIND_STRUCTURES, {
                 filter: structure => {
@@ -145,13 +151,9 @@ export class TowerMission extends Mission {
 
               nextCreep = true
             } else {
-              // Refill towers lower than 50%
-              const currentEnergy = tower.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0
-              // // const capacity = tower.store.getCapacity() ?? 0 // returns null for some reason
-              const capacity = tower.store.getCapacity(RESOURCE_ENERGY) ?? 0
               // // console.log(`${currentEnergy} / ${capacity} = ${currentEnergy / capacity}`)
 
-              if (currentEnergy / capacity <= 0.5) {
+              if (shouldRefillTower) {
                 // TODO: chain tower filling, tasks if we have surplus energy
                 const neededEnergy = tower.store.getFreeCapacity(RESOURCE_ENERGY)
 
@@ -167,6 +169,10 @@ export class TowerMission extends Mission {
             if (!nextCreep) {
               hauler.task = Tasks.chain(tasks)
             }
+          }
+
+          if (!hauler.task && this.room?.storage) {
+            hauler.task = Tasks.transfer(this.room.storage)
           }
         })
       })
