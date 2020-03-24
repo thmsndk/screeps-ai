@@ -18,6 +18,7 @@ import { ClaimMission } from "missions/ClaimMission"
 import { DEFCONMission } from "missions/DEFCONMission"
 import { FactoryMission } from "missions/FactoryMission"
 import { Thor } from "Thor"
+import { ConvoyMission } from "missions/ConvoyMission"
 
 @profile
 export class Elders {
@@ -89,6 +90,10 @@ export class Elders {
 
           if (room.terminal) {
             missions.push(new TerminalHaulingMission(room))
+          }
+
+          if (roomName === "E19S38") {
+            missions.push(new ConvoyMission(room))
           }
         }
 

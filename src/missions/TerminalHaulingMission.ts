@@ -143,22 +143,41 @@ export class TerminalHaulingMission extends Mission {
       }
     }
 
+    // If storage is above a treshhold of energy, transfer to terminal, else withdraw from terminal and put into storage
+    const FILL_TERMINAL = 1
+    const EMPTY_TERMINAL = 2
+
+    const mode =
+      (this.room?.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) /
+        (this.room?.storage?.store.getCapacity() ?? 1) <=
+      0.1
+        ? EMPTY_TERMINAL
+        : FILL_TERMINAL
+
     if (creep.memory.mode === HaulingMode.delivering) {
       if (this.goToHome(creep)) {
         return
       }
 
       if (this.room?.terminal) {
-        creep.task = Tasks.transfer(this.room?.terminal)
+        if (mode === FILL_TERMINAL) {
+          creep.task = Tasks.transfer(this.room.terminal)
+        } else if (this.room?.storage) {
+          creep.task = Tasks.transfer(this.room.storage)
+        }
 
         return
       }
     } else {
       if (this.room?.storage) {
-        if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
-          creep.task = Tasks.withdraw(this.room.storage)
-        } else {
-          creep.task = Tasks.transfer(this.room.storage)
+        if (mode === EMPTY_TERMINAL) {
+          if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
+            creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
+          } else {
+            creep.task = Tasks.transfer(this.room.storage)
+          }
+        } else if (this.room?.terminal) {
+          creep.task = Tasks.withdraw(this.room.terminal, RESOURCE_ENERGY)
         }
 
         return

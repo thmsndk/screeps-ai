@@ -22,6 +22,7 @@ interface RoomMemory {
   village?: boolean
   sources?: import("lodash").Dictionary<ISourceMemory>
 
+  convoymission?: import("../missions/ConvoyMission").ConvoyMissionMemory
   factorymission?: IMissionMemory
   defconmission?: IMissionMemory
   settlementmission: IMissionMemory
