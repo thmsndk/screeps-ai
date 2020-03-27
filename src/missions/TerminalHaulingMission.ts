@@ -47,6 +47,10 @@ for(let i=0; i<orders.length; i++) {
 }
 
  */
+enum TerminalMode {
+  FILL_TERMINAL = 1,
+  EMPTY_TERMINAL = 2
+}
 
 @profile
 export class TerminalHaulingMission extends Mission {
@@ -81,7 +85,10 @@ export class TerminalHaulingMission extends Mission {
 
   public getRequirements(): RuneRequirement[] {
     const requirements = [] as RuneRequirement[]
-    if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+
+    const mode = this.getTerminalMode()
+
+    if (mode === TerminalMode.FILL_TERMINAL && this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) === 0) {
       return requirements
     }
 
@@ -144,15 +151,8 @@ export class TerminalHaulingMission extends Mission {
     }
 
     // If storage is above a treshhold of energy, transfer to terminal, else withdraw from terminal and put into storage
-    const FILL_TERMINAL = 1
-    const EMPTY_TERMINAL = 2
 
-    const mode =
-      (this.room?.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) /
-        (this.room?.storage?.store.getCapacity() ?? 1) <=
-      0.1
-        ? EMPTY_TERMINAL
-        : FILL_TERMINAL
+    const mode = this.getTerminalMode()
 
     if (creep.memory.mode === HaulingMode.delivering) {
       if (this.goToHome(creep)) {
@@ -160,7 +160,7 @@ export class TerminalHaulingMission extends Mission {
       }
 
       if (this.room?.terminal) {
-        if (mode === FILL_TERMINAL) {
+        if (mode === TerminalMode.FILL_TERMINAL) {
           creep.task = Tasks.transfer(this.room.terminal)
         } else if (this.room?.storage) {
           creep.task = Tasks.transfer(this.room.storage)
@@ -170,7 +170,7 @@ export class TerminalHaulingMission extends Mission {
       }
     } else {
       if (this.room?.storage) {
-        if (mode === EMPTY_TERMINAL) {
+        if (mode === TerminalMode.EMPTY_TERMINAL) {
           if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
             creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
           } else {
@@ -188,5 +188,13 @@ export class TerminalHaulingMission extends Mission {
       // //   }
     }
     // TODO: move creeps in the way?
+  }
+
+  private getTerminalMode(): TerminalMode {
+    return (this.room?.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) /
+      (this.room?.storage?.store.getCapacity() ?? 1) <=
+      0.1
+      ? TerminalMode.EMPTY_TERMINAL
+      : TerminalMode.FILL_TERMINAL
   }
 }
