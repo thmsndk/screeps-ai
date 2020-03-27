@@ -46,6 +46,8 @@ for(let i=0; i<orders.length; i++) {
     }
 }
 
+
+Game.rooms.E19S38.terminal.send(RESOURCE_ENERGY,100000, 'E19S36')
  */
 enum TerminalMode {
   FILL_TERMINAL = 1,
@@ -171,8 +173,8 @@ export class TerminalHaulingMission extends Mission {
     } else {
       if (this.room?.storage) {
         if (mode === TerminalMode.EMPTY_TERMINAL) {
-          if (this.room?.terminal?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
-            creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
+          if (this.room?.terminal && (this.room.terminal.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0)) {
+            creep.task = Tasks.withdraw(this.room.terminal, RESOURCE_ENERGY)
           } else {
             creep.task = Tasks.transfer(this.room.storage)
           }
