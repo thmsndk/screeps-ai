@@ -78,7 +78,7 @@ export class UpgradeControllerMission extends Mission {
     let neededWorkers = this.room?.controller?.level === 8 ? 1 : minerRequirementLookup.needed
 
     // TODO: could tie it to upgrade container as well? :thinking:
-    if (this.room?.storage && this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) <= 1000) {
+    if (this.room?.storage && this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) <= 2500) {
       neededWorkers = 2
     }
 
