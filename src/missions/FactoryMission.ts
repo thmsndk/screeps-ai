@@ -185,9 +185,13 @@ export class FactoryMission extends Mission {
       }
     } else {
       if (this.room?.storage) {
-        if (factory?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
-          creep.say("W🚚⚡")
-          creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
+        if ((factory?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0) > 0) {
+          if ((this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) > 20000) {
+            creep.say("W🚚⚡")
+            creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
+
+            return
+          }
         } else {
           if (this.room.terminal && factory) {
             // Battery transfer
