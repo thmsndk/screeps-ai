@@ -14,6 +14,7 @@ export type withdrawTargetType =
   | StructurePowerSpawn
   | Tombstone
   | StructureTerminal
+  | StructureFactory
 
 export class TaskWithdraw extends Task {
   public static taskName = "withdraw"

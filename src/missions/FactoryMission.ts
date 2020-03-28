@@ -83,10 +83,10 @@ export class FactoryMission extends Mission {
     const requirements = [] as RuneRequirement[]
 
     const factory = this.room?.find<StructureFactory>(FIND_MY_STRUCTURES, {
-      filter: { structureType: STRUCTURE_FACTORY}
+      filter: { structureType: STRUCTURE_FACTORY }
     })[0]
 
-    if (!factory || factory?.store?.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+    if (!factory) {
       return requirements
     }
 
@@ -116,7 +116,7 @@ export class FactoryMission extends Mission {
   public run(): void {
     try {
       const factory = this.room?.find<StructureFactory>(FIND_MY_STRUCTURES, {
-        filter: { structureType: STRUCTURE_FACTORY}
+        filter: { structureType: STRUCTURE_FACTORY }
       })[0]
 
       const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
@@ -133,9 +133,9 @@ export class FactoryMission extends Mission {
       haulers.forEach(creep => creep.run())
 
       // Run Factory
-      if(factory?.cooldown == 0)[
+      if (factory?.cooldown === 0) {
         factory.produce(RESOURCE_BATTERY)
-      ]
+      }
 
       return
     } catch (error) {
@@ -145,7 +145,7 @@ export class FactoryMission extends Mission {
     }
   }
 
-  private assignHaulTask(creep: Creep, factory?:StructureFactory): void {
+  private assignHaulTask(creep: Creep, factory?: StructureFactory): void {
     // TODO: do we need to toggle a collection or delivery mode?, should probably check all sources, and not only 1?
     if (!creep.memory.mode || creep.memory.mode === HaulingMode.collecting) {
       if (creep.store.getFreeCapacity() === 0) {
@@ -163,16 +163,43 @@ export class FactoryMission extends Mission {
       }
 
       if (factory) {
-        creep.task = Tasks.transfer(factory)
+        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+          creep.say("🚚⚡")
+          creep.task = Tasks.transfer(factory, RESOURCE_ENERGY)
+
+          return
+        }
+
+        if (this.room?.terminal && creep.store.getUsedCapacity(RESOURCE_BATTERY) > 0) {
+          creep.say("🚚🔋")
+          creep.task = Tasks.transfer(this.room.terminal, RESOURCE_BATTERY)
+
+          return
+        }
 
         return
       }
     } else {
       if (this.room?.storage) {
         if (factory?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0 > 0) {
-          creep.task = Tasks.withdraw(this.room.storage)
+          creep.say("W🚚⚡")
+          creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
         } else {
-          creep.task = Tasks.transfer(this.room.storage)
+          if (this.room.terminal && factory) {
+            // Battery transfer
+            if (
+              this.room.terminal.store.getUsedCapacity(RESOURCE_BATTERY) < 50000 &&
+              (factory.store.getUsedCapacity(RESOURCE_BATTERY) ?? 0) > 0
+            ) {
+              creep.say("W🚚🔋")
+              creep.task = Tasks.withdraw(factory, RESOURCE_BATTERY)
+
+              return
+            }
+          }
+
+          creep.say("?🚚⚡")
+          creep.task = Tasks.transfer(this.room.storage, RESOURCE_ENERGY)
         }
 
         return

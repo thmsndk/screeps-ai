@@ -20,6 +20,14 @@ enum HaulingMode {
     roomName: "E19S38"
 })
 
+Game.market.createOrder({
+    type: ORDER_SELL,
+    resourceType: RESOURCE_BATTERY,
+    price: 0.700,
+    totalAmount: 10000,
+    roomName: "E19S38"
+})
+
 Game.market.calcTransactionCost(150000, 'W4N21', 'E19S38'); -- 60 rooms away
 129700
 
