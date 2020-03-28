@@ -165,7 +165,11 @@ export class FactoryMission extends Mission {
       if (factory) {
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
           creep.say("🚚⚡")
-          creep.task = Tasks.transfer(factory, RESOURCE_ENERGY)
+          if (factory.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+            creep.task = Tasks.transfer(factory, RESOURCE_ENERGY)
+          } else if (this.room?.storage) {
+            creep.task = Tasks.transfer(this.room.storage, RESOURCE_ENERGY)
+          }
 
           return
         }
