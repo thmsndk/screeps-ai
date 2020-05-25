@@ -5,8 +5,8 @@ import { Mission, derefCreeps, haulerTieredRunePowers } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 
 enum HaulingMode {
-  collecting,
-  delivering
+  collecting = 1,
+  delivering = 2
 }
 
 /**
@@ -150,7 +150,9 @@ export class TerminalHaulingMission extends Mission {
 
   private assignHaulTask(creep: Creep): void {
     // TODO: do we need to toggle a collection or delivery mode?, should probably check all sources, and not only 1?
-    if (!creep.memory.mode || creep.memory.mode === HaulingMode.collecting) {
+    if (!creep.memory.mode) {
+      creep.memory.mode = HaulingMode.collecting
+    } else if (creep.memory.mode === HaulingMode.collecting) {
       if (creep.store.getFreeCapacity() === 0) {
         creep.memory.mode = HaulingMode.delivering
       }
@@ -187,7 +189,7 @@ export class TerminalHaulingMission extends Mission {
             creep.task = Tasks.transfer(this.room.storage)
           }
         } else if (this.room?.terminal) {
-          creep.task = Tasks.withdraw(this.room.terminal, RESOURCE_ENERGY)
+          creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
         }
 
         return
@@ -204,7 +206,7 @@ export class TerminalHaulingMission extends Mission {
     return (this.room?.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) /
       (this.room?.storage?.store.getCapacity() ?? 1) >=
       0.9
-      ? TerminalMode.EMPTY_TERMINAL
-      : TerminalMode.FILL_TERMINAL
+      ? TerminalMode.FILL_TERMINAL
+      : TerminalMode.EMPTY_TERMINAL
   }
 }
