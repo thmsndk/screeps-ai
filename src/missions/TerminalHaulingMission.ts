@@ -23,8 +23,8 @@ enum HaulingMode {
 Game.market.createOrder({
     type: ORDER_SELL,
     resourceType: RESOURCE_BATTERY,
-    price: 0.700,
-    totalAmount: 10000,
+    price: 0.750,
+    totalAmount: 15000,
     roomName: "E19S38"
 })
 
@@ -202,8 +202,8 @@ export class TerminalHaulingMission extends Mission {
 
   private getTerminalMode(): TerminalMode {
     return (this.room?.storage?.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) /
-      (this.room?.storage?.store.getCapacity() ?? 1) <=
-      0.1
+      (this.room?.storage?.store.getCapacity() ?? 1) >=
+      0.9
       ? TerminalMode.EMPTY_TERMINAL
       : TerminalMode.FILL_TERMINAL
   }
