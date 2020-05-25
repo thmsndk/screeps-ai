@@ -192,7 +192,8 @@ export class TowerMission extends Mission {
             filter: (structure: Structure) => {
               const energy = this.room?.storage?.store.getUsedCapacity(RESOURCE_ENERGY)
               const energyCapacity = this.room?.storage?.store.getCapacity(RESOURCE_ENERGY)
-              const repairPercentage = (energy ?? 0) / (energyCapacity ?? 1) > 0.5 ? 0.005 : 0.0004
+              const energyPercentage = (energy ?? 0) / (energyCapacity ?? 1)
+              const repairPercentage = energyPercentage > 0.5 ? energyPercentage : 0.0004
 
               // Console.log(structure.structureType, structure.hits, structure.hitsMax, structure.hits / structure.hitsMax)
               return (
