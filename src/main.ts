@@ -93,6 +93,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   infrastructure.hydrate()
+  freya.hydrate()
 
   // Run "Counsil"
   const missions = counsil.run()

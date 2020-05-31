@@ -130,7 +130,7 @@ export class Freya {
   }
 
   public run(): void {
-    this.hydrate()
+    // This.hydrate() moved out into main.
 
     // All spawning parts is a multiple of 3, have to verify this, but it should be enough to run this logic Game.time % 3 === 0
 
@@ -138,15 +138,33 @@ export class Freya {
       // // console.log(`[Freya]: ${this.prayers} prayers`)
     }
 
+    const globalRequests = this.requests.global // Should only happen when we have no spawn or in the start with auto spawns
+
     // TODO: something smart in regards to selecting spawn
     for (const village in this.spawns) {
       if (this.spawns.hasOwnProperty(village)) {
         const spawns = this.spawns[village]
         const requests = this.requests[village]
 
-        if (requests && requests.length) {
-          spawns.forEach(spawn => {
-            const spawning = !!spawn.spawning
+        if (!spawns || !spawns.length) {
+          return
+        }
+
+        spawns.forEach(spawn => {
+          const spawning = !!spawn.spawning
+
+          if (globalRequests && globalRequests.length) {
+            if (!spawning && globalRequests.length > 0 /* && population < maxPopulation*/) {
+              const next = globalRequests.dequeue()
+              if (next && !this.spawn(spawn, next)) {
+                globalRequests.queue(next)
+              }
+
+              return
+            }
+          }
+
+          if (requests && requests.length) {
             // // console.log(`spawn queue length: ${this.requests.length}`)
             if (!spawning && requests.length > 0 /* && population < maxPopulation*/) {
               const next = requests.dequeue()
@@ -154,13 +172,13 @@ export class Freya {
                 requests.queue(next)
               }
             }
-          })
-        }
+          }
+        })
       }
     }
   }
 
-  private hydrate(): void {
+  public hydrate(): void {
     // Hydrate and group spawns by room
     this.spawns = _.groupBy(Game.spawns, "room.name")
   }
@@ -198,7 +216,7 @@ export class Freya {
   }
 
   private queue(prayer: MemoryPrayer): void {
-    let preferedSpawn = this.preferedVillage[prayer.missionRoom]
+    let preferedSpawn = this.preferedVillage[prayer.missionRoom] ?? "global"
 
     // TODO: clear the preferred villages at an interval, in case of new spawns, alternatively we should instruct fraya to reconsider upon spawn completion (clear cache)
     if (!preferedSpawn) {

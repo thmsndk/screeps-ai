@@ -67,8 +67,6 @@ export class Elders {
         // Gather intell
         this.scanner.scan(room)
 
-        missions.push(this.infrastructureMission(room))
-
         if (room.memory.village) {
           const energyMission = new EnergyMission(room)
           missions.push(energyMission)
@@ -96,6 +94,9 @@ export class Elders {
             missions.push(new ConvoyMission(room))
           }
         }
+
+        // TODO: perhaps an infrastructure mission should be based on a village? but we want to built the outpost / settlement as well :thinking:
+        missions.push(this.infrastructureMission(room))
 
         if (room.memory.village || room.memory.outpost || room.memory.settlement || room.memory.claim) {
           missions.push(new DEFCONMission(room, this.thor))
