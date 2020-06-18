@@ -15,7 +15,11 @@ const baseConfig = {
 const pserver: Config = {
   ...baseConfig,
   server: "pserver",
-  rooms: [["W8N3", 31, 16]]
+  spawnName: "auto",
+  rooms: [
+    ["W5N8", 31, 16],
+    ["W8N3", 31, 16]
+  ]
 }
 
 const swc: Config = {
@@ -34,7 +38,7 @@ const splus2: Config = {
   spawnName: "auto"
 }
 
-const config = splus2
+const config = pserver
 const BRANCH = "Yggdrasil"
 // Const BRANCH='default'
 

@@ -12,6 +12,10 @@ declare namespace NodeJS {
   }
 }
 
+interface CPU {
+  generatePixel(): void
+}
+
 // Declare global {
 
 // } // TODO: in use / unused mining position?

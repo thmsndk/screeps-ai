@@ -11,6 +11,7 @@ enum HaulingMode {
 
 /**
  * Game.market.deal("5e148132eb7179d97de5d6f5", amount, "E19S38")
+ * Game.market.deal("5ecb46b31a380a6bc3648320", 10000, "E19S38")
  * Game.market.calcTransactionCost(150000, 'W4N21', 'E19S38');
  * Game.market.createOrder({
     type: ORDER_SELL,
@@ -23,7 +24,7 @@ enum HaulingMode {
 Game.market.createOrder({
     type: ORDER_SELL,
     resourceType: RESOURCE_BATTERY,
-    price: 0.750,
+    price: 4,
     totalAmount: 15000,
     roomName: "E19S38"
 })

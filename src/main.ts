@@ -21,6 +21,8 @@ import { Infrastructure } from "RoomPlanner/Infrastructure"
 import { Thor } from "Thor"
 // // import { log, LogLevels } from "_lib/Overmind/console/log"
 
+import { log } from "_lib/Overmind/console/log"
+
 // Import "./_lib/client-abuse/injectBirthday.js"
 
 global.Profiler = init()
@@ -90,6 +92,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
       delete Memory.creeps[name]
       // Console.log("Clearing non-existing creep memory:", name)
     }
+  }
+
+  if (Game.cpu.bucket > 9000) {
+    log.info("bucket huge, generating pixels")
+    Game.cpu.generatePixel()
   }
 
   infrastructure.hydrate()
