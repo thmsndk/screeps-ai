@@ -94,7 +94,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  if (Game.cpu.bucket > 9000) {
+  if (Game.cpu.generatePixel && Game.cpu.bucket > 9000) {
     log.info("bucket huge, generating pixels")
     Game.cpu.generatePixel()
   }
