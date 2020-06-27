@@ -48,6 +48,8 @@ for(let i=0; i<orders.length; i++) {
 
  */
 
+const STORAGE_ENERGY_TRESHOLD = 20000
+
 @profile
 export class FactoryMission extends Mission {
   private room?: Room
@@ -134,7 +136,14 @@ export class FactoryMission extends Mission {
 
       // Run Factory
       if (factory?.cooldown === 0) {
-        factory.produce(RESOURCE_BATTERY)
+        if (
+          factory.room.storage &&
+          factory.room.storage?.store.getUsedCapacity(RESOURCE_ENERGY) < STORAGE_ENERGY_TRESHOLD
+        ) {
+          factory.produce(RESOURCE_ENERGY)
+        } else {
+          factory.produce(RESOURCE_BATTERY)
+        }
       }
 
       return
@@ -163,6 +172,17 @@ export class FactoryMission extends Mission {
       }
 
       if (factory) {
+        if (
+          factory &&
+          creep.room.storage &&
+          creep.room.storage?.store.getUsedCapacity(RESOURCE_ENERGY) < STORAGE_ENERGY_TRESHOLD
+        ) {
+          creep.say("🚚⚡")
+          creep.task = Tasks.transfer(creep.room.storage, RESOURCE_ENERGY)
+
+          return
+        }
+
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
           creep.say("🚚⚡")
           if (factory.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
@@ -185,8 +205,20 @@ export class FactoryMission extends Mission {
       }
     } else {
       if (this.room?.storage) {
+        // If energy in storage is too low, fetch energy and put it pack to storage
+        if (
+          factory &&
+          this.room.storage &&
+          this.room.storage?.store.getUsedCapacity(RESOURCE_ENERGY) < STORAGE_ENERGY_TRESHOLD
+        ) {
+          if ((factory?.store?.getUsedCapacity(RESOURCE_ENERGY) ?? 0) > 0) {
+            creep.say("W🚚⚡")
+            creep.task = Tasks.withdraw(factory, RESOURCE_ENERGY)
+          }
+        }
+
         if ((factory?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0) > 0) {
-          if ((this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) > 20000) {
+          if ((this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) > STORAGE_ENERGY_TRESHOLD) {
             creep.say("W🚚⚡")
             creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
 
