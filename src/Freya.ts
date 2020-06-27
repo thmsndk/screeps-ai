@@ -151,18 +151,20 @@ export class Freya {
         }
 
         spawns.forEach(spawn => {
-          const spawning = !!spawn.spawning
+          let spawning = !!spawn.spawning
 
           if (globalRequests && globalRequests.length) {
             if (!spawning && globalRequests.length > 0 /* && population < maxPopulation*/) {
               const next = globalRequests.dequeue()
+              // // log.info(`[Freya]: Dequeing from global ${globalRequests.length + 1} ${next.name}`)
               if (next && !this.spawn(spawn, next)) {
+                // // log.info(`[Freya]: adding back to global ${next.name}`)
                 globalRequests.queue(next)
               }
-
-              return
             }
           }
+
+          spawning = !!spawn.spawning
 
           if (requests && requests.length) {
             // // console.log(`spawn queue length: ${this.requests.length}`)
@@ -276,13 +278,15 @@ export class Freya {
       } as SpawnOptions)
 
       if (result === OK) {
-        log.info(`${spawn.pos.print} Prayer answered: ${creepName} ${bodyCost}`)
+        log.info(`[Freya]: ${spawn.pos.print} Prayer answered: ${prayer.mission} ${creepName} ${bodyCost}`)
 
         return true
       } else {
         log.info(`[Freya]: ${spawn.pos.print} ${result}`)
       }
     }
+
+    // // log.warning(`[Freya]: ${spawn.pos.print} ${prayer.name} NOT ENOUGH ENERGY ${bodyCost}`)
 
     return false
 
