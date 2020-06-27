@@ -20,6 +20,11 @@ export const LOG_LEVEL: number = LogLevels.INFO
 export const LOG_PRINT_TICK = true
 
 /**
+ * Prepend log output with current tick number.
+ */
+export const LOG_PRINT_SHARD = true
+
+/**
  * Prepend log output with source line.
  */
 export const LOG_PRINT_LINES = false
@@ -101,6 +106,10 @@ function vscUrl(path: string, line: string): string {
 
 function link(href: string, title: string): string {
   return `<a href='${href}' target="_blank">${title}</a>`
+}
+
+function shard(): string {
+  return color(Game.shard.name.toString(), "gray")
 }
 
 function time(): string {
@@ -186,6 +195,14 @@ export class Log {
     Memory.settings.log.showTick = value
   }
 
+  public get showShard(): boolean {
+    return Memory.settings.log.showShard
+  }
+
+  public set showShard(value: boolean) {
+    Memory.settings.log.showShard = value
+  }
+
   private _maxFileString = 0
 
   public constructor() {
@@ -194,7 +211,8 @@ export class Log {
         log: {
           level: LOG_LEVEL,
           showSource: LOG_PRINT_LINES,
-          showTick: LOG_PRINT_TICK
+          showTick: LOG_PRINT_TICK,
+          showShard: LOG_PRINT_SHARD
         }
       }
     })
@@ -286,6 +304,14 @@ export class Log {
 
   private buildArguments(level: number): string[] {
     const out: string[] = []
+    if (this.showShard) {
+      out.push(shard())
+    }
+
+    if (this.showTick) {
+      out.push(time())
+    }
+
     switch (level) {
       case LogLevels.ERROR:
         out.push(color("ERROR  ", "red"))
@@ -308,9 +334,7 @@ export class Log {
       default:
         break
     }
-    if (this.showTick) {
-      out.push(time())
-    }
+
     if (this.showSource && level <= LogLevels.ERROR) {
       out.push(this.getFileLine())
     }
