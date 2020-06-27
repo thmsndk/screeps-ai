@@ -66,7 +66,7 @@ export class FactoryMission extends Mission {
         id: "",
         creeps: {
           // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
-          haulers: []
+          fh: []
         }
       }
     }
@@ -98,9 +98,9 @@ export class FactoryMission extends Mission {
 
     const requirementLookup = this.getMaxTierRunePowers(300, 2400, capacityAvailable, haulerTieredRunePowers)
 
-    const haulers = {
-      rune: "haulers",
-      count: neededWorkers - (this.memory.creeps.haulers.length || 0),
+    const fh = {
+      rune: "fh",
+      count: neededWorkers - (this.memory.creeps.fh.length || 0),
       // 300 energy
       runePowers: requirementLookup.powers,
       priority: 1, // TODO: change priorty perhaps it should be a tab-step?
@@ -108,8 +108,8 @@ export class FactoryMission extends Mission {
       missionRoom: this.roomName
     }
 
-    if (haulers.count > 0) {
-      requirements.push(haulers)
+    if (fh.count > 0) {
+      requirements.push(fh)
     }
 
     return requirements
@@ -121,18 +121,18 @@ export class FactoryMission extends Mission {
         filter: { structureType: STRUCTURE_FACTORY }
       })[0]
 
-      const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
-      const idlehaulers = haulers.filter(creep => creep.isIdle)
+      const fh = this.memory.creeps.fh.reduce<Creep[]>(derefCreeps, [])
+      const idlefh = fh.filter(creep => creep.isIdle)
 
       // TODO: Assign tasks
-      const hauler = idlehaulers.pop() // TODO: We should pick the closest creep not just any idle creep
+      const hauler = idlefh.pop() // TODO: We should pick the closest creep not just any idle creep
 
       if (hauler) {
         this.assignHaulTask(hauler, factory)
       }
 
-      // Run haulers
-      haulers.forEach(creep => creep.run())
+      // Run fh
+      fh.forEach(creep => creep.run())
 
       // Run Factory
       if (factory?.cooldown === 0) {

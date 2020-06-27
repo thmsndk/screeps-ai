@@ -28,7 +28,7 @@ export class TowerMission extends Mission {
         id: "",
         creeps: {
           // TODO: how do we define a more explicit interface allowing to catch wrongly initialized memory?
-          haulers: []
+          th: []
         }
       }
     }
@@ -59,9 +59,9 @@ export class TowerMission extends Mission {
 
     const requirementLookup = this.getMaxTierRunePowers(300, 2400, capacityAvailable, haulerTieredRunePowers)
 
-    const haulers = {
-      rune: "haulers",
-      count: neededWorkers - (this.memory.creeps.haulers.length || 0),
+    const th = {
+      rune: "th",
+      count: neededWorkers - (this.memory.creeps.th.length || 0),
       // 300 energy
       runePowers: requirementLookup.powers,
       priority: 2,
@@ -69,8 +69,8 @@ export class TowerMission extends Mission {
       missionRoom: this.roomName
     }
 
-    if (haulers.count > 0) {
-      requirements.push(haulers)
+    if (th.count > 0) {
+      requirements.push(th)
     }
 
     return requirements
@@ -78,13 +78,13 @@ export class TowerMission extends Mission {
 
   public run(): void {
     try {
-      const haulers = this.memory.creeps.haulers.reduce<Creep[]>(derefCreeps, [])
-      const idlehaulers = haulers.filter(creep => creep.isIdle)
+      const th = this.memory.creeps.th.reduce<Creep[]>(derefCreeps, [])
+      const idleth = th.filter(creep => creep.isIdle)
 
-      // TODO: loop towers, target stuffs, calculate energyusage and assign tasks to idle haulers, currently towers aint doign anything unless they have a tower hauler
+      // TODO: loop towers, target stuffs, calculate energyusage and assign tasks to idle th, currently towers aint doign anything unless they have a tower hauler
 
       // Assign tasks
-      idlehaulers.forEach(hauler => {
+      idleth.forEach(hauler => {
         const tasks = [] as Task[]
 
         let usedEnergy = 0
@@ -177,8 +177,8 @@ export class TowerMission extends Mission {
         })
       })
 
-      // Run haulers
-      haulers.forEach(creep => creep.run())
+      // Run th
+      th.forEach(creep => creep.run())
 
       // Run tower logic
       this.towers.forEach(tower => {
