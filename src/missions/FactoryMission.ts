@@ -214,6 +214,8 @@ export class FactoryMission extends Mission {
           if ((factory?.store?.getUsedCapacity(RESOURCE_ENERGY) ?? 0) > 0) {
             creep.say("W🚚⚡")
             creep.task = Tasks.withdraw(factory, RESOURCE_ENERGY)
+
+            return
           }
         }
 
