@@ -134,9 +134,14 @@ export class RoomPlanner {
         offset += 1
         this.AlternatePositions(roomName, positions, 7, roomTerrain, radiatePosition, offset, 10)
 
-        const position = positions.pop()
+        let position = positions.pop()
         if (position) {
           this.infrastructure.AddPosition(roomName, 7, STRUCTURE_TOWER, position.x, position.y)
+        }
+
+        position = positions.pop()
+        if (position) {
+          this.infrastructure.AddPosition(roomName, 7, STRUCTURE_SPAWN, position.x, position.y)
         }
       }
 
@@ -155,6 +160,10 @@ export class RoomPlanner {
         position = positions.pop()
         if (position) {
           this.infrastructure.AddPosition(roomName, 8, STRUCTURE_TOWER, position.x, position.y)
+        }
+        position = positions.pop()
+        if (position) {
+          this.infrastructure.AddPosition(roomName, 8, STRUCTURE_SPAWN, position.x, position.y)
         }
       }
     }
