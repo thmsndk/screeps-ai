@@ -464,20 +464,6 @@ export class EnergyMission extends Mission {
       }
     }
 
-    if (creep.task) {
-      // Quick fix for haulers "stuck" with too little energy to transfer
-      if (creep.task.name === TransferTask.taskName) {
-        if (
-          creep.task.data &&
-          creep.store.getUsedCapacity(creep.task.data.resourceType) < (creep.task.data.amount ?? 0)
-        ) {
-          creep.task.finish()
-        }
-      }
-
-      return
-    }
-
     const sources = this.roomMemory?.sources
     const sourceMemory = sources ? sources[source?.id as string] : null
 
@@ -548,12 +534,20 @@ export class EnergyMission extends Mission {
       // // }
 
       if (builders.length > 0) {
-        const transferTasks = builders.map(builder => {
+        let availableEnergy = creep.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0
+        const transferTasks = builders.reduce((result: TransferTask[], builder: Creep) => {
           const neededAmount = builder.store.getFreeCapacity(RESOURCE_ENERGY)
 
-          // TODO: we need to consider how much energy the hauler has before telling it to transfer
-          return Tasks.transfer(builder, RESOURCE_ENERGY, neededAmount)
-        })
+          if (availableEnergy >= neededAmount) {
+            result.push(Tasks.transfer(builder, RESOURCE_ENERGY, neededAmount))
+            availableEnergy -= neededAmount
+          } else if (availableEnergy > 0) {
+            result.push(Tasks.transfer(builder, RESOURCE_ENERGY, availableEnergy))
+            availableEnergy -= availableEnergy
+          }
+
+          return result
+        }, [])
 
         creep.task = Tasks.chain(transferTasks)
 
@@ -566,11 +560,20 @@ export class EnergyMission extends Mission {
       })
 
       if (upgraders.length > 0) {
-        const transferTasks = upgraders.map(upgrader => {
+        let availableEnergy = creep.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0
+        const transferTasks = upgraders.reduce((result: TransferTask[], upgrader: Creep) => {
           const neededAmount = upgrader.store.getFreeCapacity(RESOURCE_ENERGY)
 
-          return Tasks.transfer(upgrader, RESOURCE_ENERGY, neededAmount)
-        })
+          if (availableEnergy >= neededAmount) {
+            result.push(Tasks.transfer(upgrader, RESOURCE_ENERGY, neededAmount))
+            availableEnergy -= neededAmount
+          } else if (availableEnergy > 0) {
+            result.push(Tasks.transfer(upgrader, RESOURCE_ENERGY, availableEnergy))
+            availableEnergy -= availableEnergy
+          }
+
+          return result
+        }, [])
 
         creep.task = Tasks.chain(transferTasks)
 
