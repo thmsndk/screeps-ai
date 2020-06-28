@@ -57,7 +57,7 @@ export class TowerMission extends Mission {
 
     const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
 
-    const requirementLookup = this.getMaxTierRunePowers(300, 2400, capacityAvailable, haulerTieredRunePowers)
+    const requirementLookup = this.getMaxTierRunePowers(300, 1000 /* 2400*/, capacityAvailable, haulerTieredRunePowers)
 
     const th = {
       rune: "th",

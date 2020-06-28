@@ -44,38 +44,41 @@ export class DEFCONMission extends Mission {
   public getRequirements(): RuneRequirement[] {
     const requirements = [] as RuneRequirement[]
 
-    // eslint-disable-next-line no-bitwise
-    if (this.roomMemory.DEFCON && this.roomMemory.DEFCON.level & DEFCON.safe) {
-      return requirements
-    }
-
-    // TODO: determine squads needed
-
-    const defconRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
-      300: { needed: 3, powers: { [RANGED_ATTACK]: 2, [HEAL]: 1, [MOVE]: 1 } },
-      400: { needed: 2, powers: { [RANGED_ATTACK]: 3, [HEAL]: 1, [MOVE]: 1 } },
-      500: { needed: 2, powers: { [RANGED_ATTACK]: 4, [HEAL]: 1, [MOVE]: 1 } },
-      600: { needed: 1, powers: { [RANGED_ATTACK]: 5, [HEAL]: 1, [MOVE]: 1 } },
-      700: { needed: 1, powers: { [RANGED_ATTACK]: 6, [HEAL]: 1, [MOVE]: 1 } }
-    }
-
-    const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
-    const defconRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, defconRunePowers)
-    const defcon = {
-      rune: "defcon",
-      count: defconRequirementLookup.needed - (this.memory.creeps.defcon.length || 0),
-      // 300 energy https://screeps.arcath.net/creep-designer/?share=1#2#0#0#0#0#0#1
-      runePowers: defconRequirementLookup.powers,
-      priority: 1, // TODO: change priorty perhaps it should be a tab-step?
-      mission: this.memory.id,
-      missionRoom: this.roomName
-    }
-
-    if (defcon.count > 0) {
-      requirements.push(defcon)
-    }
-
+    // Disable defcon units for now
     return requirements
+
+    // // // eslint-disable-next-line no-bitwise
+    // // if (this.roomMemory.DEFCON && this.roomMemory.DEFCON.level & DEFCON.safe) {
+    // //   return requirements
+    // // }
+
+    // // // TODO: determine squads needed
+
+    // // const defconRunePowers: { [key: number]: { needed: number; powers: RunePowers } } = {
+    // //   300: { needed: 3, powers: { [RANGED_ATTACK]: 2, [HEAL]: 1, [MOVE]: 1 } },
+    // //   400: { needed: 2, powers: { [RANGED_ATTACK]: 3, [HEAL]: 1, [MOVE]: 1 } },
+    // //   500: { needed: 2, powers: { [RANGED_ATTACK]: 4, [HEAL]: 1, [MOVE]: 1 } },
+    // //   600: { needed: 1, powers: { [RANGED_ATTACK]: 5, [HEAL]: 1, [MOVE]: 1 } },
+    // //   700: { needed: 1, powers: { [RANGED_ATTACK]: 6, [HEAL]: 1, [MOVE]: 1 } }
+    // // }
+
+    // // const capacityAvailable = this.room?.energyCapacityAvailable ?? 300
+    // // const defconRequirementLookup = this.getMaxTierRunePowers(300, 700, capacityAvailable, defconRunePowers)
+    // // const defcon = {
+    // //   rune: "defcon",
+    // //   count: defconRequirementLookup.needed - (this.memory.creeps.defcon.length || 0),
+    // //   // 300 energy https://screeps.arcath.net/creep-designer/?share=1#2#0#0#0#0#0#1
+    // //   runePowers: defconRequirementLookup.powers,
+    // //   priority: 1, // TODO: change priorty perhaps it should be a tab-step?
+    // //   mission: this.memory.id,
+    // //   missionRoom: this.roomName
+    // // }
+
+    // // if (defcon.count > 0) {
+    // //   requirements.push(defcon)
+    // // }
+
+    // // return requirements
   }
 
   public run(): void {

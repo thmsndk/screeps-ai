@@ -5,6 +5,7 @@ import { Mission, derefCreeps, haulerTieredRunePowers } from "./Mission"
 import { ErrorMapper } from "utils/ErrorMapper"
 import { deref } from "task/utilities/utilities"
 import { log } from "_lib/Overmind/console/log"
+import { TransferTask } from "task/Tasks/TransferTask"
 // TODO: we have an issue with remote miners not navigating when there are no haulers?
 enum HaulingMode {
   collecting,
@@ -463,6 +464,20 @@ export class EnergyMission extends Mission {
       }
     }
 
+    if (creep.task) {
+      // Quick fix for haulers "stuck" with too little energy to transfer
+      if (creep.task.name === TransferTask.taskName) {
+        if (
+          creep.task.data &&
+          creep.store.getUsedCapacity(creep.task.data.resourceType) < (creep.task.data.amount ?? 0)
+        ) {
+          creep.task.finish()
+        }
+      }
+
+      return
+    }
+
     const sources = this.roomMemory?.sources
     const sourceMemory = sources ? sources[source?.id as string] : null
 
@@ -522,14 +537,21 @@ export class EnergyMission extends Mission {
       }
 
       // Find a builder to transfer too
-      const builders = creep.pos.findInRange(FIND_MY_CREEPS, 10, {
-        filter: builder => builder.memory.rune === "builders" && builder.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      const builders = creep.pos.findInRange(FIND_MY_CREEPS, 50, {
+        filter: builder =>
+          (builder.memory.rune === "builders" || builder.name.indexOf("builders") !== -1) &&
+          builder.store.getFreeCapacity(RESOURCE_ENERGY) > 0
       })
+
+      // // If (Game.shard.name === "shard2") {
+      // //   Log.info(`${creep.name} ${builders.length} builders to transfer too`)
+      // // }
 
       if (builders.length > 0) {
         const transferTasks = builders.map(builder => {
           const neededAmount = builder.store.getFreeCapacity(RESOURCE_ENERGY)
 
+          // TODO: we need to consider how much energy the hauler has before telling it to transfer
           return Tasks.transfer(builder, RESOURCE_ENERGY, neededAmount)
         })
 
@@ -539,7 +561,7 @@ export class EnergyMission extends Mission {
       }
 
       // Find an upgrader to transfer too
-      const upgraders = creep.pos.findInRange(FIND_MY_CREEPS, 10, {
+      const upgraders = creep.pos.findInRange(FIND_MY_CREEPS, 50, {
         filter: upgrader => upgrader.memory.rune === "upgraders" && upgrader.store.getFreeCapacity(RESOURCE_ENERGY) > 0
       })
 
@@ -592,7 +614,7 @@ export class EnergyMission extends Mission {
           return
         }
 
-        const resourcesInRoom = source.pos.findInRange(FIND_DROPPED_RESOURCES, 25)
+        const resourcesInRoom = source.pos.findInRange(FIND_DROPPED_RESOURCES, 50)
         if (resourcesInRoom.length > 0) {
           const pickUpTasks = resourcesInRoom.map(r => Tasks.pickup(r))
           creep.task = Tasks.chain(pickUpTasks)

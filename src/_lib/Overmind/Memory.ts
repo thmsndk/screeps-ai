@@ -30,7 +30,7 @@ let lastMemory: any
 let lastTime = 0
 
 // Const MAX_BUCKET = 10000
-const MAX_BUCKET = 9000 // Due to pixels
+const MAX_BUCKET = 4000 // Due to pixels
 const HEAP_CLEAN_FREQUENCY = 200
 const BUCKET_CLEAR_CACHE = 7000
 const BUCKET_CPU_HALT = 4000

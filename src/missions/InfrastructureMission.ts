@@ -227,7 +227,10 @@ export class InfraStructureMission extends Mission {
       Object.values(builders).forEach(creep => {
         this.acquireEnergy(creep)
 
-        creep.run()
+        const result = creep.run()
+        if (result !== OK) {
+          log.warning(`${creep.name} should be building stuff ${result}`)
+        }
       })
     } catch (error) {
       console.log(
@@ -238,6 +241,16 @@ export class InfraStructureMission extends Mission {
 
   private acquireEnergy(creep: Creep): void {
     if (this.roomMemory.settlement && this.goToRoom(creep, this.roomName)) {
+      // // if (creep.carry.energy === 0) {
+      // //   const steal = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+      // //     filter: miner => miner.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+      // //   })
+
+      // //   if (steal) {
+      // //     steal.transfer(creep, RESOURCE_ENERGY)
+      // //   }
+      // // }
+
       return
     }
 
