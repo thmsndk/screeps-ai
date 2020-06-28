@@ -229,7 +229,7 @@ export class InfraStructureMission extends Mission {
 
         const result = creep.run()
         if (result !== OK) {
-          log.warning(`${creep.name} should be building stuff ${result}`)
+          log.debug(`${creep.name} should be building stuff ${result}`)
         }
       })
     } catch (error) {
