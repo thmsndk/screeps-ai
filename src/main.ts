@@ -117,7 +117,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const roomWithPortal = "E20S40"
   const roomToClaim = "E22S39"
   if (Game.shard.name === "shard3") {
-    if (Game.time % 1000 === 0) {
+    if (Game.time % 1400 === 0) {
       log.info("QUEING CREEPS FOR SHARD2 PIXEL PRESENCE")
       const pixel = {
         rune: "pixel",
