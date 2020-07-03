@@ -224,7 +224,7 @@ export class Freya {
     let preferedSpawn = this.preferedVillage[prayer.missionRoom] ?? "global"
 
     // TODO: clear the preferred villages at an interval, in case of new spawns, alternatively we should instruct fraya to reconsider upon spawn completion (clear cache)
-    if (!preferedSpawn) {
+    if (!preferedSpawn || preferedSpawn === "global") {
       log.warning(`    ${prayer.missionRoom} no preferred spawn found `)
       const villages = this.spawns
       let distance = 100 // TODO: supply in prayer?

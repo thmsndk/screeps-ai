@@ -30,7 +30,7 @@ const swc: Config = {
 
 const splus2: Config = {
   ...baseConfig,
-  server: "s+2",
+  server: "ScreepsPlus season server",
   rooms: [
     ["W8S2", 18, 28],
     ["W7S6", 18, 28]
@@ -38,7 +38,7 @@ const splus2: Config = {
   spawnName: "auto"
 }
 
-const config = pserver
+const config = splus2
 const BRANCH = "Yggdrasil"
 // Const BRANCH='default'
 
