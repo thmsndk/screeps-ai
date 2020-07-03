@@ -160,6 +160,9 @@ export class Freya {
               if (next && !this.spawn(spawn, next)) {
                 // // log.info(`[Freya]: adding back to global ${next.name}`)
                 globalRequests.queue(next)
+              } else {
+                // Bail out, this spawn is spawning
+                return
               }
             }
           }
