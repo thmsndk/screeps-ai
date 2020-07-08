@@ -220,7 +220,10 @@ export class FactoryMission extends Mission {
         }
 
         if ((factory?.store?.getFreeCapacity(RESOURCE_ENERGY) ?? 0) > 0) {
-          if ((this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) ?? 0) > STORAGE_ENERGY_TRESHOLD) {
+          if (
+            (this.room.memory.averageEnergy?.storage ?? 0) >
+            STORAGE_ENERGY_TRESHOLD + creep.store.getFreeCapacity()
+          ) {
             creep.say("W🚚⚡")
             creep.task = Tasks.withdraw(this.room.storage, RESOURCE_ENERGY)
 

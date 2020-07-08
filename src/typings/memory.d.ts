@@ -36,7 +36,7 @@ interface RoomMemory {
   DEFCON?: import("../Thor").IMemoryDefcon
   // Missions: IMissionMemory[]
   remoteEnergyMission?: IRemoteEnergyMissionMemory
-  averageEnergy?: { points: number; average: number; spawn: number }
+  averageEnergy?: { points: number; average: number; spawn: number; storage: number }
   infrastructure?: import("../RoomPlanner/InfrastructureMemory").InfrastructureMemory
   infrastructureMission?: IMissionMemory
   runPlanner?: boolean

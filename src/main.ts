@@ -23,6 +23,7 @@ import { Thor } from "Thor"
 
 import { log } from "_lib/Overmind/console/log"
 import { Tasks } from "task"
+import { shardMigration } from "ShardMigration"
 
 // Import "./_lib/client-abuse/injectBirthday.js"
 
@@ -63,8 +64,6 @@ export const infraStructureMissions: Dictionary<InfraStructureMission> = {}
 export const hatcheries: Dictionary<Hatchery> = {}
 // // log.setLogLevel(LogLevels.INFO)
 
-let shard2CreepsRequested = true
-const shard2MissionCreeps: string[] = []
 let pixelCreepName: string
 
 console.log("finished initializing globals")
@@ -99,14 +98,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  if (Game.cpu.generatePixel && Game.cpu.bucket > 9000) {
+  if (/* Game.shard.name === "shard2" && */ Game.cpu.generatePixel && Game.cpu.bucket > 9000) {
     log.info("bucket huge, generating pixels")
     Game.cpu.generatePixel()
   }
 
   infrastructure.hydrate()
   freya.hydrate()
-
+  // Resourve request,in/out,cpu usage,inten4 usage
   // Intershard migration
   // If shard2 and room not initialized mark it for claiming (E20S40)
   // Default logic should take over
@@ -114,8 +113,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Shard 3 logic, persist in memory that creeps have been queued.
   // Request creeps, we need 1 claimer, 2 large miners, X large haulers filled energy. Y Builders filled with energy
   // Send creeps to portal (E20S40) 33, 36
+  // E30S40 10, 26
   const roomWithPortal = "E20S40"
-  const roomToClaim = "E22S39"
+  const roomToClaim = "E31S41" // "E22S39"
+
+  // ShardMigration("shard3", "shard2", new RoomPosition(33, 36, roomWithPortal), roomToClaim)
   if (Game.shard.name === "shard3") {
     if (Game.time % 1400 === 0) {
       log.info("QUEING CREEPS FOR SHARD2 PIXEL PRESENCE")
@@ -125,150 +127,25 @@ export const loop = ErrorMapper.wrapLoop(() => {
         runePowers: { [MOVE]: 1 },
         priority: 665,
         mission: "shard2-pixels",
-        missionRoom: roomWithPortal
+        missionRoom: "E20S40"
       }
 
       const pixels = freya.pray(pixel)
       pixelCreepName = pixels.pixel[0]
     }
 
-    if (!shard2CreepsRequested && Game.time % 1000 === 0) {
-      log.info('QUEING CREEPS FOR SHARD "INVASION"')
-      // // const claimers = {
-      // //   rune: "claimers",
-      // //   count: 1,
-      // //   runePowers: { [MOVE]: 1, [CLAIM]: 1 },
-      // //   priority: 666,
-      // //   mission: "shard2",
-      // //   missionRoom: roomWithPortal
-      // // }
-
-      // // freya.pray(claimers)
-
-      const miners = {
-        rune: "miners",
-        count: 4,
-        runePowers: { [WORK]: 3, [CARRY]: 1, [MOVE]: 3 },
-        priority: 665,
-        mission: "shard2",
-        missionRoom: roomWithPortal
-      }
-
-      freya.pray(miners)
-
-      const haulers = {
-        rune: "haulers",
-        count: 4,
-        runePowers: { [CARRY]: 7, [MOVE]: 7 },
-        priority: 665,
-        mission: "shard2",
-        missionRoom: roomWithPortal
-      }
-
-      freya.pray(haulers)
-
-      const builders = {
-        rune: "builders",
-        count: 2,
-        runePowers: { [WORK]: 3, [CARRY]: 5, [MOVE]: 3 },
-        priority: 660,
-        mission: "shard2",
-        missionRoom: roomWithPortal
-      }
-
-      freya.pray(builders)
-
-      shard2CreepsRequested = true
-    }
-
-    // // // // freya.print()
-
-    // // // // Send everyone to portal
-    // // // // const portalRoom = Game.rooms[roomWithPortal]
-    // // // // if (portalRoom) {
-    // // // //   const creeps = portalRoom.find(FIND_MY_CREEPS, { filter: creep => creep.memory.mission === "shard2" })
-    // // // //   creeps.forEach(creep => {
-    // // // //     if (!creep.task) {
-    // // // //       creep.task = Tasks.goTo(new RoomPosition(33, 36, roomWithPortal))
-    // // // //     }
-    // // // //   })
-    // // // // }
-    // // // Run creeps
-    // // for (const creepName in Game.creeps) {
-    // //   if (Game.creeps.hasOwnProperty(creepName)) {
-    // //     const creep = Game.creeps[creepName]
-    // //     if (creep.memory.mission.indexOf("shard2") !== -1) {
-    // //       // Send everyone to portal
-    // //       if (!creep.task) {
-    // //         creep.task = Tasks.goTo(new RoomPosition(33, 36, roomWithPortal), { moveOptions: { range: 0 } })
-    // //       }
-
-    // //       creep.run()
-    // //     }
-    // //   }
-    // // }
     // Move pixel creep
     if (pixelCreepName) {
       const pixelCreep = Game.creeps[pixelCreepName]
       if (pixelCreep) {
         if (!pixelCreep.task) {
-          pixelCreep.task = Tasks.goTo(new RoomPosition(33, 36, roomWithPortal), { moveOptions: { range: 0 } })
+          pixelCreep.task = Tasks.goTo(new RoomPosition(33, 36, "E20S40"), { moveOptions: { range: 0 } })
         }
 
         pixelCreep.run()
       }
     }
   }
-
-  // // if (Game.shard.name === "shard2") {
-  // //   // // log.info('SHARD 2 Migration "module"')
-  // //   if (!Memory.rooms[roomToClaim]) {
-  // //     Memory.rooms[roomToClaim] = { claim: true } as any
-  // //   }
-  // //   // Loop all creeps and make them move away from the portal if in range
-  // //   for (const roomName in Game.rooms) {
-  // //     if (Game.rooms.hasOwnProperty(roomName)) {
-  // //       const room = Game.rooms[roomName]
-  // //       const portals = room.find(FIND_STRUCTURES, {
-  // //         filter: structure => structure.structureType === STRUCTURE_PORTAL
-  // //       })
-  // //       // // log.info(`${portals.length} portals found`)
-  // //       portals.forEach(portal => {
-  // //         const creeps = portal.pos.findInRange(FIND_MY_CREEPS, 30)
-  // //         // // log.info(`${creeps.length} creeps found near portals`)
-  // //         creeps.forEach(creep => {
-  // //           if (!creep.task) {
-  // //             log.info(`${creep.name} getting task for ${roomToClaim}`)
-  // //             creep.task = Tasks.goToRoom(roomToClaim, { moveOptions: { range: 20 } })
-  // //             creep.memory.home = roomToClaim
-
-  // //             // Amnesia quuick fix
-  // //             if (creep.name.indexOf("builders") !== -1) {
-  // //               creep.memory.rune = "builders"
-  // //             }
-
-  // //             if (creep.name.indexOf("haulers") !== -1) {
-  // //               creep.memory.rune = "haulers"
-  // //             }
-
-  // //             if (creep.name.indexOf("miners") !== -1) {
-  // //               creep.memory.rune = "miners"
-  // //             }
-  // //           }
-  // //         })
-  // //       })
-  // //     }
-  // //   }
-
-  // //   for (const creepName in Game.creeps) {
-  // //     if (Game.creeps.hasOwnProperty(creepName)) {
-  // //       const creep = Game.creeps[creepName]
-  // //       if (creep.task?.targetPos.roomName === roomToClaim) {
-  // //         creep.run()
-  // //       }
-  // //     }
-  // //   }
-  // // }
 
   // Run "Counsil"
   const missions = counsil.run()

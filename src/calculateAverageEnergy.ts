@@ -13,9 +13,15 @@ export function calculateAverageEnergy(room: Room): void {
   // Const linkEnergy = _.sum(links, l => l.energy)
   const energy = storageEnergy + energyAvail + containerEnergy
   if (!room.memory.averageEnergy) {
-    room.memory.averageEnergy = { points: 1, average: energy, spawn: energyAvail }
+    room.memory.averageEnergy = { points: 1, average: energy, spawn: energyAvail, storage: storageEnergy }
   }
+
   room.memory.averageEnergy.points += 1
+
+  if (room.memory.averageEnergy.points > 1000) {
+    room.memory.averageEnergy.points = 0
+  }
+
   room.memory.averageEnergy.average = calculateCumulativeMovingAverage(
     room.memory.averageEnergy.average,
     room.memory.averageEnergy.points,

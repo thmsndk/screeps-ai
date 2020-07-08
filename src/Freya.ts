@@ -110,7 +110,14 @@ export class Freya {
   }
 
   public print(): void {
-    // TODO: group by preferred village
+    const globalRequests = this.requests.global
+    if (globalRequests && globalRequests.length > 0) {
+      log.info(`=================================== GLOBAL`)
+      log.info(`${global} ${globalRequests.length}`)
+      const prayers = globalRequests.peek(globalRequests.length)
+      prayers.forEach(prayer => log.info(`${prayer.missionRoom} ${prayer.name} ${JSON.stringify(prayer.runePowers)}`))
+    }
+
     log.info(JSON.stringify(this.preferedVillage))
     const villages = _.groupBy(this.preferedVillage)
     for (const village in villages) {
